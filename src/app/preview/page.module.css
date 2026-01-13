@@ -59,14 +59,14 @@
 }
 
 .seasonInfo {
-    text-align: left;
+    text-align: center;
 }
 
 .seasonLabel {
     display: block;
-    font-size: 0.8125rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 4px;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 6px;
 }
 
 .seasonName {

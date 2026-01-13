@@ -8,12 +8,12 @@ import Logo from '@/components/Logo';
 import Button from '@/components/Button';
 
 const ANALYSIS_STEPS = [
-    { text: 'Detectando características faciais...', duration: 2000 },
-    { text: 'Analisando tom de pele...', duration: 2500 },
-    { text: 'Identificando subtom...', duration: 2000 },
-    { text: 'Mapeando paleta de cores...', duration: 2500 },
-    { text: 'Gerando recomendações personalizadas...', duration: 1500 },
-    { text: 'Finalizando seu relatório...', duration: 1000 },
+    { text: 'Detectando características faciais...', duration: 3000 },
+    { text: 'Analisando tom de pele...', duration: 3500 },
+    { text: 'Identificando subtom...', duration: 3000 },
+    { text: 'Mapeando paleta de cores...', duration: 3500 },
+    { text: 'Gerando recomendações personalizadas...', duration: 2500 },
+    { text: 'Finalizando seu relatório...', duration: 1500 },
 ];
 
 export default function UploadPage() {

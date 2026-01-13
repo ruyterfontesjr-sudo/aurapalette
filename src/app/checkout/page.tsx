@@ -196,7 +196,10 @@ export default function CheckoutPage() {
 
                             <button
                                 className={styles.backButtonQr}
-                                onClick={() => setPixData(null)}
+                                onClick={() => {
+                                    setPixData(null);
+                                    window.scrollTo({ top: 0, behavior: 'instant' });
+                                }}
                             >
                                 ← Voltar
                             </button>

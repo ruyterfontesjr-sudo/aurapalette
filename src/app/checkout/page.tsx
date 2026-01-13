@@ -30,8 +30,28 @@ export default function CheckoutPage() {
     const [error, setError] = useState('');
     const [pixData, setPixData] = useState<PixData | null>(null);
     const [checkingStatus, setCheckingStatus] = useState(false);
+    const [isReady, setIsReady] = useState(false);
 
+    // Checkpoint verification - must have completed preview
     useEffect(() => {
+        const analysisData = localStorage.getItem('aurapalette_analysis');
+        if (!analysisData) {
+            const quizData = localStorage.getItem('aurapalette_quiz');
+            if (!quizData) {
+                router.push('/quiz');
+            } else {
+                router.push('/upload');
+            }
+            return;
+        }
+
+        // Set checkpoint
+        localStorage.setItem('aurapalette_checkpoint', JSON.stringify({
+            currentStage: 'checkout',
+            completedStages: ['signup', 'quiz', 'upload', 'preview', 'checkout'],
+            lastUpdated: new Date().toISOString(),
+        }));
+
         // Load user data from localStorage first
         const storedUser = localStorage.getItem('aurapalette_user');
         if (storedUser) {
@@ -53,7 +73,9 @@ export default function CheckoutPage() {
                 name: user.user_metadata?.name || prev.name,
             }));
         }
-    }, [user]);
+
+        setIsReady(true);
+    }, [user, router]);
 
     // Format CPF as user types
     const formatCPF = (value: string) => {
@@ -131,6 +153,37 @@ export default function CheckoutPage() {
             setLoading(false);
         }
     };
+
+    // Polling automático para verificar status do pagamento PIX
+    useEffect(() => {
+        if (!pixData?.pixId) return;
+
+        const checkPaymentStatus = async () => {
+            try {
+                const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}`);
+                const data = await res.json();
+                
+                if (data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'paid') {
+                    // Pagamento confirmado! Redirecionar imediatamente
+                    document.body.style.overflow = '';
+                    router.push('/result?pix=success');
+                }
+            } catch (error) {
+                console.error('Error checking PIX status:', error);
+            }
+        };
+
+        // Verificar imediatamente
+        checkPaymentStatus();
+
+        // Depois verificar a cada 3 segundos
+        const intervalId = setInterval(checkPaymentStatus, 3000);
+
+        // Cleanup ao desmontar ou quando pixData mudar
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, [pixData?.pixId, router]);
 
     return (
         <main className={`${styles.page} ${pixData ? styles.pageQr : ''}`}>

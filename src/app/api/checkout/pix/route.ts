@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSupabase } from '@/lib/supabase-server';
 
 const ABACATEPAY_API_KEY = process.env.ABACATEPAY_API_KEY || '';
 const ABACATEPAY_API_URL = 'https://api.abacatepay.com/v1';
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
 
         // Format CPF: 123.456.789-01
         const cpfFormatted = `${body.cpf.slice(0, 3)}.${body.cpf.slice(3, 6)}.${body.cpf.slice(6, 9)}-${body.cpf.slice(9, 11)}`;
+        const externalId = `aurapalette_${Date.now()}`;
 
         // Create PIX QR Code via AbacatePay
         const response = await fetch(`${ABACATEPAY_API_URL}/pixQrCode/create`, {
@@ -50,7 +52,7 @@ export async function POST(request: NextRequest) {
                     taxId: cpfFormatted,
                 },
                 metadata: {
-                    externalId: `aurapalette_${Date.now()}`,
+                    externalId: externalId,
                     product: 'aurapalette_report',
                 },
             }),
@@ -74,6 +76,28 @@ export async function POST(request: NextRequest) {
                 { error: 'Erro ao gerar QR Code PIX' },
                 { status: 500 }
             );
+        }
+
+        // Salvar checkout no Supabase
+        try {
+            const supabase = getServerSupabase();
+            await supabase.from('checkouts').insert({
+                pix_id: data.data.id,
+                external_id: externalId,
+                user_email: body.email,
+                user_name: body.name,
+                user_cpf: cpfFormatted,
+                amount: 4700,
+                status: 'pending',
+                metadata: {
+                    cellphone: body.cellphone,
+                    product: 'aurapalette_report',
+                },
+            });
+            console.log('Checkout saved to Supabase:', data.data.id);
+        } catch (supabaseError) {
+            console.error('Error saving to Supabase:', supabaseError);
+            // Não bloquear o fluxo se o Supabase falhar
         }
 
         return NextResponse.json({

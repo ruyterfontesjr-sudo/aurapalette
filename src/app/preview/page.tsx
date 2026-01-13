@@ -21,13 +21,32 @@ export default function PreviewPage() {
     const [loading, setLoading] = useState(false);
     const [timeLeft, setTimeLeft] = useState(config.urgencyTimer.durationMinutes * 60);
     const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+    const [isReady, setIsReady] = useState(false);
 
+    // Checkpoint verification - must have completed analysis
     useEffect(() => {
         const storedAnalysis = localStorage.getItem('aurapalette_analysis');
-        if (storedAnalysis) {
-            setAnalysis(JSON.parse(storedAnalysis));
+        if (!storedAnalysis) {
+            // Check if quiz was done, redirect accordingly
+            const quizData = localStorage.getItem('aurapalette_quiz');
+            if (!quizData) {
+                router.push('/quiz');
+            } else {
+                router.push('/upload');
+            }
+            return;
         }
-    }, []);
+        setAnalysis(JSON.parse(storedAnalysis));
+
+        // Set checkpoint
+        localStorage.setItem('aurapalette_checkpoint', JSON.stringify({
+            currentStage: 'preview',
+            completedStages: ['signup', 'quiz', 'upload', 'preview'],
+            lastUpdated: new Date().toISOString(),
+        }));
+
+        setIsReady(true);
+    }, [router]);
 
     useEffect(() => {
         if (!config.urgencyTimer.enabled) return;

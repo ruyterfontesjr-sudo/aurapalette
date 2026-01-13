@@ -24,6 +24,17 @@ export default function UploadPage() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
     const [progress, setProgress] = useState(0);
+    const [isReady, setIsReady] = useState(false);
+
+    // Checkpoint verification - must have completed quiz
+    useEffect(() => {
+        const quizData = localStorage.getItem('aurapalette_quiz');
+        if (!quizData) {
+            router.push('/quiz');
+            return;
+        }
+        setIsReady(true);
+    }, [router]);
 
     // Analysis loading effect with psychological timing
     useEffect(() => {

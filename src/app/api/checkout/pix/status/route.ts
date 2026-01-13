@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSupabase } from '@/lib/supabase-server';
 
 const ABACATEPAY_API_KEY = process.env.ABACATEPAY_API_KEY || '';
 const ABACATEPAY_API_URL = 'https://api.abacatepay.com/v1';
@@ -13,6 +14,25 @@ export async function GET(request: NextRequest) {
                 { error: 'PIX ID required' },
                 { status: 400 }
             );
+        }
+
+        // Primeiro, verificar no Supabase (mais rápido pois o webhook já pode ter atualizado)
+        try {
+            const supabase = getServerSupabase();
+            const { data: checkoutData } = await supabase
+                .from('checkouts')
+                .select('status')
+                .eq('pix_id', pixId)
+                .single();
+
+            if (checkoutData?.status === 'paid') {
+                return NextResponse.json({
+                    status: 'paid',
+                    pixId: pixId,
+                });
+            }
+        } catch {
+            // Se falhar, continua para verificar na AbacatePay
         }
 
         if (!ABACATEPAY_API_KEY) {

@@ -209,10 +209,7 @@ export default function Home() {
                         <div className={styles.phoneScreen}>
                             {/* Report Header */}
                             <div className={styles.reportHeader}>
-                                <div className={styles.reportLogoWrapper}>
-                                    <span className={styles.logoAura}>Aura</span>
-                                    <span className={styles.logoPalette}>Palette</span>
-                                </div>
+                                <Logo size="small" />
                             </div>
 
                             {/* Title */}

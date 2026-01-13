@@ -167,13 +167,13 @@ export default function UploadPage() {
 
                             {/* Progress bar */}
                             <div className={styles.progressContainer}>
+                                <span className={styles.progressPercent}>{Math.round(progress)}%</span>
                                 <div className={styles.progressTrack}>
                                     <div
                                         className={styles.progressFill}
                                         style={{ width: `${progress}%` }}
                                     />
                                 </div>
-                                <span className={styles.progressPercent}>{Math.round(progress)}%</span>
                             </div>
 
                             {/* Current step text */}

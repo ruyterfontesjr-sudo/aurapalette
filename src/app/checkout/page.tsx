@@ -6,6 +6,7 @@ import styles from './page.module.css';
 import Card from '@/components/Card';
 import Logo from '@/components/Logo';
 import Button from '@/components/Button';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserData {
     name: string;
@@ -22,6 +23,7 @@ interface PixData {
 
 export default function CheckoutPage() {
     const router = useRouter();
+    const { user } = useAuth();
     const [userData, setUserData] = useState<UserData>({ name: '', email: '', whatsapp: '', cpf: '' });
     const [paymentMethod, setPaymentMethod] = useState<'card' | 'pix'>('pix');
     const [loading, setLoading] = useState(false);
@@ -30,18 +32,28 @@ export default function CheckoutPage() {
     const [checkingStatus, setCheckingStatus] = useState(false);
 
     useEffect(() => {
-        // Load user data from localStorage
+        // Load user data from localStorage first
         const storedUser = localStorage.getItem('aurapalette_user');
         if (storedUser) {
             const parsed = JSON.parse(storedUser);
-            setUserData({
-                name: parsed.name || '',
-                email: parsed.email || '',
-                whatsapp: parsed.whatsapp || '',
-                cpf: parsed.cpf || '',
-            });
+            setUserData(prev => ({
+                ...prev,
+                name: parsed.name || prev.name,
+                email: parsed.email || prev.email,
+                whatsapp: parsed.whatsapp || prev.whatsapp,
+                cpf: parsed.cpf || prev.cpf,
+            }));
         }
-    }, []);
+
+        // Also get email from authenticated user if available
+        if (user?.email) {
+            setUserData(prev => ({
+                ...prev,
+                email: user.email || prev.email,
+                name: user.user_metadata?.name || prev.name,
+            }));
+        }
+    }, [user]);
 
     // Format CPF as user types
     const formatCPF = (value: string) => {

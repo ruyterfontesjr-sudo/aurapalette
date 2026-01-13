@@ -118,6 +118,12 @@ export default function QuizPage() {
                 setCurrentQuestion(prev => prev + 1);
             } else {
                 localStorage.setItem('aurapalette_quiz', JSON.stringify(newAnswers));
+                localStorage.setItem('aurapalette_quiz_answers', JSON.stringify(newAnswers));
+                localStorage.setItem('aurapalette_checkpoint', JSON.stringify({
+                    currentStage: 'quiz',
+                    completedStages: ['signup', 'quiz'],
+                    lastUpdated: new Date().toISOString(),
+                }));
                 router.push('/upload');
             }
         }, 300);
@@ -134,6 +140,12 @@ export default function QuizPage() {
             setCurrentQuestion(prev => prev + 1);
         } else if (selectedOption) {
             localStorage.setItem('aurapalette_quiz', JSON.stringify(answers));
+            localStorage.setItem('aurapalette_quiz_answers', JSON.stringify(answers));
+            localStorage.setItem('aurapalette_checkpoint', JSON.stringify({
+                currentStage: 'quiz',
+                completedStages: ['signup', 'quiz'],
+                lastUpdated: new Date().toISOString(),
+            }));
             router.push('/upload');
         }
     };

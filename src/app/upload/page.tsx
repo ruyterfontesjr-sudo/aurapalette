@@ -147,9 +147,22 @@ export default function UploadPage() {
 
                     <Card className={styles.card}>
                         <div className={styles.loadingState}>
-                            {/* Modern minimal loader */}
-                            <div className={styles.loaderContainer}>
-                                <div className={styles.spinnerMinimal}></div>
+                            {/* Photo with scanner effect */}
+                            <div className={styles.scannerContainer}>
+                                <div className={styles.scannerFrame}>
+                                    <img
+                                        src={image || ''}
+                                        alt="Sua foto"
+                                        className={styles.scannerPhoto}
+                                    />
+                                    <div className={styles.scanLine} />
+                                    <div className={styles.scanGlow} />
+                                    {/* Corner markers */}
+                                    <div className={`${styles.cornerMarker} ${styles.cornerTopLeft}`} />
+                                    <div className={`${styles.cornerMarker} ${styles.cornerTopRight}`} />
+                                    <div className={`${styles.cornerMarker} ${styles.cornerBottomLeft}`} />
+                                    <div className={`${styles.cornerMarker} ${styles.cornerBottomRight}`} />
+                                </div>
                             </div>
 
                             {/* Progress bar */}

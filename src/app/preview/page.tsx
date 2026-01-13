@@ -201,7 +201,11 @@ export default function PreviewPage() {
                                 &quot;Eu nunca soube que outono era minha estação! Agora entendo porque certas cores me deixavam apagada. O relatório mudou completamente minhas compras.&quot;
                             </p>
                             <div className={styles.testimonialAuthor}>
-                                <div className={styles.testimonialAvatar}>👩🏻</div>
+                                <img
+                                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
+                                    alt="Carolina M."
+                                    className={styles.testimonialAvatarImg}
+                                />
                                 <div>
                                     <span className={styles.testimonialName}>Carolina M.</span>
                                     <span className={styles.testimonialLocation}>São Paulo, SP</span>
@@ -215,7 +219,11 @@ export default function PreviewPage() {
                                 &quot;Super prático! A análise foi rápida e o guia de maquiagem é incrível. Finalmente sei qual batom combina comigo.&quot;
                             </p>
                             <div className={styles.testimonialAuthor}>
-                                <div className={styles.testimonialAvatar}>👩🏽</div>
+                                <img
+                                    src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&h=80&fit=crop&crop=face"
+                                    alt="Amanda R."
+                                    className={styles.testimonialAvatarImg}
+                                />
                                 <div>
                                     <span className={styles.testimonialName}>Amanda R.</span>
                                     <span className={styles.testimonialLocation}>Rio de Janeiro, RJ</span>
@@ -229,7 +237,11 @@ export default function PreviewPage() {
                                 &quot;Vale cada centavo! Mostrei pra minha mãe e ela também vai fazer. O PDF ficou lindo e super completo.&quot;
                             </p>
                             <div className={styles.testimonialAuthor}>
-                                <div className={styles.testimonialAvatar}>👩🏾</div>
+                                <img
+                                    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop&crop=face"
+                                    alt="Beatriz S."
+                                    className={styles.testimonialAvatarImg}
+                                />
                                 <div>
                                     <span className={styles.testimonialName}>Beatriz S.</span>
                                     <span className={styles.testimonialLocation}>Belo Horizonte, MG</span>
@@ -243,7 +255,11 @@ export default function PreviewPage() {
                                 &quot;Adorei a parte de acessórios! Descobri que prata combina muito mais comigo do que ouro. Recomendo!&quot;
                             </p>
                             <div className={styles.testimonialAuthor}>
-                                <div className={styles.testimonialAvatar}>👩🏼</div>
+                                <img
+                                    src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80&h=80&fit=crop&crop=face"
+                                    alt="Juliana T."
+                                    className={styles.testimonialAvatarImg}
+                                />
                                 <div>
                                     <span className={styles.testimonialName}>Juliana T.</span>
                                     <span className={styles.testimonialLocation}>Curitiba, PR</span>

@@ -263,15 +263,16 @@
 
 /* FAQ */
 .faqSection {
+    margin-top: 60px;
     margin-bottom: var(--space-xl);
 }
 
 .faqTitle {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1.5rem;
+    font-weight: 700;
     text-align: center;
-    margin-bottom: var(--space-md);
-    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 24px;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .faqList {
@@ -333,15 +334,16 @@
 
 /* Testimonials Section */
 .testimonials {
-    margin: var(--space-xl) 0;
+    margin-top: 60px;
+    margin-bottom: var(--space-xl);
 }
 
 .testimonialsTitle {
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: 1.5rem;
+    font-weight: 700;
     text-align: center;
-    margin-bottom: var(--space-lg);
-    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 24px;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .testimonialsList {
@@ -379,14 +381,23 @@
 }
 
 .testimonialAvatar {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     background: rgba(168, 85, 247, 0.15);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.testimonialAvatarImg {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
 }
 
 .testimonialName {

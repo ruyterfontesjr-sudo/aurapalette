@@ -207,10 +207,186 @@
 /* ===== PROFESSIONAL LOADING STATE ===== */
 .loadingState {
     text-align: center;
-    padding: var(--space-xl) 0;
+    padding: var(--space-lg) 0;
 }
 
-/* Modern circular loader */
+/* ===== PHOTO SCANNER EFFECT ===== */
+.scannerContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.scannerFrame {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow:
+        0 0 0 2px rgba(168, 85, 247, 0.3),
+        0 0 40px rgba(168, 85, 247, 0.2),
+        0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.scannerPhoto {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Scanning line animation */
+.scanLine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(168, 85, 247, 0.3) 20%,
+            rgba(168, 85, 247, 1) 50%,
+            rgba(236, 72, 153, 1) 50%,
+            rgba(236, 72, 153, 0.3) 80%,
+            transparent 100%);
+    box-shadow:
+        0 0 15px rgba(168, 85, 247, 0.8),
+        0 0 30px rgba(168, 85, 247, 0.5);
+    animation: scanMove 2s ease-in-out infinite;
+    z-index: 10;
+}
+
+.scanGlow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(180deg,
+            rgba(168, 85, 247, 0.25) 0%,
+            transparent 100%);
+    animation: scanMove 2s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+}
+
+@keyframes scanMove {
+    0% {
+        top: 0%;
+    }
+
+    50% {
+        top: calc(100% - 3px);
+    }
+
+    100% {
+        top: 0%;
+    }
+}
+
+/* Corner markers for hi-tech look */
+.cornerMarker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    z-index: 15;
+}
+
+.cornerMarker::before,
+.cornerMarker::after {
+    content: '';
+    position: absolute;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+}
+
+.cornerTopLeft {
+    top: 8px;
+    left: 8px;
+}
+
+.cornerTopLeft::before {
+    width: 20px;
+    height: 3px;
+    top: 0;
+    left: 0;
+    border-radius: 2px;
+}
+
+.cornerTopLeft::after {
+    width: 3px;
+    height: 20px;
+    top: 0;
+    left: 0;
+    border-radius: 2px;
+}
+
+.cornerTopRight {
+    top: 8px;
+    right: 8px;
+}
+
+.cornerTopRight::before {
+    width: 20px;
+    height: 3px;
+    top: 0;
+    right: 0;
+    border-radius: 2px;
+}
+
+.cornerTopRight::after {
+    width: 3px;
+    height: 20px;
+    top: 0;
+    right: 0;
+    border-radius: 2px;
+}
+
+.cornerBottomLeft {
+    bottom: 8px;
+    left: 8px;
+}
+
+.cornerBottomLeft::before {
+    width: 20px;
+    height: 3px;
+    bottom: 0;
+    left: 0;
+    border-radius: 2px;
+}
+
+.cornerBottomLeft::after {
+    width: 3px;
+    height: 20px;
+    bottom: 0;
+    left: 0;
+    border-radius: 2px;
+}
+
+.cornerBottomRight {
+    bottom: 8px;
+    right: 8px;
+}
+
+.cornerBottomRight::before {
+    width: 20px;
+    height: 3px;
+    bottom: 0;
+    right: 0;
+    border-radius: 2px;
+}
+
+.cornerBottomRight::after {
+    width: 3px;
+    height: 20px;
+    bottom: 0;
+    right: 0;
+    border-radius: 2px;
+}
+
+/* Keep old styles for backward compatibility */
 .loaderContainer {
     display: flex;
     align-items: center;
@@ -417,6 +593,35 @@
         padding: var(--space-xl) var(--space-lg);
     }
 
+    .scannerFrame {
+        width: 160px;
+        height: 160px;
+        border-radius: 14px;
+    }
+
+    .scannerContainer {
+        margin-bottom: 24px;
+    }
+
+    .cornerMarker {
+        width: 16px;
+        height: 16px;
+    }
+
+    .cornerTopLeft::before,
+    .cornerTopRight::before,
+    .cornerBottomLeft::before,
+    .cornerBottomRight::before {
+        width: 16px;
+    }
+
+    .cornerTopLeft::after,
+    .cornerTopRight::after,
+    .cornerBottomLeft::after,
+    .cornerBottomRight::after {
+        height: 16px;
+    }
+
     .loaderContainer {
         width: 100px;
         height: 100px;
@@ -433,5 +638,25 @@
 
     .previewImage {
         max-height: 180px;
+    }
+
+    .loadingText {
+        font-size: 0.9375rem;
+    }
+
+    .loadingSubtext {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .scannerFrame {
+        width: 140px;
+        height: 140px;
+        border-radius: 12px;
+    }
+
+    .scannerContainer {
+        margin-bottom: 20px;
     }
 }

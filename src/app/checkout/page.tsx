@@ -133,15 +133,17 @@ export default function CheckoutPage() {
     };
 
     return (
-        <main className={styles.page}>
+        <main className={`${styles.page} ${pixData ? styles.pageQr : ''}`}>
             <div className={styles.bgGradient} />
             <div className={styles.orbPrimary} />
             <div className={styles.orbSecondary} />
 
             <div className={styles.container}>
-                <div className={styles.logoContainer}>
-                    <Logo />
-                </div>
+                {!pixData && (
+                    <div className={styles.logoContainer}>
+                        <Logo />
+                    </div>
+                )}
 
                 <Card className={styles.card}>
                     {pixData ? (

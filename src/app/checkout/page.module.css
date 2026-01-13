@@ -9,6 +9,13 @@
     position: relative;
 }
 
+.pageQr {
+    height: 100vh;
+    height: 100dvh;
+    min-height: auto;
+    overflow: hidden;
+}
+
 .bgGradient {
     position: fixed;
     inset: 0;

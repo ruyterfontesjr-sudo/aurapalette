@@ -346,10 +346,10 @@
 
 /* Section Title */
 .sectionTitle {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 2rem;
+    font-weight: 700;
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 48px;
 }
 
 /* How It Works - Redesigned */
@@ -432,7 +432,7 @@
 
 /* Testimonials - Infinite Carousel */
 .testimonials {
-    padding: 80px 0;
+    padding: 100px 0 80px;
     position: relative;
     z-index: 1;
     overflow: hidden;
@@ -547,7 +547,7 @@
 
 /* FAQ Section */
 .faqSection {
-    padding: 60px 24px 40px;
+    padding: 100px 24px 40px;
     position: relative;
     z-index: 1;
 }

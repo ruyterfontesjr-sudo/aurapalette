@@ -183,7 +183,7 @@ export default function Home() {
                         </div>
                         <div className={styles.stepContent}>
                             <span className={styles.stepNum}>4</span>
-                            <h3>Receba seu guia</h3>
+                            <h3>Receba seu relatório</h3>
                             <p>Paleta + dicas completas</p>
                         </div>
                     </div>

@@ -59,6 +59,8 @@ export const metadata: Metadata = {
         "content-language": "pt-BR",
         "rating": "general",
         "distribution": "global",
+        "theme-color": "#1a0a2e",
+        "apple-mobile-web-app-status-bar-style": "black-translucent",
     },
 };
 

@@ -6,7 +6,6 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
-import Logo from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function SignupPage() {
@@ -93,10 +92,6 @@ export default function SignupPage() {
                 <Link href="/" className={styles.backButton}>
                     ← Voltar
                 </Link>
-
-                <div className={styles.logoContainer}>
-                    <Logo size="large" />
-                </div>
 
                 <Card className={styles.card}>
                     <h1 className={styles.title}>Crie sua conta ✨</h1>

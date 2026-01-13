@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 import Card from '@/components/Card';
-import Logo from '@/components/Logo';
 import Button from '@/components/Button';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -66,11 +65,6 @@ export default function LoginPage() {
             <div className={styles.bgGradient} />
 
             <div className={styles.container}>
-                <div className={styles.header}>
-                    <Link href="/">
-                        <Logo />
-                    </Link>
-                </div>
 
                 <Card className={styles.card}>
                     <h1 className={styles.title}>Bem-vinda de volta! 👋</h1>

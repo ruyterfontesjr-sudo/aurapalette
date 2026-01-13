@@ -828,8 +828,13 @@
 .reportHeader {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin-bottom: 4px;
+}
+
+.reportHeader>div {
+    transform: scale(0.6);
+    transform-origin: center;
 }
 
 .reportLogo {

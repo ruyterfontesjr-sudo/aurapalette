@@ -169,6 +169,10 @@ export default function CheckoutPage() {
                                 </div>
                             </div>
 
+                            <p className={styles.securityQr}>
+                                Você será redirecionado automaticamente após a confirmação
+                            </p>
+
                             <Button
                                 className={styles.submitButton}
                                 disabled={checkingStatus}
@@ -190,15 +194,11 @@ export default function CheckoutPage() {
                                 {checkingStatus ? 'Verificando...' : 'Verificar pagamento'}
                             </Button>
 
-                            <p className={styles.security}>
-                                Você será redirecionado automaticamente após a confirmação
-                            </p>
-
                             <button
-                                className={styles.backButton}
+                                className={styles.changePaymentButton}
                                 onClick={() => setPixData(null)}
                             >
-                                ← Voltar e trocar método de pagamento
+                                Trocar método de pagamento
                             </button>
                         </>
                     ) : (

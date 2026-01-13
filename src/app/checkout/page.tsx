@@ -350,7 +350,15 @@ export default function CheckoutPage() {
                             </form>
 
                             <div className={styles.guarantee}>
-                                <span className={styles.guaranteeIcon}>✅</span>
+                                <svg className={styles.guaranteeIcon} width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2L4 5V11.09C4 16.14 7.41 20.85 12 22C16.59 20.85 20 16.14 20 11.09V5L12 2ZM10.94 15.54L7.4 12L8.81 10.59L10.94 12.72L15.17 8.49L16.58 9.9L10.94 15.54Z" fill="url(#shieldGradient)" />
+                                    <defs>
+                                        <linearGradient id="shieldGradient" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+                                            <stop stopColor="#10B981" />
+                                            <stop offset="1" stopColor="#059669" />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
                                 <div>
                                     <strong>Garantia de 7 dias</strong>
                                     <p>Se não gostar, devolvemos seu dinheiro sem perguntas.</p>

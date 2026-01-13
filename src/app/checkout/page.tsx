@@ -103,8 +103,9 @@ export default function CheckoutPage() {
                         pixId: data.pixId,
                     });
                     setLoading(false);
-                    // Scroll to top when QR code appears
+                    // Scroll to top and disable scroll when QR code appears
                     window.scrollTo({ top: 0, behavior: 'instant' });
+                    document.body.style.overflow = 'hidden';
                 } else if (data.error) {
                     setError(data.error);
                     setLoading(false);
@@ -198,6 +199,7 @@ export default function CheckoutPage() {
                                 className={styles.backButtonQr}
                                 onClick={() => {
                                     setPixData(null);
+                                    document.body.style.overflow = '';
                                     window.scrollTo({ top: 0, behavior: 'instant' });
                                 }}
                             >

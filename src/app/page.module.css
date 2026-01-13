@@ -835,10 +835,20 @@
 .reportLogo {
     font-size: 0.8125rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.reportLogo .logoAura {
     background: linear-gradient(90deg, #A855F7, #EC4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+.reportLogo .logoPalette {
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .reportBadge {

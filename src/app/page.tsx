@@ -209,7 +209,10 @@ export default function Home() {
                         <div className={styles.phoneScreen}>
                             {/* Report Header */}
                             <div className={styles.reportHeader}>
-                                <span className={styles.reportLogo}>Aura Palette</span>
+                                <div className={styles.reportLogoWrapper}>
+                                    <span className={styles.logoAura}>Aura</span>
+                                    <span className={styles.logoPalette}>Palette</span>
+                                </div>
                             </div>
 
                             {/* Title */}
@@ -306,23 +309,27 @@ export default function Home() {
                                     </div>
                                     <div className={styles.guideRow}>
                                         <span className={styles.guideLabel}>Blush:</span>
-                                        <span>Pêssego, coral, terracota</span>
+                                        <span>Pêssego, coral, terracota, damasco</span>
                                     </div>
                                     <div className={styles.guideRow}>
-                                        <span className={styles.guideLabel}>Batom:</span>
-                                        <span>Nude quente, coral, tijolo, vinho</span>
+                                        <span className={styles.guideLabel}>Batom dia:</span>
+                                        <span>Nude pêssego, coral suave, rose terracota</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Batom noite:</span>
+                                        <span>Vermelho tijolo, vinho, terracota escuro</span>
                                     </div>
                                     <div className={styles.guideRow}>
                                         <span className={styles.guideLabel}>Sombras:</span>
-                                        <span>Marrom, bronze, dourado, verde oliva</span>
+                                        <span>Marrom, bronze, dourado, verde oliva, cobre</span>
                                     </div>
                                     <div className={styles.guideRow}>
                                         <span className={styles.guideLabel}>Delineador:</span>
-                                        <span>Marrom, bronze, preto esfumado</span>
+                                        <span>Marrom escuro, bronze, verde musgo</span>
                                     </div>
                                     <div className={styles.guideRow}>
                                         <span className={styles.guideLabel}>Bronzer:</span>
-                                        <span>Tom quente, aplicar em C</span>
+                                        <span>Tom quente, aplicar em formato C</span>
                                     </div>
                                 </div>
                             </div>
@@ -332,8 +339,8 @@ export default function Home() {
                                 <span className={styles.reportSectionTitle}>💇 Guia Completo de Cabelos</span>
                                 <div className={styles.reportGuideContent}>
                                     <div className={styles.guideRow}>
-                                        <span className={styles.guideLabel}>Cores:</span>
-                                        <span>Castanho dourado, caramelo, mel</span>
+                                        <span className={styles.guideLabel}>Cores base:</span>
+                                        <span>Castanho dourado, caramelo, mel, ruivo</span>
                                     </div>
                                     <div className={styles.guideRow}>
                                         <span className={styles.guideLabel}>Mechas:</span>
@@ -341,22 +348,22 @@ export default function Home() {
                                     </div>
                                     <div className={styles.guideRow}>
                                         <span className={styles.guideLabel}>Cortes:</span>
-                                        <span>Camadas, long bob, franjas</span>
+                                        <span>Camadas suaves, long bob, franja cortina</span>
                                     </div>
                                     <div className={styles.guideRow}>
                                         <span className={styles.guideLabel}>Styling:</span>
-                                        <span>Ondas naturais, volume na raiz</span>
+                                        <span>Ondas naturais, volume na raiz, beach waves</span>
                                     </div>
                                     <div className={styles.guideRow}>
                                         <span className={styles.guideLabel}>Evitar:</span>
-                                        <span>Platinado, preto azulado, cinza</span>
+                                        <span>Loiro platinado, preto azulado, cinza</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Accessories Guide */}
+                            {/* Accessories Guide - Expanded */}
                             <div className={styles.reportSection}>
-                                <span className={styles.reportSectionTitle}>💎 Guia de Acessórios</span>
+                                <span className={styles.reportSectionTitle}>💎 Guia Completo de Acessórios</span>
                                 <div className={styles.reportMetals}>
                                     <div className={styles.metalItem} style={{ background: 'linear-gradient(135deg, #D4AF37, #B8860B)' }}>
                                         <span>✓ Ouro</span>
@@ -365,7 +372,10 @@ export default function Home() {
                                         <span>✓ Bronze</span>
                                     </div>
                                     <div className={styles.metalItem} style={{ background: 'linear-gradient(135deg, #f5d0a9, #c4a77d)' }}>
-                                        <span>✓ Rosé</span>
+                                        <span>✓ Rosé Gold</span>
+                                    </div>
+                                    <div className={styles.metalItem} style={{ background: 'linear-gradient(135deg, #B87333, #8B4513)' }}>
+                                        <span>✓ Cobre</span>
                                     </div>
                                     <div className={styles.metalItem} style={{ background: 'linear-gradient(135deg, #C0C0C0, #808080)', opacity: 0.5 }}>
                                         <span>✗ Prata</span>
@@ -374,18 +384,64 @@ export default function Home() {
                                 <div className={styles.reportGuideContent}>
                                     <div className={styles.guideRow}>
                                         <span className={styles.guideLabel}>Colares:</span>
-                                        <span>Correntes douradas, pedras âmbar</span>
+                                        <span>Correntes douradas, pedras âmbar, citrino</span>
                                     </div>
                                     <div className={styles.guideRow}>
                                         <span className={styles.guideLabel}>Brincos:</span>
-                                        <span>Argolas ouro, pedras quentes</span>
+                                        <span>Argolas ouro, pedras quentes, topázio</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Pulseiras:</span>
+                                        <span>Braceletes em ouro, cobre, pedras naturais</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Anéis:</span>
+                                        <span>Ouro amarelo, rose gold, citrino, topázio</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Óculos:</span>
+                                        <span>Tartaruga, marrom, dourado, caramelo</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Bolsas:</span>
+                                        <span>Caramelo, marrom, terracota, couro natural</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Relógios:</span>
+                                        <span>Ouro, rose gold, pulseira couro marrom</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Fashion Guide */}
+                            {/* Fashion Guide - Expanded */}
                             <div className={styles.reportSection}>
-                                <span className={styles.reportSectionTitle}>👗 Guia de Moda</span>
+                                <span className={styles.reportSectionTitle}>👗 Guia Completo de Moda</span>
+                                <div className={styles.reportGuideContent}>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Essenciais:</span>
+                                        <span>Blazer caramelo, calça bege, vestido terracota</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Tecidos:</span>
+                                        <span>Linho, algodão, seda, cashmere, veludo</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Estampas:</span>
+                                        <span>Florais quentes, animal print, geométricos</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Casual:</span>
+                                        <span>Jeans + blusas terrosas + tênis branco</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Trabalho:</span>
+                                        <span>Alfaiataria bege/marrom + camisas neutras</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Noite:</span>
+                                        <span>Vestidos vinho/terracota + joias ouro</span>
+                                    </div>
+                                </div>
                                 <div className={styles.reportFashionTags}>
                                     <span className={styles.fashionTag}>Blazer caramelo</span>
                                     <span className={styles.fashionTag}>Vestido terracota</span>
@@ -394,22 +450,54 @@ export default function Home() {
                                     <span className={styles.fashionTag}>Saia midi</span>
                                     <span className={styles.fashionTag}>Cardigan mostarda</span>
                                 </div>
-                                <p className={styles.reportTip}>
-                                    Tecidos: algodão, linho, camurça, couro
-                                </p>
-                                <p className={styles.reportTip}>
-                                    Estampas: florais quentes, animal print
-                                </p>
                             </div>
 
-                            {/* Trends 2026 */}
+                            {/* Trends 2026 - Expanded */}
                             <div className={styles.reportSection}>
-                                <span className={styles.reportSectionTitle}>✨ Tendências 2026</span>
+                                <span className={styles.reportSectionTitle}>✨ Tendências 2026 para Você</span>
+                                <div className={styles.reportGuideContent}>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Cor do ano:</span>
+                                        <span>Terracota vibrante - perfeito para você!</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Estilo:</span>
+                                        <span>Quiet luxury com tons naturais</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Maquiagem:</span>
+                                        <span>Pele natural, blush bronzeado, lábios nude</span>
+                                    </div>
+                                </div>
                                 <div className={styles.reportFashionTags}>
                                     <span className={styles.fashionTag}>Terracota vibrante</span>
                                     <span className={styles.fashionTag}>Dourado suave</span>
                                     <span className={styles.fashionTag}>Verde oliva</span>
                                     <span className={styles.fashionTag}>Burgundy</span>
+                                    <span className={styles.fashionTag}>Caramelo</span>
+                                </div>
+                            </div>
+
+                            {/* Quick Tips */}
+                            <div className={styles.reportSection}>
+                                <span className={styles.reportSectionTitle}>💡 Dicas Rápidas</span>
+                                <div className={styles.reportGuideContent}>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Moda:</span>
+                                        <span>Invista em peças terrosas e quentes</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Make:</span>
+                                        <span>Bases com subtom amarelado</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Acessórios:</span>
+                                        <span>Joias douradas sempre!</span>
+                                    </div>
+                                    <div className={styles.guideRow}>
+                                        <span className={styles.guideLabel}>Cabelo:</span>
+                                        <span>Mechas caramelo e mel valorizam</span>
+                                    </div>
                                 </div>
                             </div>
 

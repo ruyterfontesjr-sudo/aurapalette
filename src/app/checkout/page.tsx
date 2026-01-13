@@ -204,7 +204,7 @@ export default function CheckoutPage() {
                     ) : (
                         /* Checkout Form */
                         <>
-                            <h1 className={styles.title}>Finalizar Compra ✨</h1>
+                            <h1 className={styles.title}>Finalizar Compra</h1>
                             <p className={styles.subtitle}>
                                 Confirme seus dados e escolha a forma de pagamento
                             </p>

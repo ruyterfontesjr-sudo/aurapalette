@@ -1,10 +1,11 @@
 .page {
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--space-lg);
+    padding: 24px 20px;
     position: relative;
     overflow: hidden;
 }
@@ -37,7 +38,7 @@
 
 .container {
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     z-index: 1;
     animation: fadeInUp 0.6s ease forwards;
 }
@@ -66,7 +67,7 @@
 }
 
 .card {
-    padding: 32px 28px;
+    padding: 36px 32px 32px;
 }
 
 .title {
@@ -167,6 +168,8 @@
     text-align: center;
     font-size: 0.9375rem;
     color: var(--color-gray);
+    margin-top: 24px;
+    margin-bottom: 20px;
 }
 
 .loginLink a {
@@ -194,19 +197,21 @@
 
 @media (max-width: 480px) {
     .page {
-        padding: var(--space-md);
+        padding: 16px;
+        justify-content: flex-start;
+        padding-top: 40px;
     }
 
     .backButton {
-        margin-bottom: var(--space-lg);
+        margin-bottom: 20px;
     }
 
     .logoContainer {
-        margin-bottom: var(--space-xl);
+        margin-bottom: 24px;
     }
 
     .card {
-        padding: var(--space-lg);
+        padding: 28px 24px 24px;
     }
 
     .title {
@@ -214,12 +219,12 @@
     }
 
     .subtitle {
-        font-size: 0.9375rem;
-        margin-bottom: var(--space-lg);
+        font-size: 0.875rem;
+        margin-bottom: 24px;
     }
 
     .form {
-        gap: var(--space-md);
+        gap: 18px;
     }
 
     .input {
@@ -229,18 +234,44 @@
     }
 
     .submitButton {
-        margin-top: var(--space-sm);
-    }
-
-    .terms {
-        font-size: 0.6875rem;
-    }
-
-    .divider {
-        margin: var(--space-md) 0;
+        margin-top: 8px;
     }
 
     .loginLink {
         font-size: 0.875rem;
+        margin-top: 20px;
+        margin-bottom: 16px;
+    }
+
+    .terms {
+        font-size: 0.6875rem;
+        line-height: 1.6;
+    }
+
+    .divider {
+        margin: 20px 0;
+    }
+}
+
+@media (max-width: 360px) {
+    .page {
+        padding: 12px;
+        padding-top: 32px;
+    }
+
+    .card {
+        padding: 24px 20px 20px;
+    }
+
+    .title {
+        font-size: 1.375rem;
+    }
+
+    .subtitle {
+        font-size: 0.8125rem;
+    }
+
+    .form {
+        gap: 16px;
     }
 }

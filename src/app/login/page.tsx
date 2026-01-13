@@ -25,7 +25,7 @@ export default function LoginPage() {
             if (hasReport) {
                 router.push('/result');
             } else {
-                router.push('/upload');
+                router.push('/quiz');
             }
         }
     }, [user, authLoading, router]);
@@ -53,7 +53,7 @@ export default function LoginPage() {
             if (hasReport) {
                 router.push('/result');
             } else {
-                router.push('/upload');
+                router.push('/quiz');
             }
         } catch {
             setError('Erro ao fazer login. Tente novamente.');

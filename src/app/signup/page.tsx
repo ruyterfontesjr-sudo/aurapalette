@@ -24,7 +24,7 @@ export default function SignupPage() {
     // Redirect if already logged in
     useEffect(() => {
         if (user) {
-            router.push('/upload');
+            router.push('/quiz');
         }
     }, [user, router]);
 
@@ -60,8 +60,8 @@ export default function SignupPage() {
             }));
             localStorage.setItem('aurapalette_email', formData.email);
 
-            // Navigate to upload
-            router.push('/upload');
+            // Navigate to quiz
+            router.push('/quiz');
         } catch {
             setError('Erro ao criar conta. Tente novamente.');
             setLoading(false);

@@ -241,7 +241,7 @@ export default function CheckoutPage() {
                             <form onSubmit={handleSubmit} className={styles.form}>
                                 {/* User Data */}
                                 <div className={styles.inputGroup}>
-                                    <label className={styles.label}>Seu nome</label>
+                                    <label className={styles.label}>Seu nome <span className={styles.required}>*</span></label>
                                     <input
                                         type="text"
                                         className={styles.input}
@@ -256,7 +256,7 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <div className={styles.inputGroup}>
-                                    <label className={styles.label}>Seu email</label>
+                                    <label className={styles.label}>Seu email <span className={styles.required}>*</span></label>
                                     <input
                                         type="email"
                                         className={styles.input}
@@ -271,7 +271,7 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <div className={styles.inputGroup}>
-                                    <label className={styles.label}>CPF {paymentMethod === 'pix' && <span className={styles.required}>*</span>}</label>
+                                    <label className={styles.label}>CPF <span className={styles.required}>*</span></label>
                                     <input
                                         type="text"
                                         className={styles.input}
@@ -279,7 +279,7 @@ export default function CheckoutPage() {
                                         onChange={(e) => setUserData({ ...userData, cpf: formatCPF(e.target.value) })}
                                         placeholder="000.000.000-00"
                                         maxLength={14}
-                                        required={paymentMethod === 'pix'}
+                                        required
                                         title="Por favor, preencha seu CPF"
                                         onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha seu CPF')}
                                         onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}

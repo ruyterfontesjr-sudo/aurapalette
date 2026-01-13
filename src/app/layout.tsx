@@ -177,6 +177,13 @@ export default function RootLayout({
     return (
         <html lang="pt-BR">
             <head>
+                {/* Theme color for mobile status bar */}
+                <meta name="theme-color" content="#1d162d" />
+                <meta name="msapplication-navbutton-color" content="#1d162d" />
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+                <meta name="mobile-web-app-capable" content="yes" />
+
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebApplication) }}

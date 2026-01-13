@@ -47,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             password,
             options: {
                 data: { name },
+                emailRedirectTo: `${window.location.origin}/quiz`,
             },
         });
         return { error: error ? new Error(error.message) : null };

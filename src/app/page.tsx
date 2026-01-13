@@ -209,7 +209,7 @@ export default function Home() {
                         <div className={styles.phoneScreen}>
                             {/* Report Header */}
                             <div className={styles.reportHeader}>
-                                <span className={styles.reportLogo}>AuraPalette</span>
+                                <span className={styles.reportLogo}>Aura Palette</span>
                             </div>
 
                             {/* Title */}
@@ -415,7 +415,7 @@ export default function Home() {
 
                             {/* Footer */}
                             <div className={styles.reportFooter}>
-                                <span>AuraPalette © 2026</span>
+                                <span>Aura Palette © 2026</span>
                             </div>
                         </div>
                     </div>
@@ -588,7 +588,7 @@ export default function Home() {
                     <span>•</span>
                     <Link href="/privacidade">Privacidade</Link>
                 </div>
-                <p>© 2026 AuraPalette</p>
+                <p>© 2026 Aura Palette</p>
             </footer>
         </main>
     );

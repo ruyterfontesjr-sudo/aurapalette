@@ -1,5 +1,5 @@
 // ============================================
-// CONFIGURAÇÃO CENTRAL DO AURAPALETTE
+// CONFIGURAÇÃO CENTRAL DO AURA PALETTE
 // ============================================
 
 export const config = {

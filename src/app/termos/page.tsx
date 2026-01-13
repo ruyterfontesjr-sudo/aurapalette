@@ -4,8 +4,8 @@ import Card from '@/components/Card';
 import Logo from '@/components/Logo';
 
 export const metadata = {
-    title: 'Termos de Uso - AuraPalette',
-    description: 'Termos de uso do serviço AuraPalette.',
+    title: 'Termos de Uso - Aura Palette',
+    description: 'Termos de uso do serviço Aura Palette.',
 };
 
 export default function TermosPage() {
@@ -29,14 +29,14 @@ export default function TermosPage() {
                     <section className={styles.section}>
                         <h2 className={styles.sectionTitle}>1. Aceitação dos Termos</h2>
                         <p className={styles.text}>
-                            Ao acessar e usar o serviço AuraPalette, você concorda em cumprir e estar vinculado a estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não poderá acessar o serviço.
+                            Ao acessar e usar o serviço Aura Palette, você concorda em cumprir e estar vinculado a estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não poderá acessar o serviço.
                         </p>
                     </section>
 
                     <section className={styles.section}>
                         <h2 className={styles.sectionTitle}>2. Descrição do Serviço</h2>
                         <p className={styles.text}>
-                            O AuraPalette é um serviço de análise de colorimetria pessoal que utiliza inteligência artificial para analisar fotografias e fornecer recomendações personalizadas de paleta de cores. O serviço inclui:
+                            O Aura Palette é um serviço de análise de colorimetria pessoal que utiliza inteligência artificial para analisar fotografias e fornecer recomendações personalizadas de paleta de cores. O serviço inclui:
                         </p>
                         <ul className={styles.list}>
                             <li>Análise de tom de pele, olhos e cabelo</li>
@@ -69,14 +69,14 @@ export default function TermosPage() {
                     <section className={styles.section}>
                         <h2 className={styles.sectionTitle}>5. Propriedade Intelectual</h2>
                         <p className={styles.text}>
-                            Todo o conteúdo do AuraPalette, incluindo textos, gráficos, logos, ícones e software, é propriedade exclusiva da empresa e protegido por leis de direitos autorais. O relatório gerado é para uso pessoal e não comercial.
+                            Todo o conteúdo do Aura Palette, incluindo textos, gráficos, logos, ícones e software, é propriedade exclusiva da empresa e protegido por leis de direitos autorais. O relatório gerado é para uso pessoal e não comercial.
                         </p>
                     </section>
 
                     <section className={styles.section}>
                         <h2 className={styles.sectionTitle}>6. Limitação de Responsabilidade</h2>
                         <p className={styles.text}>
-                            As recomendações fornecidas pelo AuraPalette são baseadas em análise por inteligência artificial e têm caráter sugestivo. Não garantimos resultados específicos. O serviço não substitui consultoria profissional de imagem.
+                            As recomendações fornecidas pelo Aura Palette são baseadas em análise por inteligência artificial e têm caráter sugestivo. Não garantimos resultados específicos. O serviço não substitui consultoria profissional de imagem.
                         </p>
                     </section>
 

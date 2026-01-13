@@ -443,7 +443,10 @@ export default function CheckoutPage() {
                 {!pixData && (
                     <button
                         className={styles.backButton}
-                        onClick={() => router.back()}
+                        onClick={() => {
+                            window.scrollTo({ top: 0, behavior: 'instant' });
+                            router.back();
+                        }}
                     >
                         ← Voltar
                     </button>

@@ -4,8 +4,8 @@ import Card from '@/components/Card';
 import Logo from '@/components/Logo';
 
 export const metadata = {
-    title: 'Política de Privacidade - AuraPalette',
-    description: 'Política de privacidade do serviço AuraPalette.',
+    title: 'Política de Privacidade - Aura Palette',
+    description: 'Política de privacidade do serviço Aura Palette.',
 };
 
 export default function PrivacidadePage() {
@@ -29,7 +29,7 @@ export default function PrivacidadePage() {
                     <section className={styles.section}>
                         <h2 className={styles.sectionTitle}>1. Informações que Coletamos</h2>
                         <p className={styles.text}>
-                            Coletamos as seguintes informações quando você utiliza o AuraPalette:
+                            Coletamos as seguintes informações quando você utiliza o Aura Palette:
                         </p>
                         <ul className={styles.list}>
                             <li><strong>Dados pessoais:</strong> Nome e endereço de e-mail fornecidos no cadastro</li>

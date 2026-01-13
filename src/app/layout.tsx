@@ -4,12 +4,12 @@ import ScrollToTop from "@/components/ScrollToTop";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
-    title: "AuraPalette - Análise de Colorimetria com IA | Descubra Suas Cores Ideais",
+    title: "Aura Palette - Análise de Colorimetria com IA | Descubra Suas Cores Ideais",
     description: "Descubra sua paleta de cores ideal com inteligência artificial. Análise de colorimetria pessoal online em 2 minutos. +50.000 brasileiras já descobriram suas cores ideais. Guia completo de maquiagem, cabelos, roupas e acessórios personalizados para seu tom de pele.",
     keywords: "colorimetria, colorimetria pessoal, análise de colorimetria, paleta de cores pessoal, coloração pessoal, teste de colorimetria, qual minha estação, cores que combinam comigo, consultoria de cores, colorimetria com IA, colorimetria online Brasil, descobrir minha estação, primavera verão outono inverno colorimetria, cores para meu tom de pele, análise de cores online, colorimetria brasileira, teste de cores gratuito, paleta de cores para morenas, paleta de cores para negras, paleta de cores para loiras, melhores cores para minha pele, colorimetria quente frio, subtom de pele, maquiagem para meu tom de pele",
-    authors: [{ name: "AuraPalette" }],
-    creator: "AuraPalette",
-    publisher: "AuraPalette",
+    authors: [{ name: "Aura Palette" }],
+    creator: "Aura Palette",
+    publisher: "Aura Palette",
     robots: {
         index: true,
         follow: true,
@@ -22,24 +22,24 @@ export const metadata: Metadata = {
         },
     },
     openGraph: {
-        title: "AuraPalette - Descubra Sua Paleta de Cores com IA",
+        title: "Aura Palette - Descubra Sua Paleta de Cores com IA",
         description: "Envie uma selfie e receba sua análise de colorimetria personalizada em 2 minutos. Dicas de maquiagem, cabelos, roupas e acessórios incluídas. Resultado imediato!",
         type: "website",
         locale: "pt_BR",
-        siteName: "AuraPalette",
+        siteName: "Aura Palette",
         url: "https://aurapalette.com.br",
         images: [
             {
                 url: "https://aurapalette.com.br/og-image.jpg",
                 width: 1200,
                 height: 630,
-                alt: "AuraPalette - Análise de Colorimetria com IA",
+                alt: "Aura Palette - Análise de Colorimetria com IA",
             },
         ],
     },
     twitter: {
         card: "summary_large_image",
-        title: "AuraPalette - Sua Paleta de Cores com IA",
+        title: "Aura Palette - Sua Paleta de Cores com IA",
         description: "Análise de colorimetria personalizada com inteligência artificial. Resultado em 2 minutos! +50.000 brasileiras já descobriram suas cores.",
         images: ["https://aurapalette.com.br/og-image.jpg"],
     },
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
 const jsonLdWebApplication = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "AuraPalette",
+    "name": "Aura Palette",
     "description": "Análise de colorimetria pessoal com inteligência artificial. Descubra sua paleta de cores ideal.",
     "url": "https://aurapalette.com.br",
     "applicationCategory": "LifestyleApplication",
@@ -91,7 +91,7 @@ const jsonLdWebApplication = {
 const jsonLdOrganization = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "AuraPalette",
+    "name": "Aura Palette",
     "url": "https://aurapalette.com.br",
     "logo": "https://aurapalette.com.br/logo.png",
     "description": "Plataforma de análise de colorimetria pessoal com inteligência artificial",
@@ -150,7 +150,7 @@ const jsonLdService = {
     "serviceType": "Análise de Colorimetria Pessoal",
     "provider": {
         "@type": "Organization",
-        "name": "AuraPalette"
+        "name": "Aura Palette"
     },
     "areaServed": {
         "@type": "Country",

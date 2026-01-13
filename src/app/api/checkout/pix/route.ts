@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
             body: JSON.stringify({
                 amount: 4700, // R$ 47,00 in cents
                 expiresIn: 3600, // 1 hour in seconds
-                description: 'AuraPalette - Relatório de Colorimetria',
+                description: 'Aura Palette - Relatório de Colorimetria',
                 customer: {
                     name: body.name,
                     email: body.email,

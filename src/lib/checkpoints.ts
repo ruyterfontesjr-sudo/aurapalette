@@ -3,7 +3,7 @@
 /**
  * Funnel Checkpoint System
  * 
- * This module manages user progress through the AuraColor funnel:
+ * This module manages user progress through the Aura Palette funnel:
  * 1. signup/login → 2. quiz → 3. upload → 4. preview → 5. checkout → 6. result
  * 
  * Checkpoints are stored in localStorage to persist across sessions.

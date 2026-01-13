@@ -1,4 +1,4 @@
-# AuraColor 🎨
+# Aura Palette 🎨
 
 Sistema de análise de colorimetria pessoal com IA.
 

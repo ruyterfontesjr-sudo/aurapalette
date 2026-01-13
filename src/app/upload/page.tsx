@@ -244,7 +244,6 @@ export default function UploadPage() {
                                 onChange={handleInputChange}
                                 className={styles.uploadInput}
                             />
-                            <div className={styles.uploadIcon}>↑</div>
                             <p className={styles.uploadTitle}>
                                 Arraste sua foto aqui
                             </p>

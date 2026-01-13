@@ -117,6 +117,9 @@ export default function SignupPage() {
                                 placeholder="Como podemos te chamar?"
                                 className={styles.input}
                                 required
+                                title="Por favor, preencha seu nome"
+                                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha seu nome')}
+                                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                             />
                         </div>
 
@@ -130,6 +133,9 @@ export default function SignupPage() {
                                 placeholder="seu@email.com"
                                 className={styles.input}
                                 required
+                                title="Por favor, insira um email válido"
+                                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, insira um email válido')}
+                                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                             />
                         </div>
 
@@ -144,6 +150,9 @@ export default function SignupPage() {
                                 className={styles.input}
                                 minLength={6}
                                 required
+                                title="A senha deve ter no mínimo 6 caracteres"
+                                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('A senha deve ter no mínimo 6 caracteres')}
+                                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                             />
                         </div>
 

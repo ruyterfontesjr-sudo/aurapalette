@@ -191,14 +191,14 @@ export default function CheckoutPage() {
                                     setTimeout(() => setCheckingStatus(false), 2000);
                                 }}
                             >
-                                {checkingStatus ? 'Verificando...' : 'Verificar pagamento'}
+                                {checkingStatus ? 'Verificando...' : 'Já realizei o pagamento'}
                             </Button>
 
                             <button
-                                className={styles.changePaymentButton}
+                                className={styles.backButtonQr}
                                 onClick={() => setPixData(null)}
                             >
-                                Trocar método de pagamento
+                                ← Voltar
                             </button>
                         </>
                     ) : (
@@ -232,6 +232,9 @@ export default function CheckoutPage() {
                                         onChange={(e) => setUserData({ ...userData, name: e.target.value })}
                                         placeholder="Como podemos te chamar?"
                                         required
+                                        title="Por favor, preencha seu nome"
+                                        onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha seu nome')}
+                                        onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                                     />
                                 </div>
 
@@ -244,6 +247,9 @@ export default function CheckoutPage() {
                                         onChange={(e) => setUserData({ ...userData, email: e.target.value })}
                                         placeholder="seu@email.com"
                                         required
+                                        title="Por favor, insira um email válido"
+                                        onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, insira um email válido')}
+                                        onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                                     />
                                 </div>
 
@@ -257,6 +263,9 @@ export default function CheckoutPage() {
                                         placeholder="000.000.000-00"
                                         maxLength={14}
                                         required={paymentMethod === 'pix'}
+                                        title="Por favor, preencha seu CPF"
+                                        onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha seu CPF')}
+                                        onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                                     />
                                 </div>
 
@@ -341,7 +350,7 @@ export default function CheckoutPage() {
                             </form>
 
                             <div className={styles.guarantee}>
-                                <span className={styles.guaranteeIcon}>🏅</span>
+                                <span className={styles.guaranteeIcon}>✅</span>
                                 <div>
                                     <strong>Garantia de 7 dias</strong>
                                     <p>Se não gostar, devolvemos seu dinheiro sem perguntas.</p>
@@ -351,12 +360,14 @@ export default function CheckoutPage() {
                     )}
                 </Card>
 
-                <button
-                    className={styles.backButton}
-                    onClick={() => router.back()}
-                >
-                    ← Voltar
-                </button>
+                {!pixData && (
+                    <button
+                        className={styles.backButton}
+                        onClick={() => router.back()}
+                    >
+                        ← Voltar
+                    </button>
+                )}
             </div>
         </main>
     );

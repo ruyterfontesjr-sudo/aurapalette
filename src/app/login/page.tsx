@@ -90,6 +90,9 @@ export default function LoginPage() {
                                 placeholder="seu@email.com"
                                 className={styles.input}
                                 required
+                                title="Por favor, insira um email válido"
+                                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, insira um email válido')}
+                                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                             />
                         </div>
 
@@ -102,6 +105,9 @@ export default function LoginPage() {
                                 placeholder="Sua senha"
                                 className={styles.input}
                                 required
+                                title="Por favor, insira sua senha"
+                                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, insira sua senha')}
+                                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                             />
                         </div>
 

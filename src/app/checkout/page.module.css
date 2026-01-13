@@ -318,6 +318,24 @@
     color: white;
 }
 
+.backButtonQr {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 14px;
+    margin-top: 16px;
+    background: transparent;
+    border: none;
+    color: var(--color-gray);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.backButtonQr:hover {
+    color: white;
+}
+
 .error {
     color: #ef4444;
     font-size: 0.875rem;
@@ -331,15 +349,15 @@
 .qrCodeContainer {
     display: flex;
     justify-content: center;
-    margin: 24px 0;
+    margin: 16px 0;
 }
 
 .qrCode {
-    width: 220px;
-    height: 220px;
-    border-radius: 16px;
+    width: 180px;
+    height: 180px;
+    border-radius: 14px;
     background: white;
-    padding: 12px;
+    padding: 10px;
 }
 
 .pixCodeContainer {

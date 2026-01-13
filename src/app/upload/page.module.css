@@ -1,0 +1,437 @@
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl) var(--space-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.orbPrimary {
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 500px;
+    height: 500px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.25;
+    pointer-events: none;
+}
+
+.orbSecondary {
+    position: absolute;
+    bottom: -200px;
+    left: -200px;
+    width: 400px;
+    height: 400px;
+    background: var(--color-secondary);
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+.container {
+    width: 100%;
+    max-width: 520px;
+    z-index: 1;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-2xl);
+}
+
+.card {
+    padding: var(--space-2xl) var(--space-xl);
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.title {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: var(--space-sm);
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--color-gray);
+    margin-bottom: var(--space-xl);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+/* Upload Zone */
+.uploadZone {
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl) var(--space-xl);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.uploadZone:hover {
+    border-color: rgba(168, 85, 247, 0.4);
+    background: rgba(168, 85, 247, 0.04);
+}
+
+.uploadZoneDragging {
+    border-color: #A855F7;
+    background: rgba(168, 85, 247, 0.08);
+    transform: scale(1.02);
+}
+
+.uploadInput {
+    display: none;
+}
+
+.uploadIcon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-md);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.1));
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+}
+
+.uploadTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+    color: var(--color-light);
+}
+
+.uploadText {
+    font-size: 0.8125rem;
+    color: var(--color-gray-dark);
+    margin-top: var(--space-md);
+}
+
+.uploadOr {
+    margin: var(--space-sm) 0;
+    color: var(--color-gray-dark);
+    font-size: 0.8125rem;
+}
+
+/* Preview */
+.preview {
+    position: relative;
+    margin-bottom: var(--space-lg);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.previewImage {
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: var(--radius-lg);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.removeButton {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.removeButton:hover {
+    background: rgba(239, 68, 68, 0.8);
+}
+
+/* Tips */
+.tips {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: rgba(168, 85, 247, 0.06);
+    border: 1px solid rgba(168, 85, 247, 0.12);
+    border-radius: var(--radius-md);
+}
+
+.tipsTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #c4b5fd;
+    margin-bottom: var(--space-sm);
+}
+
+.tipsList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.4;
+}
+
+.tipIcon {
+    color: #c4b5fd;
+    flex-shrink: 0;
+}
+
+/* Actions */
+.actions {
+    margin-top: var(--space-xl);
+}
+
+/* ===== PROFESSIONAL LOADING STATE ===== */
+.loadingState {
+    text-align: center;
+    padding: var(--space-xl) 0;
+}
+
+/* Modern circular loader */
+.loaderContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-xl);
+    width: 100%;
+}
+
+.loaderSvg {
+    width: 100%;
+    height: 100%;
+    animation: loaderRotate 2s linear infinite;
+}
+
+.loaderTrack {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 4;
+}
+
+.loaderProgress {
+    fill: none;
+    stroke: url(#loaderGrad);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 264;
+    stroke-dashoffset: 66;
+    transform-origin: center;
+}
+
+.loaderCenter {
+    position: absolute;
+    inset: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loaderIcon {
+    width: 32px;
+    height: 32px;
+    animation: loaderPulse 1.5s ease-in-out infinite;
+}
+
+.spinnerIcon {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #A855F7;
+    border-right-color: #EC4899;
+    border-radius: 50%;
+    animation: spinnerRotate 0.8s linear infinite;
+}
+
+.spinnerMinimal {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto;
+    border: 3px solid rgba(255, 255, 255, 0.08);
+    border-top-color: #A855F7;
+    border-right-color: #EC4899;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    animation: spinnerRotate 1s linear infinite;
+}
+
+@keyframes spinnerRotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Progress bar */
+.progressContainer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.progressTrack {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #A855F7, #EC4899, #F97316);
+    border-radius: 3px;
+    transition: width 0.15s ease;
+    position: relative;
+}
+
+/* Shimmer effect removed for cleaner look */
+
+.progressPercent {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #c4b5fd;
+    min-width: 36px;
+    text-align: right;
+}
+
+/* Loading text */
+.loadingText {
+    font-size: 1rem;
+    margin-bottom: var(--space-md);
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    min-height: 24px;
+}
+
+/* Steps indicator */
+.stepsIndicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: var(--space-md);
+}
+
+.stepDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    transition: all 0.2s ease;
+}
+
+.stepDotActive {
+    background: #A855F7;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
+}
+
+.loadingSubtext {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 260px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* Animations */
+@keyframes loaderRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes loaderPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 0.8;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .card {
+        padding: var(--space-xl) var(--space-lg);
+    }
+
+    .uploadZone {
+        padding: var(--space-xl) var(--space-lg);
+    }
+
+    .loaderContainer {
+        width: 100px;
+        height: 100px;
+    }
+
+    .loaderCenter {
+        inset: 20px;
+    }
+
+    .loaderIcon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .previewImage {
+        max-height: 180px;
+    }
+}

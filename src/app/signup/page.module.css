@@ -1,0 +1,246 @@
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.orbPrimary {
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 500px;
+    height: 500px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.orbSecondary {
+    position: absolute;
+    bottom: -200px;
+    left: -200px;
+    width: 400px;
+    height: 400px;
+    background: var(--color-secondary);
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+.container {
+    width: 100%;
+    max-width: 420px;
+    z-index: 1;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.backButton {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-gray);
+    font-size: 0.875rem;
+    margin-bottom: var(--space-xl);
+    transition: color var(--transition-base);
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.backButton:hover {
+    color: var(--color-light);
+}
+
+.logoContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-xl);
+}
+
+.card {
+    padding: 32px 28px;
+}
+
+.title {
+    font-size: 1.625rem;
+    text-align: center;
+    margin-bottom: var(--space-sm);
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 0.9375rem;
+    color: var(--color-gray);
+    margin-bottom: var(--space-lg);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-light);
+}
+
+.input {
+    width: 100%;
+    padding: 14px 16px;
+    min-height: 50px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: 16px;
+    /* Prevents iOS zoom on focus */
+    color: var(--color-light);
+    transition: all var(--transition-base);
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.input::placeholder {
+    color: var(--color-gray-dark);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+}
+
+.submitButton {
+    margin-top: var(--space-md);
+}
+
+.terms {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--color-gray-dark);
+    line-height: 1.5;
+}
+
+.terms a {
+    color: var(--color-primary-light);
+    text-decoration: underline;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    margin: var(--space-lg) 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.divider span {
+    padding: 0 var(--space-md);
+    color: var(--color-gray-dark);
+    font-size: 0.875rem;
+}
+
+.loginLink {
+    text-align: center;
+    font-size: 0.9375rem;
+    color: var(--color-gray);
+}
+
+.loginLink a {
+    color: var(--color-primary-light);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--transition-base);
+}
+
+.loginLink a:hover {
+    color: var(--color-primary);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .page {
+        padding: var(--space-md);
+    }
+
+    .backButton {
+        margin-bottom: var(--space-lg);
+    }
+
+    .logoContainer {
+        margin-bottom: var(--space-xl);
+    }
+
+    .card {
+        padding: var(--space-lg);
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.9375rem;
+        margin-bottom: var(--space-lg);
+    }
+
+    .form {
+        gap: var(--space-md);
+    }
+
+    .input {
+        padding: 14px 16px;
+        font-size: 16px;
+        /* Prevents iOS zoom on focus */
+    }
+
+    .submitButton {
+        margin-top: var(--space-sm);
+    }
+
+    .terms {
+        font-size: 0.6875rem;
+    }
+
+    .divider {
+        margin: var(--space-md) 0;
+    }
+
+    .loginLink {
+        font-size: 0.875rem;
+    }
+}

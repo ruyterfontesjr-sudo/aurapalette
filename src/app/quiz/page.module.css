@@ -1,0 +1,285 @@
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.bgGradient {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.container {
+    width: 100%;
+    max-width: 520px;
+    z-index: 1;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-xl);
+}
+
+/* Progress */
+.progressSection {
+    margin-bottom: var(--space-lg);
+}
+
+.progressLabel {
+    display: block;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.progressBar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #A855F7, #EC4899);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+/* Question Card */
+.questionCard {
+    padding: var(--space-xl);
+    animation: fadeIn 0.25s ease;
+}
+
+.question {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: var(--space-sm);
+    line-height: 1.3;
+}
+
+.questionDesc {
+    text-align: center;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: var(--space-xl);
+}
+
+/* ========================================== */
+/* TIPO 1: Grid de bolinhas de cor (skin/eyes) */
+/* ========================================== */
+.colorGrid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    justify-items: center;
+    padding: var(--space-md) 0;
+}
+
+.colorCircle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.colorCircle:hover {
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.colorCircleSelected {
+    border-color: #A855F7;
+    transform: scale(1.15);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.3),
+        0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================== */
+/* TIPO 2: Grid 2 colunas com texto (hair/veins) */
+/* ========================================== */
+.textGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.textOption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    font-family: var(--font-family);
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.textOption:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.textOptionSelected {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: #A855F7;
+}
+
+.checkMark {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+/* ========================================== */
+/* TIPO 3: Lista vertical (sun reaction) */
+/* ========================================== */
+.textList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.listOption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    font-family: var(--font-family);
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.listOption:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.listOptionSelected {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: rgba(168, 85, 247, 0.4);
+}
+
+.radio {
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: white;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.radioSelected {
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    border-color: transparent;
+}
+
+/* Navigation */
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-xl);
+    padding: 0 var(--space-sm);
+}
+
+.navButton {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 12px 20px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: var(--font-family);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.navButton:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.navButton:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .colorGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .colorCircle {
+        width: 44px;
+        height: 44px;
+    }
+
+    .textGrid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .textOption {
+        padding: 14px 16px;
+        font-size: 0.875rem;
+    }
+
+    .questionCard {
+        padding: var(--space-lg);
+    }
+}

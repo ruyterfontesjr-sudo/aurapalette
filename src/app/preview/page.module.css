@@ -1,0 +1,402 @@
+.page {
+    min-height: 100vh;
+    padding: var(--space-lg);
+    position: relative;
+}
+
+.bgGradient {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.container {
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-xl);
+}
+
+/* Result Card - Mostra apenas a estação */
+.resultCard {
+    padding: var(--space-xl);
+    text-align: center;
+    margin-bottom: var(--space-lg);
+}
+
+.resultBadge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    color: #10B981;
+    font-weight: 500;
+    margin-bottom: var(--space-lg);
+}
+
+.seasonCard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    padding: var(--space-xl);
+    border: 2px solid;
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.seasonEmoji {
+    font-size: 3rem;
+}
+
+.seasonInfo {
+    text-align: left;
+}
+
+.seasonLabel {
+    display: block;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 4px;
+}
+
+.seasonName {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.seasonDesc {
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.seasonDesc strong {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* Locked Section */
+.lockedSection {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.lockedHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.lockIcon {
+    font-size: 1rem;
+}
+
+.lockedItems {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lockedItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    opacity: 0.7;
+}
+
+.lockedItemIcon {
+    font-size: 1.25rem;
+    filter: grayscale(0.5);
+}
+
+.lockedItemContent {
+    flex: 1;
+}
+
+.lockedItemTitle {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.lockedItemDesc {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.lockedBadge {
+    font-size: 0.6875rem;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.newBadge {
+    font-size: 0.6875rem;
+    padding: 4px 8px;
+    background: rgba(249, 115, 22, 0.15);
+    border-radius: 4px;
+    color: #F97316;
+    font-weight: 600;
+}
+
+.badgeGroup {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* CTA Card */
+.ctaCard {
+    padding: var(--space-xl);
+    text-align: center;
+    background: linear-gradient(145deg, rgba(168, 85, 247, 0.08), rgba(236, 72, 153, 0.04));
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    margin-bottom: var(--space-xl);
+}
+
+.urgencyBanner {
+    padding: 10px 16px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: var(--space-lg);
+}
+
+.urgencyBanner strong {
+    color: #EF4444;
+    font-family: 'Monaco', monospace;
+}
+
+.ctaTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 var(--space-md);
+}
+
+.priceRow {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: var(--space-lg);
+}
+
+.priceCurrency {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-right: 2px;
+}
+
+.priceAmount {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.priceCents {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    align-self: flex-end;
+    margin-bottom: 0.35rem;
+}
+
+.priceNote {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-left: 10px;
+}
+
+.ctaButton {
+    margin-bottom: var(--space-md);
+}
+
+.guarantee {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* FAQ */
+.faqSection {
+    margin-bottom: var(--space-xl);
+}
+
+.faqTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: var(--space-md);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.faqList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.faqItem {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.faqItem:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.faqItemOpen {
+    border-color: rgba(168, 85, 247, 0.2);
+}
+
+.faqQuestion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.faqToggle {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.faqAnswer {
+    padding: 0 16px 14px;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 14px;
+    margin-top: -4px;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Testimonials Section */
+.testimonials {
+    margin: var(--space-xl) 0;
+}
+
+.testimonialsTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: var(--space-lg);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.testimonialsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.testimonialCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: var(--space-lg);
+}
+
+.testimonialStars {
+    color: #fbbf24;
+    font-size: 0.875rem;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.testimonialText {
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: var(--space-md);
+    font-style: italic;
+}
+
+.testimonialAuthor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.testimonialAvatar {
+    width: 40px;
+    height: 40px;
+    background: rgba(168, 85, 247, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.testimonialName {
+    display: block;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.testimonialLocation {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}

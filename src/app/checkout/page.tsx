@@ -154,19 +154,63 @@ export default function CheckoutPage() {
         }
     };
 
-    // Polling automático para verificar status do pagamento PIX
+    // Supabase Realtime + Polling fallback para verificar status do pagamento PIX
     useEffect(() => {
         if (!pixData?.pixId) return;
 
+        let redirected = false;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let supabaseClient: any = null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let channel: any = null;
+
+        const handlePaymentConfirmed = () => {
+            if (redirected) return;
+            redirected = true;
+            document.body.style.overflow = '';
+            router.push('/result?pix=success');
+        };
+
+        // 1. Supabase Realtime - escuta mudanças em tempo real
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+        if (supabaseUrl && supabaseAnonKey) {
+            import('@supabase/supabase-js').then(({ createClient }) => {
+                supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+
+                channel = supabaseClient
+                    .channel(`checkout-${pixData.pixId}`)
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'UPDATE',
+                            schema: 'public',
+                            table: 'checkouts',
+                            filter: `billing_id=eq.${pixData.pixId}`,
+                        },
+                        (payload: { new: { status: string } }) => {
+                            console.log('Realtime update received:', payload);
+                            if (payload.new && payload.new.status === 'paid') {
+                                handlePaymentConfirmed();
+                            }
+                        }
+                    )
+                    .subscribe((status: string) => {
+                        console.log('Realtime subscription status:', status);
+                    });
+            });
+        }
+
+        // 2. Polling fallback - verifica a cada 10 segundos (backup se realtime falhar)
         const checkPaymentStatus = async () => {
+            if (redirected) return;
             try {
                 const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}`);
                 const data = await res.json();
 
                 if (data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'paid') {
-                    // Pagamento confirmado! Redirecionar imediatamente
-                    document.body.style.overflow = '';
-                    router.push('/result?pix=success');
+                    handlePaymentConfirmed();
                 }
             } catch (error) {
                 console.error('Error checking PIX status:', error);
@@ -176,12 +220,15 @@ export default function CheckoutPage() {
         // Verificar imediatamente
         checkPaymentStatus();
 
-        // Depois verificar a cada 3 segundos
-        const intervalId = setInterval(checkPaymentStatus, 3000);
+        // Polling de fallback a cada 10 segundos (menos frequente pois temos realtime)
+        const intervalId = setInterval(checkPaymentStatus, 10000);
 
-        // Cleanup ao desmontar ou quando pixData mudar
+        // Cleanup
         return () => {
             clearInterval(intervalId);
+            if (channel && supabaseClient) {
+                supabaseClient.removeChannel(channel);
+            }
         };
     }, [pixData?.pixId, router]);
 

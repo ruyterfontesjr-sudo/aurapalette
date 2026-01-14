@@ -207,8 +207,10 @@ export default function CheckoutPage() {
         const checkPaymentStatus = async () => {
             if (redirected) return;
             try {
-                console.log('Polling PIX status for:', pixData.pixId);
-                const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}`);
+                // Include email as fallback identifier
+                const emailParam = userData.email ? `&email=${encodeURIComponent(userData.email)}` : '';
+                console.log('Polling PIX status for:', pixData.pixId, 'email:', userData.email);
+                const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}${emailParam}`);
                 const data = await res.json();
                 console.log('PIX status response:', data);
 
@@ -265,7 +267,7 @@ export default function CheckoutPage() {
                 supabaseClient.removeChannel(channel);
             }
         };
-    }, [pixData?.pixId, router]);
+    }, [pixData?.pixId, router, userData.email]);
 
     return (
         <main className={`${styles.page} ${pixData ? styles.pageQr : ''}`}>
@@ -330,9 +332,10 @@ export default function CheckoutPage() {
                                 onClick={async () => {
                                     setCheckingStatus(true);
                                     setPaymentNotFound(false);
-                                    // Check payment status
+                                    // Check payment status with email fallback
                                     try {
-                                        const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}`);
+                                        const emailParam = userData.email ? `&email=${encodeURIComponent(userData.email)}` : '';
+                                        const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}${emailParam}`);
                                         const data = await res.json();
                                         console.log('Manual check status:', data);
                                         if (data.status === 'paid' || data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'PAID') {

@@ -76,38 +76,94 @@ Deno.serve(async (req) => {
     if (payload.event === 'billing.paid') {
       const { data } = payload
 
+      const customerEmail = data.billing?.customer?.metadata?.email
+      const pixQrCodeId = data.pixQrCode?.id
+      const billingId = data.billing?.id
+
       console.log('PIX Payment completed:', {
-        billingId: data.billing?.id,
-        pixQrCodeId: data.pixQrCode?.id,
+        billingId,
+        pixQrCodeId,
+        customerEmail,
         amount: data.payment?.amount,
         status: data.billing?.status,
       })
 
-      // Get the PIX ID
-      const pixId = data.pixQrCode?.id || data.billing?.id
+      // Create Supabase client with service role key
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-      if (pixId) {
-        // Create Supabase client with service role key
-        const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      let updated = false
 
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-        // Update checkout status to paid
+      // Strategy 1: Try to update by pixQrCode.id (most common)
+      if (pixQrCodeId && !updated) {
+        console.log('Trying to update by pixQrCode.id:', pixQrCodeId)
         const { data: updateData, error } = await supabase
           .from('checkouts')
           .update({
             status: 'paid',
             paid_at: new Date().toISOString(),
           })
-          .eq('billing_id', pixId)
+          .eq('billing_id', pixQrCodeId)
           .select()
 
-        if (error) {
-          console.error('Error updating checkout in Supabase:', error)
+        if (!error && updateData && updateData.length > 0) {
+          console.log('✅ Updated by pixQrCode.id:', pixQrCodeId, updateData)
+          updated = true
         } else {
-          console.log('Checkout marked as paid in Supabase:', pixId, updateData)
+          console.log('❌ No match for pixQrCode.id:', pixQrCodeId, error)
         }
+      }
+
+      // Strategy 2: Try to update by billing.id
+      if (billingId && !updated) {
+        console.log('Trying to update by billing.id:', billingId)
+        const { data: updateData, error } = await supabase
+          .from('checkouts')
+          .update({
+            status: 'paid',
+            paid_at: new Date().toISOString(),
+          })
+          .eq('billing_id', billingId)
+          .select()
+
+        if (!error && updateData && updateData.length > 0) {
+          console.log('✅ Updated by billing.id:', billingId, updateData)
+          updated = true
+        } else {
+          console.log('❌ No match for billing.id:', billingId, error)
+        }
+      }
+
+      // Strategy 3: Fallback - try to update by email (last resort)
+      if (customerEmail && !updated) {
+        console.log('Trying to update by email:', customerEmail)
+        const { data: updateData, error } = await supabase
+          .from('checkouts')
+          .update({
+            status: 'paid',
+            paid_at: new Date().toISOString(),
+          })
+          .eq('email', customerEmail)
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .select()
+
+        if (!error && updateData && updateData.length > 0) {
+          console.log('✅ Updated by email:', customerEmail, updateData)
+          updated = true
+        } else {
+          console.log('❌ No match for email:', customerEmail, error)
+        }
+      }
+
+      if (!updated) {
+        console.error('⚠️ Could not find checkout to update! IDs tried:', {
+          pixQrCodeId,
+          billingId,
+          customerEmail,
+        })
       }
     }
 

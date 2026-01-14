@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const pixId = searchParams.get('id');
+        const email = searchParams.get('email');
 
         if (!pixId) {
             return NextResponse.json(
@@ -19,34 +20,42 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        console.log('Checking PIX status for:', pixId);
-        console.log('SUPABASE_URL exists:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
-        console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+        console.log('Checking PIX status for:', pixId, 'email:', email);
 
         // Primeiro, verificar no Supabase (mais rápido pois o webhook já pode ter atualizado)
         try {
             const supabase = getServerSupabase();
-            console.log('Supabase client created, querying...');
 
-            const { data: checkoutResults, error: queryError } = await supabase
+            // Strategy 1: Check by billing_id (pixId)
+            let { data: checkoutResults, error: queryError } = await supabase
                 .from('checkouts')
                 .select('status, billing_id, email')
                 .eq('billing_id', pixId)
                 .limit(1);
 
-            console.log('Supabase query result:', { checkoutResults, queryError });
+            console.log('Supabase query by billing_id:', { checkoutResults, queryError });
 
-            if (queryError) {
-                console.log('Supabase query error:', JSON.stringify(queryError));
+            let checkoutData = checkoutResults && checkoutResults.length > 0 ? checkoutResults[0] : null;
+
+            // Strategy 2: If not found by billing_id, try by email (fallback)
+            if (!checkoutData && email) {
+                console.log('Trying fallback by email:', email);
+                const { data: emailResults, error: emailError } = await supabase
+                    .from('checkouts')
+                    .select('status, billing_id, email')
+                    .eq('email', email)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                console.log('Supabase query by email:', { emailResults, emailError });
+                checkoutData = emailResults && emailResults.length > 0 ? emailResults[0] : null;
             }
-
-            const checkoutData = checkoutResults && checkoutResults.length > 0 ? checkoutResults[0] : null;
 
             if (checkoutData) {
                 console.log('Supabase checkout found:', checkoutData);
 
                 if (checkoutData.status === 'paid') {
-                    console.log('Returning paid status from Supabase');
+                    console.log('✅ Returning paid status from Supabase');
                     return NextResponse.json({
                         status: 'paid',
                         pixId: pixId,
@@ -54,7 +63,7 @@ export async function GET(request: NextRequest) {
                     });
                 }
             } else {
-                console.log('No checkout found in Supabase for pixId:', pixId);
+                console.log('No checkout found in Supabase for pixId:', pixId, 'or email:', email);
             }
         } catch (supabaseError) {
             console.log('Supabase query failed:', supabaseError);

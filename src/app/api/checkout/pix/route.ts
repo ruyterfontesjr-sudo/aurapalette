@@ -78,23 +78,21 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Salvar checkout no Supabase
+        // Salvar checkout no Supabase - usando estrutura correta da tabela
         try {
             const supabase = getServerSupabase();
-            await supabase.from('checkouts').insert({
-                pix_id: data.data.id,
-                external_id: externalId,
-                user_email: body.email,
-                user_name: body.name,
-                user_cpf: cpfFormatted,
+            const { error: insertError } = await supabase.from('checkouts').insert({
+                billing_id: data.data.id, // pix_id do AbacatePay
+                email: body.email,
                 amount: 4700,
                 status: 'pending',
-                metadata: {
-                    cellphone: body.cellphone,
-                    product: 'aurapalette_report',
-                },
             });
-            console.log('Checkout saved to Supabase:', data.data.id);
+
+            if (insertError) {
+                console.error('Supabase insert error:', insertError);
+            } else {
+                console.log('Checkout saved to Supabase:', data.data.id);
+            }
         } catch (supabaseError) {
             console.error('Error saving to Supabase:', supabaseError);
             // Não bloquear o fluxo se o Supabase falhar

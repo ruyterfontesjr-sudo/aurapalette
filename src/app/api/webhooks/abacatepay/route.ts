@@ -49,11 +49,7 @@ export async function POST(request: NextRequest) {
 
         const payload: AbacatePayWebhookPayload = await request.json();
 
-        console.log('AbacatePay webhook received:', {
-            event: payload.event,
-            id: payload.id,
-            devMode: payload.devMode,
-        });
+        console.log('AbacatePay webhook received:', JSON.stringify(payload, null, 2));
 
         // Handle billing.paid event
         if (payload.event === 'billing.paid') {
@@ -67,24 +63,25 @@ export async function POST(request: NextRequest) {
                 status: data.billing?.status,
             });
 
-            // Atualizar status no Supabase
+            // Atualizar status no Supabase - usar billing_id
             const pixId = data.pixQrCode?.id || data.billing?.id;
 
             if (pixId) {
                 try {
                     const supabase = getServerSupabase();
-                    const { error } = await supabase
+                    const { error, data: updateData } = await supabase
                         .from('checkouts')
                         .update({
                             status: 'paid',
                             paid_at: new Date().toISOString(),
                         })
-                        .eq('pix_id', pixId);
+                        .eq('billing_id', pixId)
+                        .select();
 
                     if (error) {
                         console.error('Error updating checkout in Supabase:', error);
                     } else {
-                        console.log('Checkout marked as paid in Supabase:', pixId);
+                        console.log('Checkout marked as paid in Supabase:', pixId, updateData);
                     }
                 } catch (supabaseError) {
                     console.error('Supabase update error:', supabaseError);

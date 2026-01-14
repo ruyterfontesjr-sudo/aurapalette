@@ -24,13 +24,17 @@ export async function GET(request: NextRequest) {
         // Primeiro, verificar no Supabase (mais rápido pois o webhook já pode ter atualizado)
         try {
             const supabase = getServerSupabase();
-            const { data: checkoutData } = await supabase
+            const { data: checkoutData, error: queryError } = await supabase
                 .from('checkouts')
                 .select('status')
-                .eq('pix_id', pixId)
+                .eq('billing_id', pixId)
                 .single();
 
-            console.log('Supabase checkout status:', checkoutData?.status);
+            if (queryError) {
+                console.log('Supabase query error:', queryError);
+            } else {
+                console.log('Supabase checkout status:', checkoutData?.status);
+            }
 
             if (checkoutData?.status === 'paid') {
                 return NextResponse.json({
@@ -39,7 +43,7 @@ export async function GET(request: NextRequest) {
                 });
             }
         } catch (supabaseError) {
-            console.log('Supabase query failed, checking AbacatePay directly:', supabaseError);
+            console.log('Supabase query failed:', supabaseError);
         }
 
         if (!ABACATEPAY_API_KEY) {
@@ -70,14 +74,19 @@ export async function GET(request: NextRequest) {
             // Atualizar Supabase se ainda não estiver pago
             try {
                 const supabase = getServerSupabase();
-                await supabase
+                const { error: updateError } = await supabase
                     .from('checkouts')
                     .update({
                         status: 'paid',
                         paid_at: new Date().toISOString(),
                     })
-                    .eq('pix_id', pixId);
-                console.log('Updated Supabase status to paid for:', pixId);
+                    .eq('billing_id', pixId);
+
+                if (updateError) {
+                    console.error('Error updating Supabase:', updateError);
+                } else {
+                    console.log('Updated Supabase status to paid for:', pixId);
+                }
             } catch (updateError) {
                 console.error('Error updating Supabase:', updateError);
             }

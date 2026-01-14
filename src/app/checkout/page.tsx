@@ -202,14 +202,17 @@ export default function CheckoutPage() {
             });
         }
 
-        // 2. Polling fallback - verifica a cada 10 segundos (backup se realtime falhar)
+        // 2. Polling fallback - verifica a cada 3 segundos
         const checkPaymentStatus = async () => {
             if (redirected) return;
             try {
+                console.log('Polling PIX status for:', pixData.pixId);
                 const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}`);
                 const data = await res.json();
+                console.log('PIX status response:', data);
 
                 if (data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'paid') {
+                    console.log('Payment confirmed! Redirecting...');
                     handlePaymentConfirmed();
                 }
             } catch (error) {
@@ -220,8 +223,8 @@ export default function CheckoutPage() {
         // Verificar imediatamente
         checkPaymentStatus();
 
-        // Polling de fallback a cada 10 segundos (menos frequente pois temos realtime)
-        const intervalId = setInterval(checkPaymentStatus, 10000);
+        // Polling a cada 3 segundos
+        const intervalId = setInterval(checkPaymentStatus, 3000);
 
         // Cleanup
         return () => {

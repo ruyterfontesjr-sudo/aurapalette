@@ -162,7 +162,7 @@ export default function CheckoutPage() {
             try {
                 const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}`);
                 const data = await res.json();
-                
+
                 if (data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'paid') {
                     // Pagamento confirmado! Redirecionar imediatamente
                     document.body.style.overflow = '';
@@ -329,6 +329,8 @@ export default function CheckoutPage() {
                                     <label className={styles.label}>CPF <span className={styles.required}>*</span></label>
                                     <input
                                         type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9.-]*"
                                         className={styles.input}
                                         value={userData.cpf}
                                         onChange={(e) => setUserData({ ...userData, cpf: formatCPF(e.target.value) })}

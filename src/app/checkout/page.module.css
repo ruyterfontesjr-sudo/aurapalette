@@ -444,8 +444,8 @@
     display: block;
     width: 100%;
     text-align: center;
-    padding: 18px;
-    margin-top: 20px;
+    padding: 14px;
+    margin-top: 12px;
     background: none;
     border: none;
     color: var(--color-gray);
@@ -510,7 +510,7 @@
 /* Mobile */
 @media (max-width: 480px) {
     .page {
-        padding: 24px 16px 40px;
+        padding: 24px 16px 20px;
     }
 
     .logoContainer {

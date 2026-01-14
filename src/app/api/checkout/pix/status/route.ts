@@ -28,27 +28,33 @@ export async function GET(request: NextRequest) {
             const supabase = getServerSupabase();
             console.log('Supabase client created, querying...');
 
-            const { data: checkoutData, error: queryError } = await supabase
+            const { data: checkoutResults, error: queryError } = await supabase
                 .from('checkouts')
                 .select('status, billing_id, email')
                 .eq('billing_id', pixId)
-                .single();
+                .limit(1);
 
-            console.log('Supabase query result:', { checkoutData, queryError });
+            console.log('Supabase query result:', { checkoutResults, queryError });
 
             if (queryError) {
                 console.log('Supabase query error:', JSON.stringify(queryError));
-            } else {
-                console.log('Supabase checkout found:', checkoutData);
             }
 
-            if (checkoutData?.status === 'paid') {
-                console.log('Returning paid status from Supabase');
-                return NextResponse.json({
-                    status: 'paid',
-                    pixId: pixId,
-                    source: 'supabase'
-                });
+            const checkoutData = checkoutResults && checkoutResults.length > 0 ? checkoutResults[0] : null;
+
+            if (checkoutData) {
+                console.log('Supabase checkout found:', checkoutData);
+
+                if (checkoutData.status === 'paid') {
+                    console.log('Returning paid status from Supabase');
+                    return NextResponse.json({
+                        status: 'paid',
+                        pixId: pixId,
+                        source: 'supabase'
+                    });
+                }
+            } else {
+                console.log('No checkout found in Supabase for pixId:', pixId);
             }
         } catch (supabaseError) {
             console.log('Supabase query failed:', supabaseError);

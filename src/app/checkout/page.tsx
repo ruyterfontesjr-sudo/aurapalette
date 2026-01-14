@@ -31,6 +31,7 @@ export default function CheckoutPage() {
     const [pixData, setPixData] = useState<PixData | null>(null);
     const [checkingStatus, setCheckingStatus] = useState(false);
     const [isReady, setIsReady] = useState(false);
+    const [paymentNotFound, setPaymentNotFound] = useState(false);
 
     // Checkpoint verification - must have completed preview
     useEffect(() => {
@@ -211,7 +212,7 @@ export default function CheckoutPage() {
                 const data = await res.json();
                 console.log('PIX status response:', data);
 
-                if (data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'paid') {
+                if (data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'paid' || data.status === 'PAID') {
                     console.log('Payment confirmed! Redirecting...');
                     handlePaymentConfirmed();
                 }
@@ -226,9 +227,40 @@ export default function CheckoutPage() {
         // Polling a cada 3 segundos
         const intervalId = setInterval(checkPaymentStatus, 3000);
 
+        // 3. Verificar quando a página fica visível novamente (usuário volta do app do banco)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && !redirected) {
+                console.log('Page became visible, checking payment status...');
+                checkPaymentStatus();
+            }
+        };
+
+        // 4. Verificar quando a janela recebe foco
+        const handleFocus = () => {
+            if (!redirected) {
+                console.log('Window focused, checking payment status...');
+                checkPaymentStatus();
+            }
+        };
+
+        // 5. Verificar quando a página é exibida novamente (back/forward cache)
+        const handlePageShow = (event: PageTransitionEvent) => {
+            if (event.persisted && !redirected) {
+                console.log('Page restored from bfcache, checking payment status...');
+                checkPaymentStatus();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+        window.addEventListener('pageshow', handlePageShow);
+
         // Cleanup
         return () => {
             clearInterval(intervalId);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+            window.removeEventListener('pageshow', handlePageShow);
             if (channel && supabaseClient) {
                 supabaseClient.removeChannel(channel);
             }
@@ -286,11 +318,18 @@ export default function CheckoutPage() {
                                 Você será redirecionado automaticamente após a confirmação
                             </p>
 
+                            {paymentNotFound && (
+                                <p className={styles.paymentNotFound}>
+                                    ⏳ Pagamento ainda não detectado. Aguarde alguns segundos e tente novamente.
+                                </p>
+                            )}
+
                             <Button
                                 className={styles.submitButton}
                                 disabled={checkingStatus}
                                 onClick={async () => {
                                     setCheckingStatus(true);
+                                    setPaymentNotFound(false);
                                     // Check payment status
                                     try {
                                         const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}`);
@@ -300,11 +339,15 @@ export default function CheckoutPage() {
                                             document.body.style.overflow = '';
                                             router.push('/result?pix=success');
                                             return;
+                                        } else {
+                                            // Mostrar mensagem que o pagamento não foi detectado ainda
+                                            setPaymentNotFound(true);
                                         }
                                     } catch (error) {
                                         console.error('Error checking payment:', error);
+                                        setPaymentNotFound(true);
                                     }
-                                    setTimeout(() => setCheckingStatus(false), 2000);
+                                    setCheckingStatus(false);
                                 }}
                             >
                                 {checkingStatus ? 'Verificando...' : 'Já realizei o pagamento'}

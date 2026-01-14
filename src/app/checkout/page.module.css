@@ -304,6 +304,23 @@
     margin-top: 8px;
 }
 
+.paymentNotFound {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .changePaymentButton {
     display: block;
     width: 100%;

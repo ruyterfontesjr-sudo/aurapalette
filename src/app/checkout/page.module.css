@@ -2,7 +2,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px 20px;
+    padding: 40px 20px 0;
+    padding-bottom: 0;
     position: relative;
 }
 
@@ -443,8 +444,9 @@
     display: block;
     width: 100%;
     text-align: center;
-    padding: 14px;
-    margin-top: 12px;
+    padding: 8px;
+    margin-top: 6px;
+    margin-bottom: 0;
     background: none;
     border: none;
     color: var(--color-gray);
@@ -460,7 +462,7 @@
 /* Desktop */
 @media (min-width: 768px) {
     .page {
-        padding: 32px;
+        padding: 32px 32px 0;
         justify-content: center;
     }
 
@@ -509,7 +511,7 @@
 /* Mobile */
 @media (max-width: 480px) {
     .page {
-        padding: 24px 16px 20px;
+        padding: 20px 16px 0;
     }
 
     .logoContainer {
@@ -585,7 +587,8 @@
     }
 
     .backButton {
-        padding: 14px;
-        margin-top: 16px;
+        padding: 6px;
+        margin-top: 4px;
+        margin-bottom: 0;
     }
 }

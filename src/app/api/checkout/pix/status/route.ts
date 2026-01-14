@@ -22,9 +22,13 @@ export async function GET(request: NextRequest) {
 
         console.log('Checking PIX status for:', pixId, 'email:', email);
 
+        // Debug object
+        const debug: Record<string, unknown> = {};
+
         // Primeiro, verificar no Supabase (mais rápido pois o webhook já pode ter atualizado)
         try {
             const supabase = getServerSupabase();
+            debug.supabaseCreated = true;
 
             // Strategy 1: Check by billing_id (pixId)
             let { data: checkoutResults, error: queryError } = await supabase
@@ -32,6 +36,10 @@ export async function GET(request: NextRequest) {
                 .select('status, billing_id, email')
                 .eq('billing_id', pixId)
                 .limit(1);
+
+            debug.queryError = queryError ? String(queryError) : null;
+            debug.resultsCount = checkoutResults?.length || 0;
+            debug.firstResult = checkoutResults?.[0] || null;
 
             console.log('Supabase query by billing_id:', { checkoutResults, queryError });
 
@@ -59,13 +67,15 @@ export async function GET(request: NextRequest) {
                     return NextResponse.json({
                         status: 'paid',
                         pixId: pixId,
-                        source: 'supabase'
+                        source: 'supabase',
+                        debug
                     });
                 }
             } else {
                 console.log('No checkout found in Supabase for pixId:', pixId, 'or email:', email);
             }
         } catch (supabaseError) {
+            debug.supabaseException = String(supabaseError);
             console.log('Supabase query failed:', supabaseError);
         }
 
@@ -119,6 +129,7 @@ export async function GET(request: NextRequest) {
             status: isPaid ? 'paid' : abacateStatus,
             pixId: data.data?.id,
             raw: abacateStatus,
+            debug
         });
     } catch (error) {
         console.error('Error checking PIX status:', error);

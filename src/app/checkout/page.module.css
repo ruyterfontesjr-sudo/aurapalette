@@ -53,6 +53,9 @@
     width: 100%;
     max-width: 480px;
     z-index: 1;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-bottom: 0;
 }
 
 .logoContainer {

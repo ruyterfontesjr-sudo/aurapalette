@@ -1,0 +1,6 @@
+/* Override global height for checkout page only */
+html,
+body {
+    height: auto !important;
+    min-height: 100vh;
+}

@@ -192,11 +192,6 @@ export default function CheckoutPage() {
             <div className={styles.orbSecondary} />
 
             <div className={styles.container}>
-                {!pixData && (
-                    <div className={styles.logoContainer}>
-                        <Logo />
-                    </div>
-                )}
 
                 <Card className={styles.card}>
                     {pixData ? (

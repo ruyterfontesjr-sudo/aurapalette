@@ -1,6 +1,1 @@
-/* Override global height for checkout page only */
-html,
-body {
-    height: auto !important;
-    min-height: 100vh;
-}
+/* Checkout page specific styles - no height overrides to avoid scroll issues */

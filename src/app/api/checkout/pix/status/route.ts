@@ -20,26 +20,34 @@ export async function GET(request: NextRequest) {
         }
 
         console.log('Checking PIX status for:', pixId);
+        console.log('SUPABASE_URL exists:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+        console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 
         // Primeiro, verificar no Supabase (mais rápido pois o webhook já pode ter atualizado)
         try {
             const supabase = getServerSupabase();
+            console.log('Supabase client created, querying...');
+
             const { data: checkoutData, error: queryError } = await supabase
                 .from('checkouts')
-                .select('status')
+                .select('status, billing_id, email')
                 .eq('billing_id', pixId)
                 .single();
 
+            console.log('Supabase query result:', { checkoutData, queryError });
+
             if (queryError) {
-                console.log('Supabase query error:', queryError);
+                console.log('Supabase query error:', JSON.stringify(queryError));
             } else {
-                console.log('Supabase checkout status:', checkoutData?.status);
+                console.log('Supabase checkout found:', checkoutData);
             }
 
             if (checkoutData?.status === 'paid') {
+                console.log('Returning paid status from Supabase');
                 return NextResponse.json({
                     status: 'paid',
                     pixId: pixId,
+                    source: 'supabase'
                 });
             }
         } catch (supabaseError) {

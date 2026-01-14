@@ -446,7 +446,7 @@
     text-align: center;
     padding: 8px;
     margin-top: 6px;
-    margin-bottom: 0;
+    margin-bottom: 16px;
     background: none;
     border: none;
     color: var(--color-gray);
@@ -589,6 +589,6 @@
     .backButton {
         padding: 6px;
         margin-top: 4px;
-        margin-bottom: 0;
+        margin-bottom: 12px;
     }
 }

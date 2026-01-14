@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSupabase } from '@/lib/supabase-server';
 
 const ABACATEPAY_API_KEY = process.env.ABACATEPAY_API_KEY || '';
 const ABACATEPAY_API_URL = 'https://api.abacatepay.com/v1';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 // Status que indicam pagamento confirmado
 const PAID_STATUSES = ['PAID', 'RECEIVED', 'COMPLETED', 'paid', 'received', 'completed', 'CONFIRMED', 'confirmed'];
@@ -22,61 +23,55 @@ export async function GET(request: NextRequest) {
 
         console.log('Checking PIX status for:', pixId, 'email:', email);
 
-        // Debug object
-        const debug: Record<string, unknown> = {};
+        // Usar REST API diretamente para evitar problemas de cache do JS client
+        if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
+            try {
+                // Strategy 1: Check by billing_id
+                const url = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}&select=status,billing_id,email&limit=1`;
+                console.log('Querying Supabase REST API:', url);
 
-        // Primeiro, verificar no Supabase (mais rápido pois o webhook já pode ter atualizado)
-        try {
-            const supabase = getServerSupabase();
-            debug.supabaseCreated = true;
+                const response = await fetch(url, {
+                    headers: {
+                        'apikey': SUPABASE_SERVICE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+                        'Cache-Control': 'no-cache',
+                    },
+                });
 
-            // Strategy 1: Check by billing_id (pixId)
-            let { data: checkoutResults, error: queryError } = await supabase
-                .from('checkouts')
-                .select('status, billing_id, email')
-                .eq('billing_id', pixId)
-                .limit(1);
+                const results = await response.json();
+                console.log('Supabase REST response:', results);
 
-            debug.queryError = queryError ? String(queryError) : null;
-            debug.resultsCount = checkoutResults?.length || 0;
-            debug.firstResult = checkoutResults?.[0] || null;
+                let checkoutData = results && results.length > 0 ? results[0] : null;
 
-            console.log('Supabase query by billing_id:', { checkoutResults, queryError });
+                // Strategy 2: If not found by billing_id, try by email
+                if (!checkoutData && email) {
+                    const emailUrl = `${SUPABASE_URL}/rest/v1/checkouts?email=eq.${encodeURIComponent(email)}&select=status,billing_id,email&order=created_at.desc&limit=1`;
+                    console.log('Trying email fallback:', emailUrl);
 
-            let checkoutData = checkoutResults && checkoutResults.length > 0 ? checkoutResults[0] : null;
+                    const emailResponse = await fetch(emailUrl, {
+                        headers: {
+                            'apikey': SUPABASE_SERVICE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+                            'Cache-Control': 'no-cache',
+                        },
+                    });
 
-            // Strategy 2: If not found by billing_id, try by email (fallback)
-            if (!checkoutData && email) {
-                console.log('Trying fallback by email:', email);
-                const { data: emailResults, error: emailError } = await supabase
-                    .from('checkouts')
-                    .select('status, billing_id, email')
-                    .eq('email', email)
-                    .order('created_at', { ascending: false })
-                    .limit(1);
+                    const emailResults = await emailResponse.json();
+                    console.log('Supabase email response:', emailResults);
+                    checkoutData = emailResults && emailResults.length > 0 ? emailResults[0] : null;
+                }
 
-                console.log('Supabase query by email:', { emailResults, emailError });
-                checkoutData = emailResults && emailResults.length > 0 ? emailResults[0] : null;
-            }
-
-            if (checkoutData) {
-                console.log('Supabase checkout found:', checkoutData);
-
-                if (checkoutData.status === 'paid') {
-                    console.log('✅ Returning paid status from Supabase');
+                if (checkoutData && checkoutData.status === 'paid') {
+                    console.log('✅ Found paid status via REST API');
                     return NextResponse.json({
                         status: 'paid',
                         pixId: pixId,
-                        source: 'supabase',
-                        debug
+                        source: 'supabase-rest'
                     });
                 }
-            } else {
-                console.log('No checkout found in Supabase for pixId:', pixId, 'or email:', email);
+            } catch (restError) {
+                console.error('Supabase REST error:', restError);
             }
-        } catch (supabaseError) {
-            debug.supabaseException = String(supabaseError);
-            console.log('Supabase query failed:', supabaseError);
         }
 
         if (!ABACATEPAY_API_KEY) {
@@ -129,7 +124,6 @@ export async function GET(request: NextRequest) {
             status: isPaid ? 'paid' : abacateStatus,
             pixId: data.data?.id,
             raw: abacateStatus,
-            debug
         });
     } catch (error) {
         console.error('Error checking PIX status:', error);

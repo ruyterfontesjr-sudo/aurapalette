@@ -4,8 +4,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 24px 20px;
+    justify-content: flex-start;
+    padding: 32px 20px 24px;
     position: relative;
 }
 
@@ -535,15 +535,28 @@
     .productSummary {
         padding: 14px 16px;
         margin-bottom: 24px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .productInfo {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .productName {
+        font-size: 0.9375rem;
+    }
+
+    .productDesc {
+        font-size: 0.75rem;
     }
 
     .productPrice {
-        flex-direction: row;
-        gap: 10px;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-end;
+        flex-shrink: 0;
     }
 
     .form {

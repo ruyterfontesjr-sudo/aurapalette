@@ -60,10 +60,10 @@ export const metadata: Metadata = {
         "rating": "general",
         "distribution": "global",
     },
-    themeColor: "#1d162d",
+    themeColor: "#0f0a19",
     appleWebApp: {
         capable: true,
-        statusBarStyle: "black-translucent",
+        statusBarStyle: "default",
     },
 };
 
@@ -178,10 +178,10 @@ export default function RootLayout({
         <html lang="pt-BR">
             <head>
                 {/* Theme color for mobile status bar */}
-                <meta name="theme-color" content="#1d162d" />
-                <meta name="msapplication-navbutton-color" content="#1d162d" />
+                <meta name="theme-color" content="#0f0a19" />
+                <meta name="msapplication-navbutton-color" content="#0f0a19" />
                 <meta name="apple-mobile-web-app-capable" content="yes" />
-                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+                <meta name="apple-mobile-web-app-status-bar-style" content="default" />
                 <meta name="mobile-web-app-capable" content="yes" />
 
                 <script

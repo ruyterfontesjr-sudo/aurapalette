@@ -52,19 +52,54 @@ export default function Home() {
                 {/* Mobile Dropdown Menu */}
                 {menuOpen && (
                     <div className={styles.mobileMenu}>
-                        <button
-                            className={styles.mobileMenuClose}
-                            onClick={() => setMenuOpen(false)}
-                            aria-label="Fechar menu"
-                        >
-                            ×
-                        </button>
-                        <Link href="/signup" className={styles.mobileMenuItem} onClick={() => setMenuOpen(false)}>
-                            Cadastrar
-                        </Link>
-                        <Link href="/login" className={styles.mobileMenuItem} onClick={() => setMenuOpen(false)}>
-                            Entrar
-                        </Link>
+                        <div className={styles.mobileMenuHeader}>
+                            <Logo />
+                            <button
+                                className={styles.mobileMenuClose}
+                                onClick={() => setMenuOpen(false)}
+                                aria-label="Fechar menu"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <nav className={styles.mobileMenuNav}>
+                            <Link href="/signup" className={styles.mobileMenuItem} onClick={() => setMenuOpen(false)}>
+                                <span className={styles.mobileMenuIcon}>
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <line x1="19" y1="8" x2="19" y2="14" />
+                                        <line x1="22" y1="11" x2="16" y2="11" />
+                                    </svg>
+                                </span>
+                                <span className={styles.mobileMenuText}>
+                                    <strong>Criar conta</strong>
+                                    <small>Comece sua análise agora</small>
+                                </span>
+                            </Link>
+
+                            <Link href="/login" className={styles.mobileMenuItem} onClick={() => setMenuOpen(false)}>
+                                <span className={styles.mobileMenuIcon}>
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                        <polyline points="10 17 15 12 10 7" />
+                                        <line x1="15" y1="12" x2="3" y2="12" />
+                                    </svg>
+                                </span>
+                                <span className={styles.mobileMenuText}>
+                                    <strong>Entrar</strong>
+                                    <small>Já tenho uma conta</small>
+                                </span>
+                            </Link>
+                        </nav>
+
+                        <div className={styles.mobileMenuFooter}>
+                            <p>© 2026 Aura Palette</p>
+                        </div>
                     </div>
                 )}
             </header>

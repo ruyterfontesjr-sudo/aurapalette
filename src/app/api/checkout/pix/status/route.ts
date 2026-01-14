@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
             // Strategy 1: Check by billing_id (pixId)
             let { data: checkoutResults, error: queryError } = await supabase
                 .from('checkouts')
-                .select('status, billing_id, email')
+                .select('*')
                 .eq('billing_id', pixId)
                 .limit(1);
 

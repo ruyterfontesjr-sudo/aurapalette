@@ -98,22 +98,28 @@ export async function GET(request: NextRequest) {
         // Verificar se o status indica pagamento confirmado
         const isPaid = PAID_STATUSES.includes(abacateStatus);
 
-        if (isPaid) {
-            // Atualizar Supabase se ainda não estiver pago
+        if (isPaid && SUPABASE_URL && SUPABASE_SERVICE_KEY) {
+            // Atualizar Supabase se ainda não estiver pago (via REST API)
             try {
-                const supabase = getServerSupabase();
-                const { error: updateError } = await supabase
-                    .from('checkouts')
-                    .update({
+                const updateUrl = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}`;
+                const updateResponse = await fetch(updateUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_SERVICE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal',
+                    },
+                    body: JSON.stringify({
                         status: 'paid',
                         paid_at: new Date().toISOString(),
-                    })
-                    .eq('billing_id', pixId);
+                    }),
+                });
 
-                if (updateError) {
-                    console.error('Error updating Supabase:', updateError);
-                } else {
+                if (updateResponse.ok) {
                     console.log('Updated Supabase status to paid for:', pixId);
+                } else {
+                    console.error('Error updating Supabase:', await updateResponse.text());
                 }
             } catch (updateError) {
                 console.error('Error updating Supabase:', updateError);

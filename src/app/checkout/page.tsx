@@ -245,11 +245,14 @@ export default function CheckoutPage() {
                                     try {
                                         const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}`);
                                         const data = await res.json();
-                                        if (data.status === 'RECEIVED' || data.status === 'COMPLETED') {
+                                        console.log('Manual check status:', data);
+                                        if (data.status === 'paid' || data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'PAID') {
+                                            document.body.style.overflow = '';
                                             router.push('/result?pix=success');
+                                            return;
                                         }
-                                    } catch {
-                                        // Silent fail, just stop loading
+                                    } catch (error) {
+                                        console.error('Error checking payment:', error);
                                     }
                                     setTimeout(() => setCheckingStatus(false), 2000);
                                 }}

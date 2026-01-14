@@ -12,6 +12,7 @@
     height: 100dvh;
     min-height: auto;
     overflow: hidden;
+    justify-content: center;
 }
 
 .bgGradient {

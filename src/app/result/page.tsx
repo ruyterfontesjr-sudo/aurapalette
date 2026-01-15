@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import styles from './page.module.css';
 import Card from '@/components/Card';
 import Logo from '@/components/Logo';
@@ -284,15 +285,32 @@ const getDefaultFullAnalysis = (season: string): FullAnalysis => ({
 // COMPONENTE PRINCIPAL
 // ============================================
 
-export default function ResultPage() {
+function ResultContent() {
+    const searchParams = useSearchParams();
     const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
     const [userName, setUserName] = useState('');
     const [seasonTrends, setSeasonTrends] = useState<SeasonTrends | null>(null);
+    const [showPaymentBadge, setShowPaymentBadge] = useState(false);
 
     useEffect(() => {
         // Ensure body is scrollable and scroll to top
         document.body.style.overflow = '';
         window.scrollTo({ top: 0, behavior: 'instant' });
+
+        // Check if this is a fresh payment (from URL params)
+        const isFromPayment = searchParams.get('pix') === 'success' ||
+                              searchParams.get('payment') === 'success' ||
+                              searchParams.get('session_id');
+
+        // Check if user has already viewed the result
+        const hasViewedResult = localStorage.getItem('aurapalette_result_viewed');
+
+        // Only show badge if coming from payment AND hasn't viewed before
+        if (isFromPayment && !hasViewedResult) {
+            setShowPaymentBadge(true);
+            // Mark as viewed so it won't show again
+            localStorage.setItem('aurapalette_result_viewed', 'true');
+        }
 
         const storedAnalysis = localStorage.getItem('aurapalette_analysis');
         const storedUser = localStorage.getItem('aurapalette_user');
@@ -314,7 +332,7 @@ export default function ResultPage() {
             const user = JSON.parse(storedUser);
             setUserName(user.name);
         }
-    }, []);
+    }, [searchParams]);
 
     const handleDownload = async () => {
         if (!analysis?.fullAnalysis) return;
@@ -817,10 +835,12 @@ export default function ResultPage() {
 
                 {/* Hero */}
                 <div className={styles.hero}>
-                    <div className={styles.badge}>
-                        <span className={styles.badgeIcon}>✓</span>
-                        Pagamento confirmado
-                    </div>
+                    {showPaymentBadge && (
+                        <div className={styles.badge}>
+                            <span className={styles.badgeIcon}>✓</span>
+                            Pagamento confirmado
+                        </div>
+                    )}
                     <h1 className={styles.title}>
                         {userName ? `${userName}, ` : ''}seu relatório está pronto!
                     </h1>
@@ -1519,4 +1539,24 @@ function adjustBrightness(hex: string, percent: number): string {
     return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
         (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
         (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+}
+
+// Componente wrapper com Suspense para useSearchParams
+export default function ResultPage() {
+    return (
+        <Suspense fallback={
+            <main className={styles.page}>
+                <div className={styles.orbPrimary} />
+                <div className={styles.orbSecondary} />
+                <div className={styles.container}>
+                    <div className={styles.header}>
+                        <Logo />
+                    </div>
+                    <p style={{ textAlign: 'center', marginTop: '2rem' }}>Carregando seu relatório...</p>
+                </div>
+            </main>
+        }>
+            <ResultContent />
+        </Suspense>
+    );
 }

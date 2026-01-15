@@ -1,10 +1,11 @@
 .page {
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--space-xl) var(--space-lg);
+    padding: 40px 20px;
     position: relative;
     overflow: hidden;
 }
@@ -585,6 +586,10 @@
 
 /* Responsive */
 @media (max-width: 600px) {
+    .page {
+        padding: 32px 16px 24px;
+    }
+
     .card {
         padding: var(--space-xl) var(--space-lg);
     }

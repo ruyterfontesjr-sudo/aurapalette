@@ -5,7 +5,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 24px 20px;
+    padding: 40px 20px;
     position: relative;
     overflow: hidden;
 }
@@ -197,17 +197,16 @@
 
 @media (max-width: 480px) {
     .page {
-        padding: 16px;
+        padding: 32px 16px 24px;
         justify-content: flex-start;
-        padding-top: 40px;
     }
 
     .backButton {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
 
     .logoContainer {
-        margin-bottom: 24px;
+        margin-bottom: 20px;
     }
 
     .card {
@@ -255,8 +254,7 @@
 
 @media (max-width: 360px) {
     .page {
-        padding: 12px;
-        padding-top: 32px;
+        padding: 24px 12px 20px;
     }
 
     .card {

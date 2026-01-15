@@ -1,8 +1,8 @@
 .page {
     min-height: 100vh;
-    padding: var(--space-xl) var(--space-lg);
+    min-height: 100dvh;
+    padding: 40px 20px;
     position: relative;
-    overflow: hidden;
 }
 
 .orbPrimary {
@@ -807,6 +807,10 @@
 }
 
 @media (max-width: 480px) {
+    .page {
+        padding: 32px 16px 24px;
+    }
+
     .palette {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -823,5 +827,11 @@
         width: 32px;
         height: 32px;
         font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .page {
+        padding: 24px 12px 20px;
     }
 }

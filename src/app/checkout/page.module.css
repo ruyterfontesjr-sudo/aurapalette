@@ -1,8 +1,11 @@
 .page {
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 60px 20px 24px;
+    justify-content: center;
+    padding: 40px 20px;
     position: relative;
 }
 
@@ -481,8 +484,8 @@
 /* Desktop */
 @media (min-width: 768px) {
     .page {
-        padding: 80px 32px 0;
-        justify-content: flex-start;
+        padding: 60px 32px 40px;
+        justify-content: center;
     }
 
     .container {
@@ -530,7 +533,8 @@
 /* Mobile */
 @media (max-width: 480px) {
     .page {
-        padding: 40px 16px 0;
+        padding: 32px 16px 24px;
+        justify-content: flex-start;
     }
 
     .logoContainer {
@@ -607,7 +611,7 @@
 
     .backButton {
         padding: 8px;
-        margin-top: 24px;
-        margin-bottom: 6px;
+        margin-top: 20px;
+        margin-bottom: 16px;
     }
 }

@@ -43,6 +43,13 @@ export default function UploadPage() {
     }, [router]);
 
     // Analysis loading effect with psychological timing
+    // Refs to avoid stale closures in setTimeout/setInterval
+    const analyzedDataRef = useRef<any>(null);
+    useEffect(() => {
+        analyzedDataRef.current = analyzedData;
+    }, [analyzedData]);
+
+    // Analysis loading effect
     useEffect(() => {
         if (!isAnalyzing) return;
 
@@ -50,16 +57,20 @@ export default function UploadPage() {
         let elapsed = 0;
         const totalDuration = ANALYSIS_STEPS.reduce((acc, step) => acc + step.duration, 0);
 
+        // Timers references for cleanup
+        let stepTimeout: NodeJS.Timeout;
+        let progressInterval: NodeJS.Timeout;
+        let loopTimeout: NodeJS.Timeout;
+
         const runStep = () => {
             if (stepIndex >= ANALYSIS_STEPS.length) {
-                // Animation complete - finish up
-                if (analyzedData) {
-                    localStorage.setItem('aurapalette_analysis', JSON.stringify(analyzedData));
+                // Animation complete - Check if data is ready using REF
+                if (analyzedDataRef.current) {
+                    localStorage.setItem('aurapalette_analysis', JSON.stringify(analyzedDataRef.current));
                     router.push('/preview');
                 } else {
-                    // Data not ready yet? Wait a bit and check again (Spinning state)
-                    setTimeout(runStep, 1000);
-                    return;
+                    // Data not ready yet? Wait a bit and check again
+                    loopTimeout = setTimeout(runStep, 500);
                 }
                 return;
             }
@@ -67,14 +78,14 @@ export default function UploadPage() {
             setCurrentStep(stepIndex);
             const stepDuration = ANALYSIS_STEPS[stepIndex].duration;
 
-            // Progress animation within each step
-            const progressInterval = setInterval(() => {
+            // Progress animation
+            progressInterval = setInterval(() => {
                 elapsed += 50;
                 const totalProgress = (elapsed / totalDuration) * 100;
-                setProgress(Math.min(totalProgress, 100));
+                setProgress(Math.min(totalProgress, 99)); // Hold at 99% until data ready
             }, 50);
 
-            setTimeout(() => {
+            stepTimeout = setTimeout(() => {
                 clearInterval(progressInterval);
                 stepIndex++;
                 runStep();
@@ -82,7 +93,14 @@ export default function UploadPage() {
         };
 
         runStep();
-    }, [isAnalyzing, analyzedData, router]);
+
+        // Cleanup function
+        return () => {
+            clearTimeout(stepTimeout);
+            clearInterval(progressInterval);
+            clearTimeout(loopTimeout);
+        };
+    }, [isAnalyzing, router]); // Removed analyzedData dependency to prevent restart
 
     const handleFileSelect = useCallback((file: File) => {
         if (file && file.type.startsWith('image/')) {

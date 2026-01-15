@@ -270,7 +270,9 @@ export default function UploadPage() {
 
                             {/* Current step text */}
                             <p className={styles.loadingText}>
-                                {ANALYSIS_STEPS[currentStep]?.text || 'Analisando...'}
+                                {isLongWait
+                                    ? 'Ajustando os últimos detalhes...'
+                                    : (ANALYSIS_STEPS[currentStep]?.text || 'Analisando...')}
                             </p>
 
                             {/* Steps indicator */}

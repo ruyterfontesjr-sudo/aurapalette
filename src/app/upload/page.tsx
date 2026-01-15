@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 import Card from '@/components/Card';
-import Logo from '@/components/Logo';
+
 import Button from '@/components/Button';
 
 const ANALYSIS_STEPS = [
@@ -152,9 +152,7 @@ export default function UploadPage() {
                 <div className={styles.orbSecondary} />
 
                 <div className={styles.container}>
-                    <div className={styles.header}>
-                        <Logo />
-                    </div>
+
 
                     <Card className={styles.card}>
                         <div className={styles.loadingState}>
@@ -219,9 +217,7 @@ export default function UploadPage() {
             <div className={styles.orbSecondary} />
 
             <div className={styles.container}>
-                <div className={styles.header}>
-                    <Logo />
-                </div>
+
 
                 <Card className={styles.card}>
                     <h1 className={styles.title}>Tire sua selfie 📸</h1>

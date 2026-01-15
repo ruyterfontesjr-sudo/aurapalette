@@ -7,6 +7,13 @@ import Card from '@/components/Card';
 import Logo from '@/components/Logo';
 import Button from '@/components/Button';
 import { getTrendsForSeason, generalTrends2026, type SeasonTrends } from '@/data/trends2026';
+import ColorDetailsModal from '@/components/ColorDetailsModal';
+import {
+    Palette, Ban, Brush, Scissors, Diamond, Shirt, Flame,
+    Droplet, Sun, Zap, Info, Watch, Sparkles, AlertCircle,
+    ShoppingBag, Glasses, Heart, Layers, Crown, Lightbulb, UserCheck,
+    Grid, Calendar, Briefcase, Moon
+} from 'lucide-react';
 
 // ============================================
 // INTERFACES EXPANDIDAS
@@ -75,10 +82,10 @@ interface AccessoryDetails {
         tips: string;
     };
     jewelry: {
-        necklaces: string;
-        earrings: string;
-        bracelets: string;
-        rings: string;
+        necklaces: string[];
+        earrings: string[];
+        bracelets: string[];
+        rings: string[];
     };
     glasses: {
         frames: string[];
@@ -251,10 +258,10 @@ const getDefaultFullAnalysis = (season: string): FullAnalysis => ({
             tips: 'Se você ama prata, opte por peças em ouro branco ou champagne, que são mais quentes que a prata pura.'
         },
         jewelry: {
-            necklaces: 'Correntes em ouro, gargantilhas com pedras âmbar, citrino ou coral. Colares longos em camadas.',
-            earrings: 'Argolas douradas, brincos com pedras em tons terrosos (âmbar, topázio, cornalina). Evite prata muito brilhante.',
-            bracelets: 'Pulseiras em ouro, braceletes em cobre ou bronze. Pulseiras com pedras naturais em tons quentes.',
-            rings: 'Anéis em ouro amarelo ou rose gold. Pedras como citrino, topázio imperial, olho de tigre e coral.'
+            necklaces: ['Correntes em ouro', 'Gargantilhas com pedras âmbar', 'Citrino ou coral', 'Colares longos em camadas'],
+            earrings: ['Argolas douradas', 'Brincos com pedras em tons terrosos', 'Âmbar', 'Topázio', 'Cornalina'],
+            bracelets: ['Pulseiras em ouro', 'Braceletes em cobre ou bronze', 'Pulseiras com pedras naturais em tons quentes'],
+            rings: ['Anéis em ouro amarelo', 'Rose gold', 'Citrino', 'Topázio imperial', 'Olho de tigre', 'Coral']
         },
         glasses: {
             frames: ['Tartaruga', 'Marrom', 'Dourado', 'Caramelo', 'Havana'],
@@ -291,6 +298,11 @@ function ResultContent() {
     const [userName, setUserName] = useState('');
     const [seasonTrends, setSeasonTrends] = useState<SeasonTrends | null>(null);
     const [showPaymentBadge, setShowPaymentBadge] = useState(false);
+    const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string } | null>(null);
+
+    const handleColorClick = (color: { name: string; hex: string }) => {
+        setSelectedColor(color);
+    };
 
     useEffect(() => {
         // Ensure body is scrollable and scroll to top
@@ -299,8 +311,8 @@ function ResultContent() {
 
         // Check if this is a fresh payment (from URL params)
         const isFromPayment = searchParams.get('pix') === 'success' ||
-                              searchParams.get('payment') === 'success' ||
-                              searchParams.get('session_id');
+            searchParams.get('payment') === 'success' ||
+            searchParams.get('session_id');
 
         // Check if user has already viewed the result
         const hasViewedResult = localStorage.getItem('aurapalette_result_viewed');
@@ -460,7 +472,7 @@ function ResultContent() {
                 {/* Best Colors */}
                 <section className={styles.section}>
                     <h2 className={styles.sectionTitle}>
-                        <span className={styles.sectionIcon}>🎨</span>
+                        <span className={styles.sectionIcon}><Palette size={24} /></span>
                         Suas Melhores Cores
                     </h2>
                     <div className={styles.palette}>
@@ -468,7 +480,12 @@ function ResultContent() {
                             <div
                                 key={index}
                                 className={styles.colorCard}
-                                style={{ backgroundColor: color.hex }}
+                                style={{
+                                    backgroundColor: color.hex,
+                                    cursor: 'pointer',
+                                    transition: 'transform 0.2s'
+                                }}
+                                onClick={() => handleColorClick(color)}
                             >
                                 <span className={styles.colorName}>{color.name}</span>
                                 <span className={styles.colorHex}>{color.hex}</span>
@@ -480,12 +497,17 @@ function ResultContent() {
                 {/* Avoid Colors */}
                 <section className={styles.section}>
                     <h2 className={styles.sectionTitle}>
-                        <span className={styles.sectionIcon}>🚫</span>
+                        <span className={styles.sectionIcon}><Ban size={24} /></span>
                         Cores a Evitar
                     </h2>
                     <div className={styles.avoidPalette}>
                         {fa?.avoidColors.map((color, index) => (
-                            <div key={index} className={styles.avoidCard}>
+                            <div
+                                key={index}
+                                className={styles.avoidCard}
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => handleColorClick(color)}
+                            >
                                 <div
                                     className={styles.avoidSwatch}
                                     style={{ backgroundColor: color.hex }}
@@ -501,7 +523,7 @@ function ResultContent() {
                 {/* ============================================ */}
                 <section className={styles.section}>
                     <h2 className={styles.sectionTitle}>
-                        <span className={styles.sectionIcon}>💄</span>
+                        <span className={styles.sectionIcon}><Brush size={24} /></span>
                         Guia Completo de Maquiagem
                     </h2>
 
@@ -513,20 +535,20 @@ function ResultContent() {
                         {/* Base */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>🎨</span>
+                                <span className={styles.detailIcon}><Droplet size={20} /></span>
                                 <h4 className={styles.detailTitle}>Base</h4>
                             </div>
                             <div className={styles.detailContent}>
                                 <p><strong>Subtom:</strong> {fa?.makeup.base.undertone}</p>
                                 <p><strong>Acabamento:</strong> {fa?.makeup.base.finish}</p>
-                                <p className={styles.detailTip}>💡 {fa?.makeup.base.tips}</p>
+                                <p className={styles.detailTip}><Lightbulb size={16} className={styles.tipIconSvg} /> {fa?.makeup.base.tips}</p>
                             </div>
                         </Card>
 
                         {/* Blush */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>🌸</span>
+                                <span className={styles.detailIcon}><Heart size={20} /></span>
                                 <h4 className={styles.detailTitle}>Blush</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -536,14 +558,14 @@ function ResultContent() {
                                         <span key={i} className={styles.tag}>{color}</span>
                                     ))}
                                 </div>
-                                <p className={styles.detailTip}>💡 {fa?.makeup.blush.application}</p>
+                                <p className={styles.detailTip}><Lightbulb size={16} className={styles.tipIconSvg} /> {fa?.makeup.blush.application}</p>
                             </div>
                         </Card>
 
                         {/* Batom */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>💋</span>
+                                <span className={styles.detailIcon}><Zap size={20} /></span>
                                 <h4 className={styles.detailTitle}>Batom</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -560,14 +582,14 @@ function ResultContent() {
                                     ))}
                                 </div>
                                 <p><strong>Acabamentos:</strong> {fa?.makeup.lipstick.finishes.join(', ')}</p>
-                                <p className={styles.detailTip}>💡 {fa?.makeup.lipstick.tips}</p>
+                                <p className={styles.detailTip}><Lightbulb size={16} className={styles.tipIconSvg} /> {fa?.makeup.lipstick.tips}</p>
                             </div>
                         </Card>
 
                         {/* Sombras */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>👁️</span>
+                                <span className={styles.detailIcon}><Sparkles size={20} /></span>
                                 <h4 className={styles.detailTitle}>Sombras</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -589,7 +611,7 @@ function ResultContent() {
                                         <span key={i} className={styles.tagAvoid}>{color}</span>
                                     ))}
                                 </div>
-                                <p className={styles.detailTip}>💡 {fa?.makeup.eyeshadow.tips}</p>
+                                <p className={styles.detailTip}><Lightbulb size={16} className={styles.tipIconSvg} /> {fa?.makeup.eyeshadow.tips}</p>
                             </div>
                         </Card>
 
@@ -613,12 +635,12 @@ function ResultContent() {
                         {/* Bronzer */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>☀️</span>
+                                <span className={styles.detailIcon}><Sun size={20} /></span>
                                 <h4 className={styles.detailTitle}>Bronzer</h4>
                             </div>
                             <div className={styles.detailContent}>
                                 <p><strong>Tom:</strong> {fa?.makeup.bronzer.shade}</p>
-                                <p className={styles.detailTip}>💡 {fa?.makeup.bronzer.application}</p>
+                                <p className={styles.detailTip}><Lightbulb size={16} className={styles.tipIconSvg} /> {fa?.makeup.bronzer.application}</p>
                             </div>
                         </Card>
                     </div>
@@ -629,7 +651,7 @@ function ResultContent() {
                 {/* ============================================ */}
                 <section className={styles.section}>
                     <h2 className={styles.sectionTitle}>
-                        <span className={styles.sectionIcon}>💇</span>
+                        <span className={styles.sectionIcon}><Scissors size={24} /></span>
                         Guia Completo de Cabelos
                     </h2>
 
@@ -641,7 +663,7 @@ function ResultContent() {
                         {/* Coloração */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>🎨</span>
+                                <span className={styles.detailIcon}><Brush size={20} /></span>
                                 <h4 className={styles.detailTitle}>Coloração</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -663,14 +685,14 @@ function ResultContent() {
                                         <span key={i} className={styles.tagAvoid}>{color}</span>
                                     ))}
                                 </div>
-                                <p className={styles.detailTip}>💡 {fa?.hair.coloring.tips}</p>
+                                <p className={styles.detailTip}><Lightbulb size={16} className={styles.tipIconSvg} /> {fa?.hair.coloring.tips}</p>
                             </div>
                         </Card>
 
                         {/* Cortes */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>✂️</span>
+                                <span className={styles.detailIcon}><Scissors size={20} /></span>
                                 <h4 className={styles.detailTitle}>Cortes</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -680,14 +702,14 @@ function ResultContent() {
                                         <span key={i} className={styles.tag}>{cut}</span>
                                     ))}
                                 </div>
-                                <p className={styles.detailTip}>💡 {fa?.hair.cuts.tips}</p>
+                                <p className={styles.detailTip}><Lightbulb size={16} className={styles.tipIconSvg} /> {fa?.hair.cuts.tips}</p>
                             </div>
                         </Card>
 
                         {/* Styling */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>💫</span>
+                                <span className={styles.detailIcon}><Zap size={20} /></span>
                                 <h4 className={styles.detailTitle}>Styling</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -713,7 +735,7 @@ function ResultContent() {
                 {/* ============================================ */}
                 <section className={styles.section}>
                     <h2 className={styles.sectionTitle}>
-                        <span className={styles.sectionIcon}>💎</span>
+                        <span className={styles.sectionIcon}><Diamond size={24} /></span>
                         Guia Completo de Acessórios
                     </h2>
 
@@ -724,7 +746,7 @@ function ResultContent() {
                     {/* Metais - Destaque especial */}
                     <Card className={styles.metalsCard}>
                         <h3 className={styles.metalsTitle}>
-                            <span>✨</span> Seus Metais Ideais
+                            <span><Sparkles size={20} /></span> Seus Metais Ideais
                         </h3>
                         <div className={styles.metalsPalette}>
                             {fa?.accessories.metals.best.map((metal, i) => (
@@ -733,7 +755,9 @@ function ResultContent() {
                                     className={styles.metalSwatch}
                                     style={{
                                         background: `linear-gradient(145deg, ${metal.hex}, ${adjustBrightness(metal.hex, -20)})`,
+                                        cursor: 'pointer'
                                     }}
+                                    onClick={() => handleColorClick(metal)}
                                 >
                                     <span className={styles.metalName}>{metal.name}</span>
                                 </div>
@@ -743,7 +767,12 @@ function ResultContent() {
                             <p><strong>Evitar:</strong></p>
                             <div className={styles.avoidPalette}>
                                 {fa?.accessories.metals.avoid.map((metal, i) => (
-                                    <div key={i} className={styles.avoidCard}>
+                                    <div
+                                        key={i}
+                                        className={styles.avoidCard}
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => handleColorClick(metal)}
+                                    >
                                         <div
                                             className={styles.avoidSwatch}
                                             style={{ backgroundColor: metal.hex }}
@@ -753,28 +782,57 @@ function ResultContent() {
                                 ))}
                             </div>
                         </div>
-                        <p className={styles.detailTip}>💡 {fa?.accessories.metals.tips}</p>
+                        <p className={styles.detailTip}><Lightbulb size={16} className={styles.tipIconSvg} /> {fa?.accessories.metals.tips}</p>
                     </Card>
 
                     <div className={styles.detailsGrid}>
                         {/* Joias */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>💍</span>
+                                <span className={styles.detailIcon}><Crown size={20} /></span>
                                 <h4 className={styles.detailTitle}>Joias</h4>
                             </div>
                             <div className={styles.detailContent}>
-                                <p><strong>Colares:</strong> {fa?.accessories.jewelry.necklaces}</p>
-                                <p><strong>Brincos:</strong> {fa?.accessories.jewelry.earrings}</p>
-                                <p><strong>Pulseiras:</strong> {fa?.accessories.jewelry.bracelets}</p>
-                                <p><strong>Anéis:</strong> {fa?.accessories.jewelry.rings}</p>
+                                <p><strong>Colares:</strong></p>
+                                <div className={styles.tagList}>
+                                    {fa?.accessories.jewelry.necklaces.map((item, i) => (
+                                        <span key={i} className={styles.tag}>{item}</span>
+                                    ))}
+                                </div>
+
+                                <div className={styles.separator} />
+
+                                <p><strong>Brincos:</strong></p>
+                                <div className={styles.tagList}>
+                                    {fa?.accessories.jewelry.earrings.map((item, i) => (
+                                        <span key={i} className={styles.tagAccent}>{item}</span>
+                                    ))}
+                                </div>
+
+                                <div className={styles.separator} />
+
+                                <p><strong>Pulseiras:</strong></p>
+                                <div className={styles.tagList}>
+                                    {fa?.accessories.jewelry.bracelets.map((item, i) => (
+                                        <span key={i} className={styles.tag}>{item}</span>
+                                    ))}
+                                </div>
+
+                                <div className={styles.separator} />
+
+                                <p><strong>Anéis:</strong></p>
+                                <div className={styles.tagList}>
+                                    {fa?.accessories.jewelry.rings.map((item, i) => (
+                                        <span key={i} className={styles.tagAccent}>{item}</span>
+                                    ))}
+                                </div>
                             </div>
                         </Card>
 
                         {/* Óculos */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>👓</span>
+                                <span className={styles.detailIcon}><Glasses size={20} /></span>
                                 <h4 className={styles.detailTitle}>Óculos</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -796,7 +854,7 @@ function ResultContent() {
                         {/* Bolsas */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>👜</span>
+                                <span className={styles.detailIcon}><ShoppingBag size={20} /></span>
                                 <h4 className={styles.detailTitle}>Bolsas</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -818,7 +876,7 @@ function ResultContent() {
                         {/* Lenços */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>🧣</span>
+                                <span className={styles.detailIcon}><Layers size={20} /></span>
                                 <h4 className={styles.detailTitle}>Lenços e Echarpes</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -840,7 +898,7 @@ function ResultContent() {
                         {/* Relógios */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>⌚</span>
+                                <span className={styles.detailIcon}><Watch size={20} /></span>
                                 <h4 className={styles.detailTitle}>Relógios</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -866,7 +924,7 @@ function ResultContent() {
                 {/* ============================================ */}
                 <section className={styles.section}>
                     <h2 className={styles.sectionTitle}>
-                        <span className={styles.sectionIcon}>👗</span>
+                        <span className={styles.sectionIcon}><Shirt size={24} /></span>
                         Guia Completo de Moda
                     </h2>
 
@@ -878,7 +936,7 @@ function ResultContent() {
                         {/* Peças Essenciais */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>👚</span>
+                                <span className={styles.detailIcon}><Shirt size={20} /></span>
                                 <h4 className={styles.detailTitle}>Peças Essenciais</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -893,7 +951,7 @@ function ResultContent() {
                         {/* Tecidos */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>🧵</span>
+                                <span className={styles.detailIcon}><Layers size={20} /></span>
                                 <h4 className={styles.detailTitle}>Tecidos Ideais</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -908,7 +966,7 @@ function ResultContent() {
                         {/* Estampas */}
                         <Card className={styles.detailCard}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>🎨</span>
+                                <span className={styles.detailIcon}><Grid size={20} /></span>
                                 <h4 className={styles.detailTitle}>Estampas</h4>
                             </div>
                             <div className={styles.detailContent}>
@@ -923,20 +981,20 @@ function ResultContent() {
                         {/* Ocasiões */}
                         <Card className={`${styles.detailCard} ${styles.occasionsCard}`}>
                             <div className={styles.detailHeader}>
-                                <span className={styles.detailIcon}>📅</span>
+                                <span className={styles.detailIcon}><Calendar size={20} /></span>
                                 <h4 className={styles.detailTitle}>Looks por Ocasião</h4>
                             </div>
                             <div className={styles.detailContent}>
                                 <div className={styles.occasionItem}>
-                                    <span className={styles.occasionLabel}>☀️ Casual</span>
+                                    <span className={styles.occasionLabel}><Sun size={14} style={{ marginRight: 6 }} /> Casual</span>
                                     <p>{fa?.fashion.occasions.casual}</p>
                                 </div>
                                 <div className={styles.occasionItem}>
-                                    <span className={styles.occasionLabel}>💼 Trabalho</span>
+                                    <span className={styles.occasionLabel}><Briefcase size={14} style={{ marginRight: 6 }} /> Trabalho</span>
                                     <p>{fa?.fashion.occasions.work}</p>
                                 </div>
                                 <div className={styles.occasionItem}>
-                                    <span className={styles.occasionLabel}>🌙 Noite</span>
+                                    <span className={styles.occasionLabel}><Moon size={14} style={{ marginRight: 6 }} /> Noite</span>
                                     <p>{fa?.fashion.occasions.evening}</p>
                                 </div>
                             </div>
@@ -949,7 +1007,7 @@ function ResultContent() {
                 {/* ============================================ */}
                 <section className={styles.section}>
                     <h2 className={styles.sectionTitle}>
-                        <span className={styles.sectionIcon}>🔥</span>
+                        <span className={styles.sectionIcon}><Flame size={24} /></span>
                         Tendências 2026 Para Você
                     </h2>
 
@@ -994,7 +1052,12 @@ function ResultContent() {
                                             <div
                                                 key={i}
                                                 className={styles.trendColorCard}
-                                                style={{ backgroundColor: color.hex }}
+                                                style={{
+                                                    backgroundColor: color.hex,
+                                                    cursor: 'pointer',
+                                                    transition: 'transform 0.2s'
+                                                }}
+                                                onClick={() => handleColorClick(color)}
                                             >
                                                 <span className={styles.trendColorName}>{color.name}</span>
                                                 <span className={styles.trendColorHex}>{color.hex}</span>
@@ -1077,6 +1140,12 @@ function ResultContent() {
                     </Button>
                 </footer>
             </div>
+            <ColorDetailsModal
+                isOpen={!!selectedColor}
+                onClose={() => setSelectedColor(null)}
+                colorName={selectedColor?.name || ''}
+                colorHex={selectedColor?.hex || ''}
+            />
         </main>
     );
 }

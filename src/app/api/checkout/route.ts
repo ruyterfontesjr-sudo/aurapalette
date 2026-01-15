@@ -8,9 +8,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
     apiVersion: '2023-10-16',
 });
 
-export async function POST() {
+export async function POST(req: Request) {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+        // Dynamic base URL based on request origin
+        const origin = req.headers.get('origin') || 'http://localhost:3000';
+        const baseUrl = origin;
 
         // Check if Stripe is configured
         if (!process.env.STRIPE_SECRET_KEY) {

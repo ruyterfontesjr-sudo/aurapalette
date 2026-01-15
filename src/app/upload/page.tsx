@@ -8,12 +8,13 @@ import Button from '@/components/Button';
 import Modal from '@/components/Modal';
 
 const ANALYSIS_STEPS = [
-    { text: 'Detectando características faciais...', duration: 3000 },
-    { text: 'Analisando tom de pele...', duration: 3500 },
-    { text: 'Identificando subtom...', duration: 3000 },
-    { text: 'Mapeando paleta de cores...', duration: 3500 },
-    { text: 'Gerando recomendações personalizadas...', duration: 2500 },
-    { text: 'Finalizando seu relatório...', duration: 1500 },
+    { text: 'Detectando características faciais...', duration: 4000 },
+    { text: 'Analisando tom de pele e complexidade...', duration: 4500 },
+    { text: 'Calculando contraste pessoal...', duration: 4000 },
+    { text: 'Identificando subtom (Quente/Frio)...', duration: 4000 },
+    { text: 'Mapeando paleta de cores ideal...', duration: 4500 },
+    { text: 'Gerando recomendações de estilo...', duration: 3500 },
+    { text: 'Escrevendo análise personalizada...', duration: 2500 },
 ];
 
 export default function UploadPage() {
@@ -27,6 +28,8 @@ export default function UploadPage() {
     const [currentStep, setCurrentStep] = useState(0);
     const [progress, setProgress] = useState(0);
     const [isReady, setIsReady] = useState(false);
+    // State to show "almost there" message
+    const [isLongWait, setIsLongWait] = useState(false);
 
     // Error Modal State
     const [errorModalOpen, setErrorModalOpen] = useState(false);
@@ -66,10 +69,13 @@ export default function UploadPage() {
             if (stepIndex >= ANALYSIS_STEPS.length) {
                 // Animation complete - Check if data is ready using REF
                 if (analyzedDataRef.current) {
+                    setProgress(100); // Visual completion
                     localStorage.setItem('aurapalette_analysis', JSON.stringify(analyzedDataRef.current));
-                    router.push('/preview');
+                    // Small delay to let user see 100%
+                    setTimeout(() => router.push('/preview'), 500);
                 } else {
                     // Data not ready yet? Wait a bit and check again
+                    setIsLongWait(true);
                     loopTimeout = setTimeout(runStep, 500);
                 }
                 return;
@@ -82,7 +88,9 @@ export default function UploadPage() {
             progressInterval = setInterval(() => {
                 elapsed += 50;
                 const totalProgress = (elapsed / totalDuration) * 100;
-                setProgress(Math.min(totalProgress, 99)); // Hold at 99% until data ready
+                // Hold exactly at 99% until we have data
+                const maxProgress = analyzedDataRef.current ? 100 : 99;
+                setProgress(Math.min(totalProgress, maxProgress));
             }, 50);
 
             stepTimeout = setTimeout(() => {
@@ -100,7 +108,7 @@ export default function UploadPage() {
             clearInterval(progressInterval);
             clearTimeout(loopTimeout);
         };
-    }, [isAnalyzing, router]); // Removed analyzedData dependency to prevent restart
+    }, [isAnalyzing, router]);
 
     const handleFileSelect = useCallback((file: File) => {
         if (file && file.type.startsWith('image/')) {
@@ -140,15 +148,16 @@ export default function UploadPage() {
         setIsValidating(true);
         setErrorModalOpen(false);
         setAnalyzedData(null); // Reset previous data
+        setIsLongWait(false);
 
         // Create safety controller for the entire process
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s max safety timeout
 
         try {
-            // Compress image to ~800px max (drastically reduces payload size from 4MB+ to ~300KB)
+            // Compress image to ~600px max (drastically reduces payload size and speeds up AI)
             const { compressImage } = await import('@/utils/image');
-            const compressedImage = await compressImage(image, 800, 0.8);
+            const compressedImage = await compressImage(image, 600, 0.7);
 
             // 1. FAST VALIDATION (gpt-4o-mini)
             const validationResponse = await fetch('/api/validate', {

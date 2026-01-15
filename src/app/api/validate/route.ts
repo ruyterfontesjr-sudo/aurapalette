@@ -5,24 +5,25 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-const VALIDATION_PROMPT = `Você é um filtro de segurança para um app de colorimetria.
-Sua única função é validar se a imagem enviada é adequada para análise.
+const VALIDATION_PROMPT = `Você é um filtro de qualidade para um app de colorimetria.
+Sua única função é validar se a imagem tem qualidade técnica suficiente.
 
-CRITÉRIOS DE ACEITAÇÃO (Seja FLEXÍVEL):
-1. Rosto Humano: Deve haver um rosto visível. (Aceite selfies, fotos de meio corpo, fotos em espelho se o rosto estiver claro).
-2. Qualidade: Aceite iluminação caseira, maquiagem leve/média, filtros suaves.
-3. Obstrução: O rosto não pode estar totalmente coberto (máscara, celular na frente do rosto todo).
+CRITÉRIOS DE ACEITAÇÃO (Seja Razoável, mas Firme):
+1. ROSTO VISÍVEL: O rosto deve estar descoberto, sem máscaras, sem celular cobrindo, sem óculos escuros grandes.
+2. NITIDEZ: A foto NÃO pode estar borrada ou tremida. Os traços devem ser nítidos.
+3. MAQUIAGEM: Aceite cara lavada ou maquiagem leve. REJEITE maquiagem pesada (reboco) que esconde a cor real da pele.
+4. ILUMINAÇÃO: Evite breu total ou luz estourada.
 
-CRITÉRIOS DE REJEIÇÃO (Seja RÁPIDO):
-- Foto de objetos, paisagens, animais.
-- Breu total (tudo preto).
-- Desenhos ou pinturas.
-- Foto de outra foto (tela de computador).
+CRITÉRIOS DE REJEIÇÃO IMEDIATA:
+- Foto borrada/tremida (Impossível analisar).
+- Foto de objetos, pets ou paisagens.
+- Maquiagem artística ou filtro pesado do Instagram/TikTok que altera a cor.
+- Foto preto e branco.
 
 Responda APENAS com este JSON:
 {
   "valid": true/false,
-  "error": "Mensagem curta e amigável em PT-BR explicando o motivo se for false (ex: 'Não detectamos um rosto humano', 'A foto está muito escura')"
+  "error": "Mensagem curta em PT-BR (ex: 'Foto muito borrada, tente firmar a mão', 'Maquiagem muito pesada', 'Rosto não encontrado')"
 }`;
 
 export async function POST(request: NextRequest) {

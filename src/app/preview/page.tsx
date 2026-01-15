@@ -120,21 +120,7 @@ export default function PreviewPage() {
                             `Você é **${season}**! Isso significa que certas cores vão realçar sua beleza natural enquanto outras podem apagar seu brilho.`}
                     </p>
 
-                    {/* Características Pessoais - AGORA DESBLOQUEADO PARA PROVAR VALOR */}
-                    <div style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                        <div style={{ background: 'rgba(0,0,0,0.03)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
-                            <span style={{ fontSize: '12px', color: '#666', display: 'block' }}>Temperatura</span>
-                            <span style={{ fontWeight: 600, color: '#333' }}>{analysis?.temperature}</span>
-                        </div>
-                        <div style={{ background: 'rgba(0,0,0,0.03)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
-                            <span style={{ fontSize: '12px', color: '#666', display: 'block' }}>Subtom</span>
-                            <span style={{ fontWeight: 600, color: '#333' }}>{analysis?.undertone}</span>
-                        </div>
-                        <div style={{ background: 'rgba(0,0,0,0.03)', padding: '12px', borderRadius: '12px', textAlign: 'center', gridColumn: 'span 2' }}>
-                            <span style={{ fontSize: '12px', color: '#666', display: 'block' }}>Contraste</span>
-                            <span style={{ fontWeight: 600, color: '#333' }}>{analysis?.contrast}</span>
-                        </div>
-                    </div>
+                    {/* Características Pessoais - REMOVED AS REQUESTED */}
                 </Card>
 
                 {/* Conteúdo Bloqueado */}

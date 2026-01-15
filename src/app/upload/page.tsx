@@ -155,7 +155,7 @@ export default function UploadPage() {
             // Do NOT start isAnalyzing
 
             const message = error.message === 'INVALID_IMAGE' || error.message?.includes('rosto')
-                ? '⚠️ Não conseguimos detectar um rosto claro na foto.\n\nPor favor, envie uma selfie:\n- Bem iluminada ☀️\n- Sem filtros pesados 🚫\n- Com o rosto visível 👤'
+                ? 'Não conseguimos detectar um rosto claro na foto.'
                 : 'Ocorreu um erro na análise. Por favor, tente novamente com outra foto.';
 
             setErrorMessage(message);

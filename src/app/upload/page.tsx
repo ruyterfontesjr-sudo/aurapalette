@@ -56,6 +56,10 @@ export default function UploadPage() {
                 if (analyzedData) {
                     localStorage.setItem('aurapalette_analysis', JSON.stringify(analyzedData));
                     router.push('/preview');
+                } else {
+                    // Data not ready yet? Wait a bit and check again (Spinning state)
+                    setTimeout(runStep, 1000);
+                    return;
                 }
                 return;
             }

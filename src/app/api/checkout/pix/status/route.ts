@@ -23,11 +23,19 @@ export async function GET(request: NextRequest) {
 
         console.log('Checking PIX status for:', pixId, 'email:', email);
 
+        // Debug info
+        const debug: Record<string, unknown> = {
+            hasSupabaseUrl: !!SUPABASE_URL,
+            hasServiceKey: !!SUPABASE_SERVICE_KEY,
+            supabaseUrlPrefix: SUPABASE_URL?.substring(0, 30),
+        };
+
         // Usar REST API diretamente para evitar problemas de cache do JS client
         if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
             try {
                 // Strategy 1: Check by billing_id
                 const url = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}&select=status,billing_id,email&limit=1`;
+                debug.queryUrl = url;
                 console.log('Querying Supabase REST API:', url);
 
                 const response = await fetch(url, {
@@ -38,7 +46,9 @@ export async function GET(request: NextRequest) {
                     },
                 });
 
+                debug.responseStatus = response.status;
                 const results = await response.json();
+                debug.results = results;
                 console.log('Supabase REST response:', results);
 
                 let checkoutData = results && results.length > 0 ? results[0] : null;
@@ -61,15 +71,19 @@ export async function GET(request: NextRequest) {
                     checkoutData = emailResults && emailResults.length > 0 ? emailResults[0] : null;
                 }
 
+                debug.checkoutData = checkoutData;
+
                 if (checkoutData && checkoutData.status === 'paid') {
                     console.log('✅ Found paid status via REST API');
                     return NextResponse.json({
                         status: 'paid',
                         pixId: pixId,
-                        source: 'supabase-rest'
+                        source: 'supabase-rest',
+                        debug
                     });
                 }
             } catch (restError) {
+                debug.restError = String(restError);
                 console.error('Supabase REST error:', restError);
             }
         }
@@ -130,6 +144,7 @@ export async function GET(request: NextRequest) {
             status: isPaid ? 'paid' : abacateStatus,
             pixId: data.data?.id,
             raw: abacateStatus,
+            debug
         });
     } catch (error) {
         console.error('Error checking PIX status:', error);

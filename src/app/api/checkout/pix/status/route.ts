@@ -33,8 +33,9 @@ export async function GET(request: NextRequest) {
         // Usar REST API diretamente para evitar problemas de cache do JS client
         if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
             try {
-                // Strategy 1: Check by billing_id
-                const url = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}&select=status,billing_id,email&limit=1`;
+                // Strategy 1: Check by billing_id (with cache busting)
+                const cacheBuster = Date.now();
+                const url = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}&select=status,billing_id,email&limit=1&_cb=${cacheBuster}`;
                 debug.queryUrl = url;
                 console.log('Querying Supabase REST API:', url);
 
@@ -42,8 +43,10 @@ export async function GET(request: NextRequest) {
                     headers: {
                         'apikey': SUPABASE_SERVICE_KEY,
                         'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-                        'Cache-Control': 'no-cache',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
                     },
+                    cache: 'no-store',
                 });
 
                 debug.responseStatus = response.status;
@@ -55,15 +58,17 @@ export async function GET(request: NextRequest) {
 
                 // Strategy 2: If not found by billing_id, try by email
                 if (!checkoutData && email) {
-                    const emailUrl = `${SUPABASE_URL}/rest/v1/checkouts?email=eq.${encodeURIComponent(email)}&select=status,billing_id,email&order=created_at.desc&limit=1`;
+                    const emailUrl = `${SUPABASE_URL}/rest/v1/checkouts?email=eq.${encodeURIComponent(email)}&select=status,billing_id,email&order=created_at.desc&limit=1&_cb=${cacheBuster}`;
                     console.log('Trying email fallback:', emailUrl);
 
                     const emailResponse = await fetch(emailUrl, {
                         headers: {
                             'apikey': SUPABASE_SERVICE_KEY,
                             'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-                            'Cache-Control': 'no-cache',
+                            'Cache-Control': 'no-cache, no-store, must-revalidate',
+                            'Pragma': 'no-cache',
                         },
+                        cache: 'no-store',
                     });
 
                     const emailResults = await emailResponse.json();
@@ -95,12 +100,19 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Check PIX status via AbacatePay
-        const response = await fetch(`${ABACATEPAY_API_URL}/pixQrCode/check?id=${pixId}`, {
+        // Check PIX status via AbacatePay (with cache busting)
+        const timestamp = Date.now();
+        const abacateUrl = `${ABACATEPAY_API_URL}/pixQrCode/check?id=${pixId}&_t=${timestamp}`;
+        debug.abacateUrl = abacateUrl;
+
+        const response = await fetch(abacateUrl, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${ABACATEPAY_API_KEY}`,
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
             },
+            cache: 'no-store',
         });
 
         const data = await response.json();

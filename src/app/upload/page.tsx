@@ -4,8 +4,8 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 import Card from '@/components/Card';
-
 import Button from '@/components/Button';
+import Modal from '@/components/Modal';
 
 const ANALYSIS_STEPS = [
     { text: 'Detectando características faciais...', duration: 3000 },
@@ -27,6 +27,10 @@ export default function UploadPage() {
     const [currentStep, setCurrentStep] = useState(0);
     const [progress, setProgress] = useState(0);
     const [isReady, setIsReady] = useState(false);
+
+    // Error Modal State
+    const [errorModalOpen, setErrorModalOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Checkpoint verification - must have completed quiz
     useEffect(() => {
@@ -150,12 +154,12 @@ export default function UploadPage() {
             setIsValidating(false);
             // Do NOT start isAnalyzing
 
-            // Show user friendly error
-            const errorMessage = error.message === 'INVALID_IMAGE' || error.message?.includes('rosto')
+            const message = error.message === 'INVALID_IMAGE' || error.message?.includes('rosto')
                 ? '⚠️ Não conseguimos detectar um rosto claro na foto.\n\nPor favor, envie uma selfie:\n- Bem iluminada ☀️\n- Sem filtros pesados 🚫\n- Com o rosto visível 👤'
                 : 'Ocorreu um erro na análise. Por favor, tente novamente com outra foto.';
 
-            alert(errorMessage);
+            setErrorMessage(message);
+            setErrorModalOpen(true);
             setImage(null); // Reset to allow new upload
         }
     };
@@ -331,6 +335,14 @@ export default function UploadPage() {
                         </div>
                     )}
                 </Card>
+
+                <Modal
+                    isOpen={errorModalOpen}
+                    onClose={() => setErrorModalOpen(false)}
+                    title="Atenção"
+                    message={errorMessage}
+                    buttonText="Entendi, vou tentar de novo"
+                />
             </div>
         </main>
     );

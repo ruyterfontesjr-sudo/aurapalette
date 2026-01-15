@@ -141,14 +141,16 @@ export default function UploadPage() {
         setErrorModalOpen(false);
         setAnalyzedData(null); // Reset previous data
 
+        // Create safety controller for the entire process
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s max safety timeout
+
         try {
             // Compress image to ~800px max (drastically reduces payload size from 4MB+ to ~300KB)
-            // Dynamic import to avoid SSR issues if any
             const { compressImage } = await import('@/utils/image');
             const compressedImage = await compressImage(image, 800, 0.8);
 
             // 1. FAST VALIDATION (gpt-4o-mini)
-            // This checks "Is it a face?" very quickly (~2-3s)
             const validationResponse = await fetch('/api/validate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -158,7 +160,6 @@ export default function UploadPage() {
             const validationData = await validationResponse.json();
 
             if (!validationResponse.ok) {
-                // Determine specific error message
                 let msg = 'Sua foto não atende aos padrões.';
                 if (validationData.message) msg = validationData.message;
                 throw new Error(msg);
@@ -171,8 +172,6 @@ export default function UploadPage() {
             setProgress(0);
 
             // 2. BACKGROUND FULL ANALYSIS (gpt-4o)
-            // This runs while the theatrical animation plays (~15s)
-            // Retrieve quiz data for context
             const quizDataStr = localStorage.getItem('aurapalette_quiz');
             const quizData = quizDataStr ? JSON.parse(quizDataStr) : null;
 
@@ -183,22 +182,31 @@ export default function UploadPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: compressedImage, quizData }),
+                signal: controller.signal // Bind safety timeout
             })
                 .then(async (res) => {
+                    clearTimeout(timeoutId); // Clear timeout on response
                     const data = await res.json();
                     if (!res.ok) throw new Error(data.message || 'Falha na análise profunda');
                     setAnalyzedData(data); // This triggers the animation to finish when ready
                 })
                 .catch((err) => {
                     console.error('Background analysis failed:', err);
-                    // If this fails, we need to stop the animation and show error
-                    setErrorMessage('Ocorreu um erro ao processar sua análise completa. Por favor, tente novamente.');
+
+                    let errorMsg = 'Ocorreu um erro ao processar sua análise. Por favor, tente novamente.';
+                    if (err.name === 'AbortError') {
+                        errorMsg = 'A análise demorou muito e foi interrompida. Tente uma foto menor ou conexão melhor.';
+                    }
+
+                    // Force animation stop
+                    setErrorMessage(errorMsg);
                     setErrorModalOpen(true);
-                    setIsAnalyzing(false); // Stop animation and go back
+                    setIsAnalyzing(false);
                     setImage(null);
                 });
 
         } catch (error: any) {
+            clearTimeout(timeoutId);
             console.error('Validation error:', error);
             setIsValidating(false);
 

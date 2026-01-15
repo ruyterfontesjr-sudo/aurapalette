@@ -110,32 +110,47 @@ export default function UploadPage() {
         // Store image for analysis
         localStorage.setItem('aurapalette_photo', image);
 
-        // Start API call in background
-        const apiPromise = fetch('/api/analyze', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ image }),
-        }).then(res => res.json()).catch(() => ({
-            temperature: 'Quente',
-            undertone: 'Dourado',
-            season: 'Outono',
-            contrast: 'Alto',
-        }));
+        try {
+            // Start API call in background
+            const apiRequest = fetch('/api/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image }),
+            });
 
-        // Wait for minimum animation time (psychological effect)
-        const totalDuration = ANALYSIS_STEPS.reduce((acc, step) => acc + step.duration, 0);
-        const minWait = new Promise(resolve => setTimeout(resolve, totalDuration));
+            // Wait for minimum animation time (psychological effect)
+            const totalDuration = ANALYSIS_STEPS.reduce((acc, step) => acc + step.duration, 0);
+            const minWait = new Promise(resolve => setTimeout(resolve, totalDuration));
 
-        // Wait for both API and animation
-        const [data] = await Promise.all([apiPromise, minWait]);
+            // Wait for both API and animation
+            const [response] = await Promise.all([apiRequest, minWait]);
 
-        // Store the analysis result
-        localStorage.setItem('aurapalette_analysis', JSON.stringify(data));
+            const data = await response.json();
 
-        // Navigate to preview
-        router.push('/preview');
+            if (!response.ok) {
+                throw new Error(data.message || data.error || 'Falha na análise');
+            }
+
+            // Store the analysis result
+            localStorage.setItem('aurapalette_analysis', JSON.stringify(data));
+
+            // Navigate to preview
+            router.push('/preview');
+
+        } catch (error: any) {
+            console.error('Analysis error:', error);
+            setIsAnalyzing(false);
+
+            // Show user friendly error
+            const errorMessage = error.message === 'INVALID_IMAGE' || error.message?.includes('rosto')
+                ? 'Não conseguimos detectar um rosto claro na foto. Por favor, envie uma selfie bem iluminada e sem filtros.'
+                : 'Ocorreu um erro na análise. Por favor, tente novamente com outra foto.';
+
+            alert(errorMessage); // Simple alert for now, could be a toast
+            setImage(null); // Reset to allow new upload
+        }
     };
 
     const handleRemoveImage = () => {

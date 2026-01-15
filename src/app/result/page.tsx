@@ -134,6 +134,7 @@ interface AnalysisResult {
     season: string;
     contrast: string;
     fullAnalysis?: FullAnalysis;
+    seasonTrends?: SeasonTrends;
 }
 
 // ============================================
@@ -368,8 +369,13 @@ function ResultContent() {
 
             setAnalysis(parsed);
 
-            const trends = getTrendsForSeason(parsed.season);
-            setSeasonTrends(trends);
+            // Use personalized trends from API if available, otherwise fallback to static
+            if (parsed.seasonTrends) {
+                setSeasonTrends(parsed.seasonTrends);
+            } else {
+                const trends = getTrendsForSeason(parsed.season);
+                setSeasonTrends(trends);
+            }
         }
 
         if (storedUser) {

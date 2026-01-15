@@ -116,6 +116,20 @@ export default function UploadPage() {
 
         // Step 1: Pre-validation (User stays on upload screen)
         setIsValidating(true);
+        setErrorModalOpen(false);
+
+        // Calculate approximate size (base64 length * 0.75). Limit to ~4.5MB payload (Vercel limit)
+        // 4.5MB * 1.33 = ~6MB string length
+        if (image.length > 6000000) {
+            setIsValidating(false);
+            setErrorMessage('A foto é muito grande. Por favor, envie uma imagem menor (máx 4MB).');
+            setErrorModalOpen(true);
+            setImage(null);
+            return;
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 50000); // 50s timeout
 
         try {
             // Retrieve quiz data for context
@@ -132,7 +146,10 @@ export default function UploadPage() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ image, quizData }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             const data = await response.json();
 
@@ -144,22 +161,29 @@ export default function UploadPage() {
             setAnalyzedData(data);
 
             // Step 2: Start theatrical animation
-            setIsValidating(false);
             setIsAnalyzing(true);
             setCurrentStep(0);
             setProgress(0);
 
         } catch (error: any) {
             console.error('Analysis error:', error);
-            setIsValidating(false);
-            // Do NOT start isAnalyzing
 
-            // User requested standardized error message for validation failures
-            const message = 'Sua foto não atende aos padrões de imagem exigidos. Por favor, tente novamente com outra foto.';
+            // Default error message for validation failures
+            let message = 'Sua foto não atende aos padrões de imagem exigidos. Por favor, tente novamente com outra foto.';
+
+            // Handle timeout specifically
+            if (error.name === 'AbortError') {
+                message = 'A análise demorou muito. Por favor, tente novamente ou use uma foto menor.';
+            } else if (error.message?.includes('grande')) {
+                message = error.message;
+            }
 
             setErrorMessage(message);
             setErrorModalOpen(true);
             setImage(null); // Reset to allow new upload
+        } finally {
+            clearTimeout(timeoutId);
+            setIsValidating(false);
         }
     };
 

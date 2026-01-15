@@ -156,7 +156,7 @@ export default function UploadPage() {
 
             const message = error.message === 'INVALID_IMAGE' || error.message?.includes('rosto')
                 ? 'Não conseguimos detectar um rosto claro na foto.'
-                : 'Ocorreu um erro na análise. Por favor, tente novamente com outra foto.';
+                : 'Ocorreu um erro. Sua foto não atende aos padrões de imagem exigidos. Por favor, tente novamente com outra foto.';
 
             setErrorMessage(message);
             setErrorModalOpen(true);

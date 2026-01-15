@@ -117,11 +117,8 @@ export async function POST(request: NextRequest) {
 
         // Check if OpenAI API key is configured
         if (!process.env.OPENAI_API_KEY) {
-            console.log('⚠️ OPENAI_API_KEY não configurada - retornando dados de demonstração');
             return NextResponse.json(getMockAnalysis());
         }
-
-        console.log('🔍 Iniciando análise com GPT-4 Vision...');
 
         // Adicionar contexto do quiz se disponível
         let quizContext = '';
@@ -169,25 +166,18 @@ export async function POST(request: NextRequest) {
             throw new Error('Sem resposta da OpenAI');
         }
 
-        console.log('✅ Análise concluída com sucesso!');
-
         // Parse the JSON response
         let analysis;
         try {
-            // Remove possíveis marcadores de código
             const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
             analysis = JSON.parse(cleanContent);
-        } catch (parseError) {
-            console.error('Erro ao parsear resposta:', parseError);
-            console.log('Resposta raw:', content);
+        } catch {
             throw new Error('Erro ao processar resposta da IA');
         }
 
         return NextResponse.json(analysis);
-    } catch (error) {
-        console.error('❌ Erro na análise:', error);
-
-        // Return mock data on error with message
+    } catch {
+        // Return mock data on error
         return NextResponse.json({
             ...getMockAnalysis(),
             _error: 'Usando dados de demonstração devido a erro na API',

@@ -191,15 +191,12 @@ export default function CheckoutPage() {
                             filter: `billing_id=eq.${pixData.pixId}`,
                         },
                         (payload: { new: { status: string } }) => {
-                            console.log('Realtime update received:', payload);
                             if (payload.new && payload.new.status === 'paid') {
                                 handlePaymentConfirmed();
                             }
                         }
                     )
-                    .subscribe((status: string) => {
-                        console.log('Realtime subscription status:', status);
-                    });
+                    .subscribe();
             });
         }
 
@@ -207,10 +204,8 @@ export default function CheckoutPage() {
         const checkPaymentStatus = async () => {
             if (redirected) return;
             try {
-                // Include email and timestamp to bust cache
                 const emailParam = userData.email ? `&email=${encodeURIComponent(userData.email)}` : '';
                 const cacheBuster = `&_t=${Date.now()}`;
-                console.log('Polling PIX status for:', pixData.pixId, 'email:', userData.email);
 
                 const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}${emailParam}${cacheBuster}`, {
                     cache: 'no-store',
@@ -220,14 +215,12 @@ export default function CheckoutPage() {
                     },
                 });
                 const data = await res.json();
-                console.log('PIX status response:', data);
 
                 if (data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'paid' || data.status === 'PAID') {
-                    console.log('Payment confirmed! Redirecting...');
                     handlePaymentConfirmed();
                 }
-            } catch (error) {
-                console.error('Error checking PIX status:', error);
+            } catch {
+                // Silently retry on next poll
             }
         };
 
@@ -240,7 +233,6 @@ export default function CheckoutPage() {
         // 3. Verificar quando a página fica visível novamente (usuário volta do app do banco)
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible' && !redirected) {
-                console.log('Page became visible, checking payment status...');
                 checkPaymentStatus();
             }
         };
@@ -248,7 +240,6 @@ export default function CheckoutPage() {
         // 4. Verificar quando a janela recebe foco
         const handleFocus = () => {
             if (!redirected) {
-                console.log('Window focused, checking payment status...');
                 checkPaymentStatus();
             }
         };
@@ -256,7 +247,6 @@ export default function CheckoutPage() {
         // 5. Verificar quando a página é exibida novamente (back/forward cache)
         const handlePageShow = (event: PageTransitionEvent) => {
             if (event.persisted && !redirected) {
-                console.log('Page restored from bfcache, checking payment status...');
                 checkPaymentStatus();
             }
         };
@@ -354,17 +344,14 @@ export default function CheckoutPage() {
                                             },
                                         });
                                         const data = await res.json();
-                                        console.log('Manual check status:', data);
                                         if (data.status === 'paid' || data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'PAID') {
                                             document.body.style.overflow = '';
                                             router.push('/result?pix=success');
                                             return;
                                         } else {
-                                            // Mostrar mensagem que o pagamento não foi detectado ainda
                                             setPaymentNotFound(true);
                                         }
-                                    } catch (error) {
-                                        console.error('Error checking payment:', error);
+                                    } catch {
                                         setPaymentNotFound(true);
                                     }
                                     setCheckingStatus(false);

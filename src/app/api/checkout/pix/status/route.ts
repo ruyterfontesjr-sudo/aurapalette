@@ -33,21 +33,10 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        console.log('[PIX Status] Checking:', pixId, 'email:', email, 'time:', new Date().toISOString());
-
-        // Debug info
-        const debug: Record<string, unknown> = {
-            timestamp: Date.now(),
-            hasSupabaseUrl: !!SUPABASE_URL,
-            hasServiceKey: !!SUPABASE_SERVICE_KEY,
-        };
-
         // Estratégia 1: Verificar no Supabase via REST API
         if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
             try {
-                // Query by billing_id
                 const url = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}&select=status,billing_id,email&limit=1`;
-                console.log('[PIX Status] Supabase query:', url);
 
                 const response = await fetch(url, {
                     headers: {
@@ -61,14 +50,11 @@ export async function GET(request: NextRequest) {
                 });
 
                 const results = await response.json();
-                console.log('[PIX Status] Supabase response:', JSON.stringify(results));
-
                 let checkoutData = results && results.length > 0 ? results[0] : null;
 
                 // Fallback: buscar por email se não encontrou por billing_id
                 if (!checkoutData && email) {
                     const emailUrl = `${SUPABASE_URL}/rest/v1/checkouts?email=eq.${encodeURIComponent(email)}&select=status,billing_id,email&order=created_at.desc&limit=1`;
-                    console.log('[PIX Status] Email fallback query:', emailUrl);
 
                     const emailResponse = await fetch(emailUrl, {
                         headers: {
@@ -82,27 +68,17 @@ export async function GET(request: NextRequest) {
                     });
 
                     const emailResults = await emailResponse.json();
-                    console.log('[PIX Status] Email fallback response:', JSON.stringify(emailResults));
                     checkoutData = emailResults && emailResults.length > 0 ? emailResults[0] : null;
                 }
 
-                debug.supabaseResult = checkoutData;
-
                 if (checkoutData && checkoutData.status === 'paid') {
-                    console.log('[PIX Status] ✅ PAID found in Supabase!');
                     return NextResponse.json(
-                        {
-                            status: 'paid',
-                            pixId: pixId,
-                            source: 'supabase',
-                            debug
-                        },
+                        { status: 'paid', pixId, source: 'supabase' },
                         { headers: noCacheHeaders }
                     );
                 }
-            } catch (restError) {
-                debug.supabaseError = String(restError);
-                console.error('[PIX Status] Supabase error:', restError);
+            } catch {
+                // Continue to AbacatePay check
             }
         }
 
@@ -116,7 +92,6 @@ export async function GET(request: NextRequest) {
 
         const timestamp = Date.now();
         const abacateUrl = `${ABACATEPAY_API_URL}/pixQrCode/check?id=${pixId}&_t=${timestamp}`;
-        console.log('[PIX Status] AbacatePay query:', abacateUrl);
 
         const response = await fetch(abacateUrl, {
             method: 'GET',
@@ -131,22 +106,15 @@ export async function GET(request: NextRequest) {
         const data = await response.json();
         const abacateStatus = data.data?.status || 'PENDING';
 
-        console.log('[PIX Status] AbacatePay response:', JSON.stringify(data));
-        console.log('[PIX Status] AbacatePay status:', abacateStatus);
-
-        debug.abacateStatus = abacateStatus;
-
         // Verificar se o status indica pagamento confirmado
         const isPaid = PAID_STATUSES.includes(abacateStatus);
 
         if (isPaid) {
-            console.log('[PIX Status] ✅ PAID confirmed by AbacatePay!');
-
             // Atualizar Supabase
             if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
                 try {
                     const updateUrl = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}`;
-                    const updateResponse = await fetch(updateUrl, {
+                    await fetch(updateUrl, {
                         method: 'PATCH',
                         headers: {
                             'apikey': SUPABASE_SERVICE_KEY,
@@ -159,42 +127,24 @@ export async function GET(request: NextRequest) {
                             paid_at: new Date().toISOString(),
                         }),
                     });
-
-                    if (updateResponse.ok) {
-                        console.log('[PIX Status] Supabase updated to paid');
-                    } else {
-                        console.error('[PIX Status] Supabase update error:', await updateResponse.text());
-                    }
-                } catch (updateError) {
-                    console.error('[PIX Status] Supabase update error:', updateError);
+                } catch {
+                    // Silently continue - payment is confirmed
                 }
             }
 
             return NextResponse.json(
-                {
-                    status: 'paid',
-                    pixId: data.data?.id || pixId,
-                    source: 'abacatepay',
-                    debug
-                },
+                { status: 'paid', pixId: data.data?.id || pixId, source: 'abacatepay' },
                 { headers: noCacheHeaders }
             );
         }
 
         // Ainda pendente
-        console.log('[PIX Status] ⏳ Still pending:', abacateStatus);
         return NextResponse.json(
-            {
-                status: abacateStatus,
-                pixId: data.data?.id || pixId,
-                source: 'abacatepay',
-                debug
-            },
+            { status: abacateStatus, pixId: data.data?.id || pixId, source: 'abacatepay' },
             { headers: noCacheHeaders }
         );
 
-    } catch (error) {
-        console.error('[PIX Status] Error:', error);
+    } catch {
         return NextResponse.json(
             { error: 'Error checking PIX status', status: 'PENDING' },
             { status: 500, headers: noCacheHeaders }

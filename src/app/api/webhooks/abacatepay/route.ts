@@ -39,11 +39,9 @@ interface AbacatePayWebhookPayload {
 
 export async function POST(request: NextRequest) {
     try {
-        // Validar webhook secret (header x-webhook-secret)
         const webhookSecret = request.headers.get('x-webhook-secret');
 
         if (WEBHOOK_SECRET && webhookSecret !== WEBHOOK_SECRET) {
-            console.error('Invalid webhook secret');
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -52,49 +50,28 @@ export async function POST(request: NextRequest) {
 
         const payload: AbacatePayWebhookPayload = await request.json();
 
-        console.log('AbacatePay webhook received:', JSON.stringify(payload, null, 2));
-
-        // Handle billing.paid event
         if (payload.event === 'billing.paid') {
             const { data } = payload;
-
-            console.log('PIX Payment completed:', {
-                billingId: data.billing?.id,
-                pixQrCodeId: data.pixQrCode?.id,
-                amount: data.payment?.amount,
-                customerEmail: data.billing?.customer?.metadata?.email,
-                status: data.billing?.status,
-            });
-
-            // Atualizar status no Supabase - usar billing_id
             const pixId = data.pixQrCode?.id || data.billing?.id;
 
             if (pixId) {
                 try {
                     const supabase = getServerSupabase();
-                    const { error, data: updateData } = await supabase
+                    await supabase
                         .from('checkouts')
                         .update({
                             status: 'paid',
                             paid_at: new Date().toISOString(),
                         })
-                        .eq('billing_id', pixId)
-                        .select();
-
-                    if (error) {
-                        console.error('Error updating checkout in Supabase:', error);
-                    } else {
-                        console.log('Checkout marked as paid in Supabase:', pixId, updateData);
-                    }
-                } catch (supabaseError) {
-                    console.error('Supabase update error:', supabaseError);
+                        .eq('billing_id', pixId);
+                } catch {
+                    // Continue even if update fails
                 }
             }
         }
 
         return NextResponse.json({ received: true });
-    } catch (error) {
-        console.error('AbacatePay webhook error:', error);
+    } catch {
         return NextResponse.json(
             { error: 'Webhook handler failed' },
             { status: 500 }

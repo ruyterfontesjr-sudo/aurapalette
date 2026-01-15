@@ -1,7 +1,7 @@
 .page {
     min-height: 100vh;
     min-height: 100dvh;
-    padding: 40px 20px;
+    padding: 24px 16px;
     position: relative;
 }
 
@@ -594,15 +594,15 @@
 /* Footer */
 .footer {
     text-align: center;
-    padding: var(--space-2xl) 0;
+    padding: var(--space-xl) 0 var(--space-md);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin-top: var(--space-2xl);
+    margin-top: var(--space-xl);
 }
 
 .footerText {
     font-size: 0.875rem;
     color: var(--color-gray);
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-md);
 }
 
 /* ============================================ */

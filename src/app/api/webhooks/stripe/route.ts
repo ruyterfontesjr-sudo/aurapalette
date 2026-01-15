@@ -28,31 +28,22 @@ export async function POST(request: NextRequest) {
 
         try {
             event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-        } catch (err) {
-            console.error('Webhook signature verification failed:', err);
+        } catch {
             return NextResponse.json(
                 { error: 'Webhook signature verification failed' },
                 { status: 400 }
             );
         }
 
-        // Handle the checkout.session.completed event
         if (event.type === 'checkout.session.completed') {
             const session = event.data.object as Stripe.Checkout.Session;
             const customerEmail = session.customer_details?.email;
-
-            console.log('[Stripe Webhook] Payment completed:', {
-                sessionId: session.id,
-                customerEmail,
-                amountTotal: session.amount_total,
-                paymentStatus: session.payment_status,
-            });
 
             // Save to Supabase for consistency with PIX flow
             if (SUPABASE_URL && SUPABASE_SERVICE_KEY && customerEmail) {
                 try {
                     const insertUrl = `${SUPABASE_URL}/rest/v1/checkouts`;
-                    const insertResponse = await fetch(insertUrl, {
+                    await fetch(insertUrl, {
                         method: 'POST',
                         headers: {
                             'apikey': SUPABASE_SERVICE_KEY,
@@ -68,21 +59,14 @@ export async function POST(request: NextRequest) {
                             paid_at: new Date().toISOString(),
                         }),
                     });
-
-                    if (insertResponse.ok) {
-                        console.log('[Stripe Webhook] ✅ Saved to Supabase:', session.id);
-                    } else {
-                        console.error('[Stripe Webhook] Supabase insert error:', await insertResponse.text());
-                    }
-                } catch (supabaseError) {
-                    console.error('[Stripe Webhook] Supabase error:', supabaseError);
+                } catch {
+                    // Continue even if Supabase fails
                 }
             }
         }
 
         return NextResponse.json({ received: true });
-    } catch (error) {
-        console.error('Webhook error:', error);
+    } catch {
         return NextResponse.json(
             { error: 'Webhook handler failed' },
             { status: 500 }

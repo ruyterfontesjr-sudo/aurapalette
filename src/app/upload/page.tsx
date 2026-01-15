@@ -155,7 +155,7 @@ export default function UploadPage() {
             // Do NOT start isAnalyzing
 
             // User requested standardized error message for validation failures
-            const message = 'Ocorreu um erro. Sua foto não atende aos padrões de imagem exigidos. Por favor, tente novamente com outra foto.';
+            const message = 'Sua foto não atende aos padrões de imagem exigidos. Por favor, tente novamente com outra foto.';
 
             setErrorMessage(message);
             setErrorModalOpen(true);

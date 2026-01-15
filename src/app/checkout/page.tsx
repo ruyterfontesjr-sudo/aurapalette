@@ -271,6 +271,8 @@ export default function CheckoutPage() {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('focus', handleFocus);
             window.removeEventListener('pageshow', handlePageShow);
+            // Reset body overflow when component unmounts
+            document.body.style.overflow = '';
             if (channel && supabaseClient) {
                 supabaseClient.removeChannel(channel);
             }

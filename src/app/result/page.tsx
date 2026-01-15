@@ -290,6 +290,10 @@ export default function ResultPage() {
     const [seasonTrends, setSeasonTrends] = useState<SeasonTrends | null>(null);
 
     useEffect(() => {
+        // Ensure body is scrollable and scroll to top
+        document.body.style.overflow = '';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+
         const storedAnalysis = localStorage.getItem('aurapalette_analysis');
         const storedUser = localStorage.getItem('aurapalette_user');
 

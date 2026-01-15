@@ -8,6 +8,7 @@ import Logo from '@/components/Logo';
 import Button from '@/components/Button';
 import { getTrendsForSeason, generalTrends2026, type SeasonTrends } from '@/data/trends2026';
 import ColorDetailsModal from '@/components/ColorDetailsModal';
+import { sendPurchaseEvent } from '@/utils/conversion';
 
 // ============================================
 // INTERFACES EXPANDIDAS
@@ -293,6 +294,43 @@ function ResultContent() {
     const [seasonTrends, setSeasonTrends] = useState<SeasonTrends | null>(null);
     const [showPaymentBadge, setShowPaymentBadge] = useState(false);
     const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string } | null>(null);
+
+    // Google Ads Enhanced Conversion Tracking
+    useEffect(() => {
+        const trackConversion = async () => {
+            try {
+                // Check if already tracked in this session to avoid duplicates
+                const alreadyTracked = localStorage.getItem('aurapalette_purchase_tracked');
+                if (alreadyTracked) return;
+
+                // Get user data from localStorage (saved during checkout)
+                const userDataStr = localStorage.getItem('aurapalette_user');
+                let userData = null;
+
+                if (userDataStr) {
+                    userData = JSON.parse(userDataStr);
+                }
+
+                if (userData) {
+                    await sendPurchaseEvent({
+                        email: userData.email,
+                        phone: userData.whatsapp || userData.phone, // fallback
+                        firstName: userData.name?.split(' ')[0],
+                        lastName: userData.name?.split(' ').slice(1).join(' '),
+                        value: 47.00,
+                        currency: 'BRL'
+                    });
+
+                    // Mark as tracked
+                    localStorage.setItem('aurapalette_purchase_tracked', 'true');
+                }
+            } catch (err) {
+                console.error('Error tracking conversion:', err);
+            }
+        };
+
+        trackConversion();
+    }, []);
 
     const handleColorClick = (color: { name: string; hex: string }) => {
         setSelectedColor(color);

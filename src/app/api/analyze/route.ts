@@ -9,21 +9,8 @@ const openai = new OpenAI({
 const COLORIMETRY_EXPERT_PROMPT = `Você é um ESPECIALISTA CERTIFICADO em colorimetria pessoal com mais de 15 anos de experiência.
 Sua reputação depende de análises precisas e honestas.
 
-ETAPA 1: VALIDAÇÃO DA IMAGEM (Seja flexível)
-O objetivo é TENTAR analisar a imagem, rejeitando apenas casos impossíveis.
-1. Existe um rosto humano visível? (Aceite mesmo se não estiver perfeitamente centralizado. Rejeite apenas se não houver rosto ou se estiver muito longe/borrado).
-2. É possível ver a pele? (Aceite iluminação caseira. Rejeite apenas se estiver breu total ou estourada a ponto de não ver cor).
-3. Maquiagem/Filtros: ACEITE maquiagem leve ou filtros suaves. Rejeite apenas se houver filtros artísticos pesados (ex: desenho, preto e branco) ou maquiagem que cubra 100% da pele como uma máscara.
-
-SE A IMAGEM FOR COMPLETAMENTE IMPOSSÍVEL DE ANALISAR:
-Retorne APENAS este JSON de erro:
-{
-  "error": "INVALID_IMAGE",
-  "reason": "Explique o motivo (ex: não é uma pessoa, foto preto e branco)"
-}
-
-ETAPA 2: ANÁLISE PROFUNDA (Apenas se passar na validação)
-Analise com precisão cirúrgica:
+ETAPA 1: ANÁLISE PROFUNDA (A imagem já foi pré-validada)
+Analise com precisão cirúrgica. Assuma que a imagem é válida e faça o seu melhor para extrair as características.
 1. **TOM DE PELE**: Observe a pele nas áreas sem maquiagem (testa, pescoço). Descreva o que vê.
 2. **SUBTOM**: Analise as veias, reação à luz. É quente (dourado/amarelo) ou frio (rosa/azul)?
 3. **CONTRASTE**: Diferença entre cabelo, olhos e pele.

@@ -7,6 +7,7 @@
     justify-content: center;
     padding: 24px 16px;
     position: relative;
+    overflow: hidden;
 }
 
 .pageQr {
@@ -320,8 +321,15 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .changePaymentButton {
@@ -468,7 +476,7 @@
     text-align: center;
     padding: 8px;
     margin-top: 28px;
-    margin-bottom: 4px;
+    margin-bottom: var(--space-xl);
     background: none;
     border: none;
     color: var(--color-gray);

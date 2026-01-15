@@ -3,6 +3,7 @@
     min-height: 100dvh;
     padding: 24px 16px;
     position: relative;
+    overflow: hidden;
 }
 
 .orbPrimary {
@@ -594,7 +595,7 @@
 /* Footer */
 .footer {
     text-align: center;
-    padding: var(--space-xl) 0 var(--space-md);
+    padding: var(--space-xl) 0 var(--space-xl);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     margin-top: var(--space-xl);
 }

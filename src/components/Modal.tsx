@@ -8,7 +8,8 @@ interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     title: string;
-    message: string;
+    message?: string;
+    children?: React.ReactNode;
     icon?: string;
     buttonText?: string;
 }
@@ -18,6 +19,7 @@ export default function Modal({
     onClose,
     title,
     message,
+    children,
     icon = '⚠️',
     buttonText = 'Entendi'
 }: ModalProps) {
@@ -47,7 +49,8 @@ export default function Modal({
             >
                 <div className={styles.icon}>{icon}</div>
                 <h3 className={styles.title}>{title}</h3>
-                <p className={styles.message}>{message}</p>
+                {message && <p className={styles.message}>{message}</p>}
+                {children}
 
                 <div className={styles.button}>
                     <Button
@@ -60,5 +63,9 @@ export default function Modal({
                 </div>
             </div>
         </div>
+    );
+}
+            </div >
+        </div >
     );
 }

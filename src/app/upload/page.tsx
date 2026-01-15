@@ -340,9 +340,48 @@ export default function UploadPage() {
                     isOpen={errorModalOpen}
                     onClose={() => setErrorModalOpen(false)}
                     title="Atenção"
-                    message={errorMessage}
                     buttonText="Entendi, vou tentar de novo"
-                />
+                >
+                    <div style={{ textAlign: 'center', marginBottom: '24px', width: '100%' }}>
+                        <p style={{ color: 'rgba(255,255,255,0.9)', marginBottom: '20px', fontSize: '1.1rem', lineHeight: '1.5' }}>
+                            {errorMessage}
+                        </p>
+
+                        <div style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            borderRadius: '16px',
+                            padding: '20px',
+                            textAlign: 'left',
+                            border: '1px solid rgba(255,255,255,0.1)'
+                        }}>
+                            <p style={{
+                                color: 'rgba(255,255,255,0.7)',
+                                fontSize: '0.9rem',
+                                marginBottom: '16px',
+                                textAlign: 'center',
+                                fontWeight: 500,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
+                            }}>
+                                Como tirar a foto ideal:
+                            </p>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <li style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'rgba(255,255,255,0.95)', fontSize: '0.95rem' }}>
+                                    <span style={{ fontSize: '1.2rem' }}>☀️</span>
+                                    <span>Procure um local <strong>bem iluminado</strong></span>
+                                </li>
+                                <li style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'rgba(255,255,255,0.95)', fontSize: '0.95rem' }}>
+                                    <span style={{ fontSize: '1.2rem' }}>🚫</span>
+                                    <span>Evite filtros ou <strong>maquiagem pesada</strong></span>
+                                </li>
+                                <li style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'rgba(255,255,255,0.95)', fontSize: '0.95rem' }}>
+                                    <span style={{ fontSize: '1.2rem' }}>👤</span>
+                                    <span>Mantenha o <strong>rosto visível</strong></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </Modal>
             </div>
         </main>
     );

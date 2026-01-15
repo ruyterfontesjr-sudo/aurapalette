@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Force dynamic rendering - never cache this route
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const ABACATEPAY_API_KEY = process.env.ABACATEPAY_API_KEY || '';
 const ABACATEPAY_API_URL = 'https://api.abacatepay.com/v1';
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -33,9 +37,8 @@ export async function GET(request: NextRequest) {
         // Usar REST API diretamente para evitar problemas de cache do JS client
         if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
             try {
-                // Strategy 1: Check by billing_id (with cache busting)
-                const cacheBuster = Date.now();
-                const url = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}&select=status,billing_id,email&limit=1&_cb=${cacheBuster}`;
+                // Strategy 1: Check by billing_id
+                const url = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}&select=status,billing_id,email&limit=1`;
                 debug.queryUrl = url;
                 console.log('Querying Supabase REST API:', url);
 
@@ -47,6 +50,7 @@ export async function GET(request: NextRequest) {
                         'Pragma': 'no-cache',
                     },
                     cache: 'no-store',
+                    next: { revalidate: 0 },
                 });
 
                 debug.responseStatus = response.status;
@@ -58,7 +62,7 @@ export async function GET(request: NextRequest) {
 
                 // Strategy 2: If not found by billing_id, try by email
                 if (!checkoutData && email) {
-                    const emailUrl = `${SUPABASE_URL}/rest/v1/checkouts?email=eq.${encodeURIComponent(email)}&select=status,billing_id,email&order=created_at.desc&limit=1&_cb=${cacheBuster}`;
+                    const emailUrl = `${SUPABASE_URL}/rest/v1/checkouts?email=eq.${encodeURIComponent(email)}&select=status,billing_id,email&order=created_at.desc&limit=1`;
                     console.log('Trying email fallback:', emailUrl);
 
                     const emailResponse = await fetch(emailUrl, {

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/lib/supabase-server';
 
+// Force dynamic rendering - never cache payment routes
+export const dynamic = 'force-dynamic';
+
 const ABACATEPAY_API_KEY = process.env.ABACATEPAY_API_KEY || '';
 const ABACATEPAY_API_URL = 'https://api.abacatepay.com/v1';
 

@@ -207,10 +207,18 @@ export default function CheckoutPage() {
         const checkPaymentStatus = async () => {
             if (redirected) return;
             try {
-                // Include email as fallback identifier
+                // Include email and timestamp to bust cache
                 const emailParam = userData.email ? `&email=${encodeURIComponent(userData.email)}` : '';
+                const cacheBuster = `&_t=${Date.now()}`;
                 console.log('Polling PIX status for:', pixData.pixId, 'email:', userData.email);
-                const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}${emailParam}`);
+
+                const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}${emailParam}${cacheBuster}`, {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                    },
+                });
                 const data = await res.json();
                 console.log('PIX status response:', data);
 
@@ -332,10 +340,17 @@ export default function CheckoutPage() {
                                 onClick={async () => {
                                     setCheckingStatus(true);
                                     setPaymentNotFound(false);
-                                    // Check payment status with email fallback
+                                    // Check payment status with email fallback and cache buster
                                     try {
                                         const emailParam = userData.email ? `&email=${encodeURIComponent(userData.email)}` : '';
-                                        const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}${emailParam}`);
+                                        const cacheBuster = `&_t=${Date.now()}`;
+                                        const res = await fetch(`/api/checkout/pix/status?id=${pixData.pixId}${emailParam}${cacheBuster}`, {
+                                            cache: 'no-store',
+                                            headers: {
+                                                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                                                'Pragma': 'no-cache',
+                                            },
+                                        });
                                         const data = await res.json();
                                         console.log('Manual check status:', data);
                                         if (data.status === 'paid' || data.status === 'RECEIVED' || data.status === 'COMPLETED' || data.status === 'PAID') {

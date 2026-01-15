@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Force dynamic rendering - never cache this route
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 const ABACATEPAY_API_KEY = process.env.ABACATEPAY_API_KEY || '';
 const ABACATEPAY_API_URL = 'https://api.abacatepay.com/v1';
@@ -11,6 +12,13 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 // Status que indicam pagamento confirmado
 const PAID_STATUSES = ['PAID', 'RECEIVED', 'COMPLETED', 'paid', 'received', 'completed', 'CONFIRMED', 'confirmed'];
+
+// Headers para prevenir cache em TODAS as respostas
+const noCacheHeaders = {
+    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+};
 
 export async function GET(request: NextRequest) {
     try {
@@ -21,26 +29,25 @@ export async function GET(request: NextRequest) {
         if (!pixId) {
             return NextResponse.json(
                 { error: 'PIX ID required' },
-                { status: 400 }
+                { status: 400, headers: noCacheHeaders }
             );
         }
 
-        console.log('Checking PIX status for:', pixId, 'email:', email);
+        console.log('[PIX Status] Checking:', pixId, 'email:', email, 'time:', new Date().toISOString());
 
         // Debug info
         const debug: Record<string, unknown> = {
+            timestamp: Date.now(),
             hasSupabaseUrl: !!SUPABASE_URL,
             hasServiceKey: !!SUPABASE_SERVICE_KEY,
-            supabaseUrlPrefix: SUPABASE_URL?.substring(0, 30),
         };
 
-        // Usar REST API diretamente para evitar problemas de cache do JS client
+        // Estratégia 1: Verificar no Supabase via REST API
         if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
             try {
-                // Strategy 1: Check by billing_id
+                // Query by billing_id
                 const url = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}&select=status,billing_id,email&limit=1`;
-                debug.queryUrl = url;
-                console.log('Querying Supabase REST API:', url);
+                console.log('[PIX Status] Supabase query:', url);
 
                 const response = await fetch(url, {
                     headers: {
@@ -53,17 +60,15 @@ export async function GET(request: NextRequest) {
                     next: { revalidate: 0 },
                 });
 
-                debug.responseStatus = response.status;
                 const results = await response.json();
-                debug.results = results;
-                console.log('Supabase REST response:', results);
+                console.log('[PIX Status] Supabase response:', JSON.stringify(results));
 
                 let checkoutData = results && results.length > 0 ? results[0] : null;
 
-                // Strategy 2: If not found by billing_id, try by email
+                // Fallback: buscar por email se não encontrou por billing_id
                 if (!checkoutData && email) {
                     const emailUrl = `${SUPABASE_URL}/rest/v1/checkouts?email=eq.${encodeURIComponent(email)}&select=status,billing_id,email&order=created_at.desc&limit=1`;
-                    console.log('Trying email fallback:', emailUrl);
+                    console.log('[PIX Status] Email fallback query:', emailUrl);
 
                     const emailResponse = await fetch(emailUrl, {
                         headers: {
@@ -73,41 +78,45 @@ export async function GET(request: NextRequest) {
                             'Pragma': 'no-cache',
                         },
                         cache: 'no-store',
+                        next: { revalidate: 0 },
                     });
 
                     const emailResults = await emailResponse.json();
-                    console.log('Supabase email response:', emailResults);
+                    console.log('[PIX Status] Email fallback response:', JSON.stringify(emailResults));
                     checkoutData = emailResults && emailResults.length > 0 ? emailResults[0] : null;
                 }
 
-                debug.checkoutData = checkoutData;
+                debug.supabaseResult = checkoutData;
 
                 if (checkoutData && checkoutData.status === 'paid') {
-                    console.log('✅ Found paid status via REST API');
-                    return NextResponse.json({
-                        status: 'paid',
-                        pixId: pixId,
-                        source: 'supabase-rest',
-                        debug
-                    });
+                    console.log('[PIX Status] ✅ PAID found in Supabase!');
+                    return NextResponse.json(
+                        {
+                            status: 'paid',
+                            pixId: pixId,
+                            source: 'supabase',
+                            debug
+                        },
+                        { headers: noCacheHeaders }
+                    );
                 }
             } catch (restError) {
-                debug.restError = String(restError);
-                console.error('Supabase REST error:', restError);
+                debug.supabaseError = String(restError);
+                console.error('[PIX Status] Supabase error:', restError);
             }
         }
 
+        // Estratégia 2: Verificar diretamente no AbacatePay
         if (!ABACATEPAY_API_KEY) {
             return NextResponse.json(
-                { error: 'AbacatePay not configured' },
-                { status: 500 }
+                { error: 'AbacatePay not configured', status: 'PENDING' },
+                { status: 500, headers: noCacheHeaders }
             );
         }
 
-        // Check PIX status via AbacatePay (with cache busting)
         const timestamp = Date.now();
         const abacateUrl = `${ABACATEPAY_API_URL}/pixQrCode/check?id=${pixId}&_t=${timestamp}`;
-        debug.abacateUrl = abacateUrl;
+        console.log('[PIX Status] AbacatePay query:', abacateUrl);
 
         const response = await fetch(abacateUrl, {
             method: 'GET',
@@ -122,51 +131,73 @@ export async function GET(request: NextRequest) {
         const data = await response.json();
         const abacateStatus = data.data?.status || 'PENDING';
 
-        console.log('AbacatePay status response:', JSON.stringify(data, null, 2));
-        console.log('AbacatePay status:', abacateStatus);
+        console.log('[PIX Status] AbacatePay response:', JSON.stringify(data));
+        console.log('[PIX Status] AbacatePay status:', abacateStatus);
+
+        debug.abacateStatus = abacateStatus;
 
         // Verificar se o status indica pagamento confirmado
         const isPaid = PAID_STATUSES.includes(abacateStatus);
 
-        if (isPaid && SUPABASE_URL && SUPABASE_SERVICE_KEY) {
-            // Atualizar Supabase se ainda não estiver pago (via REST API)
-            try {
-                const updateUrl = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}`;
-                const updateResponse = await fetch(updateUrl, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_SERVICE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal',
-                    },
-                    body: JSON.stringify({
-                        status: 'paid',
-                        paid_at: new Date().toISOString(),
-                    }),
-                });
+        if (isPaid) {
+            console.log('[PIX Status] ✅ PAID confirmed by AbacatePay!');
 
-                if (updateResponse.ok) {
-                    console.log('Updated Supabase status to paid for:', pixId);
-                } else {
-                    console.error('Error updating Supabase:', await updateResponse.text());
+            // Atualizar Supabase
+            if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
+                try {
+                    const updateUrl = `${SUPABASE_URL}/rest/v1/checkouts?billing_id=eq.${encodeURIComponent(pixId)}`;
+                    const updateResponse = await fetch(updateUrl, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_SERVICE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal',
+                        },
+                        body: JSON.stringify({
+                            status: 'paid',
+                            paid_at: new Date().toISOString(),
+                        }),
+                    });
+
+                    if (updateResponse.ok) {
+                        console.log('[PIX Status] Supabase updated to paid');
+                    } else {
+                        console.error('[PIX Status] Supabase update error:', await updateResponse.text());
+                    }
+                } catch (updateError) {
+                    console.error('[PIX Status] Supabase update error:', updateError);
                 }
-            } catch (updateError) {
-                console.error('Error updating Supabase:', updateError);
             }
+
+            return NextResponse.json(
+                {
+                    status: 'paid',
+                    pixId: data.data?.id || pixId,
+                    source: 'abacatepay',
+                    debug
+                },
+                { headers: noCacheHeaders }
+            );
         }
 
-        return NextResponse.json({
-            status: isPaid ? 'paid' : abacateStatus,
-            pixId: data.data?.id,
-            raw: abacateStatus,
-            debug
-        });
+        // Ainda pendente
+        console.log('[PIX Status] ⏳ Still pending:', abacateStatus);
+        return NextResponse.json(
+            {
+                status: abacateStatus,
+                pixId: data.data?.id || pixId,
+                source: 'abacatepay',
+                debug
+            },
+            { headers: noCacheHeaders }
+        );
+
     } catch (error) {
-        console.error('Error checking PIX status:', error);
+        console.error('[PIX Status] Error:', error);
         return NextResponse.json(
             { error: 'Error checking PIX status', status: 'PENDING' },
-            { status: 500 }
+            { status: 500, headers: noCacheHeaders }
         );
     }
 }

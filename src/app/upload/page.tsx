@@ -22,6 +22,8 @@ export default function UploadPage() {
     const [image, setImage] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isValidating, setIsValidating] = useState(false);
+    const [analyzedData, setAnalyzedData] = useState<any>(null);
     const [currentStep, setCurrentStep] = useState(0);
     const [progress, setProgress] = useState(0);
     const [isReady, setIsReady] = useState(false);
@@ -45,7 +47,14 @@ export default function UploadPage() {
         const totalDuration = ANALYSIS_STEPS.reduce((acc, step) => acc + step.duration, 0);
 
         const runStep = () => {
-            if (stepIndex >= ANALYSIS_STEPS.length) return;
+            if (stepIndex >= ANALYSIS_STEPS.length) {
+                // Animation complete - finish up
+                if (analyzedData) {
+                    localStorage.setItem('aurapalette_analysis', JSON.stringify(analyzedData));
+                    router.push('/preview');
+                }
+                return;
+            }
 
             setCurrentStep(stepIndex);
             const stepDuration = ANALYSIS_STEPS[stepIndex].duration;
@@ -60,14 +69,12 @@ export default function UploadPage() {
             setTimeout(() => {
                 clearInterval(progressInterval);
                 stepIndex++;
-                if (stepIndex < ANALYSIS_STEPS.length) {
-                    runStep();
-                }
+                runStep();
             }, stepDuration);
         };
 
         runStep();
-    }, [isAnalyzing]);
+    }, [isAnalyzing, analyzedData, router]);
 
     const handleFileSelect = useCallback((file: File) => {
         if (file && file.type.startsWith('image/')) {
@@ -103,29 +110,25 @@ export default function UploadPage() {
     const handleAnalyze = async () => {
         if (!image) return;
 
-        setIsAnalyzing(true);
-        setCurrentStep(0);
-        setProgress(0);
-
-        // Store image for analysis
-        localStorage.setItem('aurapalette_photo', image);
+        // Step 1: Pre-validation (User stays on upload screen)
+        setIsValidating(true);
 
         try {
-            // Start API call in background
-            const apiRequest = fetch('/api/analyze', {
+            // Retrieve quiz data for context
+            const quizDataStr = localStorage.getItem('aurapalette_quiz');
+            const quizData = quizDataStr ? JSON.parse(quizDataStr) : null;
+
+            // Store image immediately
+            localStorage.setItem('aurapalette_photo', image);
+
+            // Call API to validate and analyze
+            const response = await fetch('/api/analyze', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ image }),
+                body: JSON.stringify({ image, quizData }),
             });
-
-            // Wait for minimum animation time (psychological effect)
-            const totalDuration = ANALYSIS_STEPS.reduce((acc, step) => acc + step.duration, 0);
-            const minWait = new Promise(resolve => setTimeout(resolve, totalDuration));
-
-            // Wait for both API and animation
-            const [response] = await Promise.all([apiRequest, minWait]);
 
             const data = await response.json();
 
@@ -133,22 +136,26 @@ export default function UploadPage() {
                 throw new Error(data.message || data.error || 'Falha na análise');
             }
 
-            // Store the analysis result
-            localStorage.setItem('aurapalette_analysis', JSON.stringify(data));
+            // Success! Store data temporarily
+            setAnalyzedData(data);
 
-            // Navigate to preview
-            router.push('/preview');
+            // Step 2: Start theatrical animation
+            setIsValidating(false);
+            setIsAnalyzing(true);
+            setCurrentStep(0);
+            setProgress(0);
 
         } catch (error: any) {
             console.error('Analysis error:', error);
-            setIsAnalyzing(false);
+            setIsValidating(false);
+            // Do NOT start isAnalyzing
 
             // Show user friendly error
             const errorMessage = error.message === 'INVALID_IMAGE' || error.message?.includes('rosto')
-                ? 'Não conseguimos detectar um rosto claro na foto. Por favor, envie uma selfie bem iluminada e sem filtros.'
+                ? '⚠️ Não conseguimos detectar um rosto claro na foto.\n\nPor favor, envie uma selfie:\n- Bem iluminada ☀️\n- Sem filtros pesados 🚫\n- Com o rosto visível 👤'
                 : 'Ocorreu um erro na análise. Por favor, tente novamente com outra foto.';
 
-            alert(errorMessage); // Simple alert for now, could be a toast
+            alert(errorMessage);
             setImage(null); // Reset to allow new upload
         }
     };
@@ -317,8 +324,9 @@ export default function UploadPage() {
                                 fullWidth
                                 size="large"
                                 onClick={handleAnalyze}
+                                loading={isValidating}
                             >
-                                Analisar minha foto ✨
+                                {isValidating ? 'Verificando foto...' : 'Analisar minha foto ✨'}
                             </Button>
                         </div>
                     )}

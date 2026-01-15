@@ -321,242 +321,471 @@ export default function ResultPage() {
         const fa = analysis.fullAnalysis;
 
         const { jsPDF } = await import('jspdf');
-        const doc = new jsPDF();
+        const doc = new jsPDF('p', 'mm', 'a4');
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
-        const margin = 20;
-        const contentWidth = pageWidth - margin * 2;
-        let y = 25;
+        const marginLeft = 25;
+        const marginRight = 25;
+        const contentWidth = pageWidth - marginLeft - marginRight;
+        let y = 0;
 
-        const textDark: [number, number, number] = [40, 40, 40];
-        const textGray: [number, number, number] = [100, 100, 100];
+        // Cores do tema
+        const primaryColor: [number, number, number] = [124, 58, 237]; // Roxo
+        const secondaryColor: [number, number, number] = [236, 72, 153]; // Rosa
+        const textDark: [number, number, number] = [30, 30, 30];
+        const textMedium: [number, number, number] = [80, 80, 80];
+        const textLight: [number, number, number] = [120, 120, 120];
+        const lineColor: [number, number, number] = [230, 230, 230];
 
-        // Helper: check new page
-        const checkNewPage = () => {
-            if (y > pageHeight - 25) {
+        const lineHeight = 6;
+        const paragraphSpacing = 4;
+        const sectionSpacing = 12;
+
+        // Helper: verificar nova página
+        const checkNewPage = (needed: number = 20) => {
+            if (y > pageHeight - needed) {
                 doc.addPage();
-                y = 25;
+                y = 30;
             }
         };
 
-        // Helper: add title
-        const addTitle = (text: string) => {
-            checkNewPage();
-            y += 8;
-            doc.setFontSize(14);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(80, 40, 120);
-            doc.text(text, margin, y);
+        // Helper: adicionar espaço
+        const addSpace = (space: number) => {
+            y += space;
+        };
+
+        // Helper: linha divisória
+        const addDivider = () => {
+            checkNewPage(10);
+            doc.setDrawColor(...lineColor);
+            doc.setLineWidth(0.3);
+            doc.line(marginLeft, y, pageWidth - marginRight, y);
             y += 8;
         };
 
-        // Helper: add subtitle
+        // Helper: título de seção principal
+        const addSectionTitle = (text: string) => {
+            checkNewPage(25);
+            addSpace(sectionSpacing);
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...primaryColor);
+            doc.text(text.toUpperCase(), marginLeft, y);
+            y += 3;
+            // Linha decorativa abaixo do título
+            doc.setDrawColor(...secondaryColor);
+            doc.setLineWidth(0.8);
+            doc.line(marginLeft, y, marginLeft + 40, y);
+            y += 10;
+        };
+
+        // Helper: subtítulo
         const addSubtitle = (text: string) => {
-            checkNewPage();
-            doc.setFontSize(11);
+            checkNewPage(20);
+            addSpace(6);
+            doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(...textDark);
-            doc.text(text, margin, y);
-            y += 6;
+            doc.text(text, marginLeft, y);
+            y += 8;
         };
 
-        // Helper: add paragraph
-        const addParagraph = (text: string) => {
-            checkNewPage();
+        // Helper: parágrafo
+        const addParagraph = (text: string, indent: number = 0) => {
+            if (!text) return;
+            checkNewPage(15);
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
-            doc.setTextColor(...textDark);
-            const lines = doc.splitTextToSize(text, contentWidth);
-            doc.text(lines, margin, y);
-            y += lines.length * 5 + 2;
+            doc.setTextColor(...textMedium);
+            const lines = doc.splitTextToSize(text, contentWidth - indent);
+            lines.forEach((line: string) => {
+                checkNewPage(8);
+                doc.text(line, marginLeft + indent, y);
+                y += lineHeight;
+            });
+            y += paragraphSpacing;
         };
 
-        // Helper: add bullet item
-        const addBullet = (label: string, value: string) => {
-            checkNewPage();
+        // Helper: item com label e valor
+        const addLabelValue = (label: string, value: string) => {
+            if (!value) return;
+            checkNewPage(10);
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(...textDark);
-            doc.text(`• ${label}:`, margin, y);
+            doc.text(`${label}:`, marginLeft, y);
+
             doc.setFont('helvetica', 'normal');
-            const lines = doc.splitTextToSize(value, contentWidth - 40);
-            doc.text(lines, margin + 40, y);
-            y += Math.max(lines.length * 5, 5) + 1;
+            doc.setTextColor(...textMedium);
+            const labelWidth = doc.getTextWidth(`${label}: `);
+            const valueLines = doc.splitTextToSize(value, contentWidth - labelWidth - 5);
+            doc.text(valueLines[0], marginLeft + labelWidth + 2, y);
+            y += lineHeight;
+
+            // Linhas adicionais do valor (se houver)
+            for (let i = 1; i < valueLines.length; i++) {
+                checkNewPage(8);
+                doc.text(valueLines[i], marginLeft + labelWidth + 2, y);
+                y += lineHeight;
+            }
+            y += 2;
         };
 
-        // Helper: add simple list
-        const addList = (items: string[]) => {
+        // Helper: lista com bullets
+        const addBulletList = (items: string[], indent: number = 0) => {
             items.forEach(item => {
-                checkNewPage();
+                if (!item) return;
+                checkNewPage(10);
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
-                doc.setTextColor(...textDark);
-                const lines = doc.splitTextToSize(`• ${item}`, contentWidth);
-                doc.text(lines, margin, y);
-                y += lines.length * 5;
+                doc.setTextColor(...textMedium);
+
+                // Bullet point
+                doc.setFillColor(...primaryColor);
+                doc.circle(marginLeft + indent + 2, y - 1.5, 1, 'F');
+
+                const lines = doc.splitTextToSize(item, contentWidth - indent - 8);
+                lines.forEach((line: string, index: number) => {
+                    checkNewPage(8);
+                    doc.text(line, marginLeft + indent + 6, y);
+                    if (index < lines.length - 1) y += lineHeight;
+                });
+                y += lineHeight;
             });
             y += 2;
         };
 
-        // ========== HEADER ==========
+        // Helper: caixa destacada
+        const addHighlightBox = (title: string, content: string) => {
+            checkNewPage(30);
+            const boxHeight = 25;
+
+            // Fundo da caixa
+            doc.setFillColor(250, 245, 255);
+            doc.roundedRect(marginLeft, y, contentWidth, boxHeight, 3, 3, 'F');
+
+            // Borda
+            doc.setDrawColor(...primaryColor);
+            doc.setLineWidth(0.5);
+            doc.roundedRect(marginLeft, y, contentWidth, boxHeight, 3, 3, 'S');
+
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...primaryColor);
+            doc.text(title, marginLeft + 5, y);
+
+            y += 7;
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...textMedium);
+            const lines = doc.splitTextToSize(content, contentWidth - 10);
+            doc.text(lines[0], marginLeft + 5, y);
+
+            y += boxHeight - 12;
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // PÁGINA 1: CAPA
+        // ═══════════════════════════════════════════════════════════
+
+        // Fundo decorativo superior
+        doc.setFillColor(250, 245, 255);
+        doc.rect(0, 0, pageWidth, 80, 'F');
+
+        // Linha decorativa
+        doc.setDrawColor(...primaryColor);
+        doc.setLineWidth(2);
+        doc.line(0, 80, pageWidth, 80);
+
+        y = 45;
+
+        // Logo/Título
+        doc.setFontSize(36);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...primaryColor);
+        doc.text('AURA PALETTE', pageWidth / 2, y, { align: 'center' });
+
+        y += 12;
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...textMedium);
+        doc.text('Relatório de Colorimetria Pessoal', pageWidth / 2, y, { align: 'center' });
+
+        y = 110;
+
+        // Nome do usuário
+        doc.setFontSize(12);
+        doc.setTextColor(...textLight);
+        doc.text('Preparado exclusivamente para', pageWidth / 2, y, { align: 'center' });
+
+        y += 12;
         doc.setFontSize(24);
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(80, 40, 120);
-        doc.text('Aura Palette', pageWidth / 2, y, { align: 'center' });
-        y += 8;
+        doc.setTextColor(...textDark);
+        doc.text(userName || 'Você', pageWidth / 2, y, { align: 'center' });
 
+        y += 25;
+
+        // Resultado Principal - Caixa destacada
+        doc.setFillColor(...primaryColor);
+        doc.roundedRect(marginLeft + 20, y, contentWidth - 40, 50, 5, 5, 'F');
+
+        y += 18;
         doc.setFontSize(12);
         doc.setFont('helvetica', 'normal');
-        doc.setTextColor(...textGray);
-        doc.text('Relatório de Colorimetria Pessoal', pageWidth / 2, y, { align: 'center' });
-        y += 12;
+        doc.setTextColor(255, 255, 255);
+        doc.text('Sua coloração pessoal é', pageWidth / 2, y, { align: 'center' });
 
-        // Divider
-        doc.setDrawColor(200, 200, 200);
-        doc.line(margin, y, pageWidth - margin, y);
-        y += 10;
+        y += 15;
+        doc.setFontSize(28);
+        doc.setFont('helvetica', 'bold');
+        doc.text(analysis.season.toUpperCase(), pageWidth / 2, y, { align: 'center' });
 
-        // User info
+        y += 40;
+
+        // Características
         doc.setFontSize(11);
         doc.setFont('helvetica', 'normal');
-        doc.setTextColor(...textDark);
-        doc.text(`Nome: ${userName}`, margin, y);
-        y += 10;
+        doc.setTextColor(...textMedium);
 
-        // ========== RESULTADO ==========
-        addTitle('RESULTADO DA ANÁLISE');
-        addBullet('Estação', analysis.season);
-        addBullet('Temperatura', analysis.temperature);
-        addBullet('Subtom', analysis.undertone);
-        addBullet('Contraste', analysis.contrast);
-        y += 3;
+        const characteristics = [
+            `Temperatura: ${analysis.temperature}`,
+            `Subtom: ${analysis.undertone}`,
+            `Contraste: ${analysis.contrast}`
+        ];
+
+        characteristics.forEach(char => {
+            doc.text(char, pageWidth / 2, y, { align: 'center' });
+            y += 8;
+        });
+
+        // Data
+        y = pageHeight - 30;
+        doc.setFontSize(9);
+        doc.setTextColor(...textLight);
+        const today = new Date().toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+        doc.text(`Gerado em ${today}`, pageWidth / 2, y, { align: 'center' });
+
+        // ═══════════════════════════════════════════════════════════
+        // PÁGINA 2: INTRODUÇÃO E CORES
+        // ═══════════════════════════════════════════════════════════
+        doc.addPage();
+        y = 30;
+
+        addSectionTitle('Sobre Sua Análise');
         addParagraph(fa.summary);
 
-        // ========== MELHORES CORES ==========
-        addTitle('SUAS MELHORES CORES');
-        addList(fa.bestColors.map(c => `${c.name} (${c.hex})`));
+        addSpace(5);
+        addHighlightBox(
+            '💡 O que significa ser ' + analysis.season + '?',
+            `Pessoas com coloração ${analysis.season} possuem ${analysis.temperature.toLowerCase()} como temperatura dominante e subtom ${analysis.undertone.toLowerCase()}. Isso significa que determinadas cores irão realçar sua beleza natural, enquanto outras podem apagar seu brilho.`
+        );
 
-        // ========== CORES A EVITAR ==========
-        addTitle('CORES A EVITAR');
-        addList(fa.avoidColors.map(c => `${c.name} (${c.hex})`));
+        addSectionTitle('Sua Paleta de Cores Ideal');
+        addParagraph('Estas são as cores que mais harmonizam com sua coloração natural. Use-as como base para seu guarda-roupa, maquiagem e acessórios:');
+        addSpace(3);
 
-        // ========== GUIA DE MAQUIAGEM ==========
-        addTitle('GUIA DE MAQUIAGEM');
+        // Lista de cores com hex
+        const colorItems = fa.bestColors.map(c => `${c.name} (${c.hex}) - ideal para peças principais e acessórios`);
+        addBulletList(colorItems);
+
+        addSubtitle('Cores para Evitar');
+        addParagraph('Estas cores tendem a não favorecer sua coloração natural. Evite-as em peças próximas ao rosto:');
+        addBulletList(fa.avoidColors.map(c => `${c.name} (${c.hex})`));
+
+        // ═══════════════════════════════════════════════════════════
+        // SEÇÃO: MAQUIAGEM
+        // ═══════════════════════════════════════════════════════════
+        doc.addPage();
+        y = 30;
+
+        addSectionTitle('Guia Completo de Maquiagem');
         addParagraph(fa.makeup.overview);
 
-        addSubtitle('Base');
-        addBullet('Subtom', fa.makeup.base.undertone);
-        addBullet('Acabamento', fa.makeup.base.finish);
-        addParagraph(`Dica: ${fa.makeup.base.tips}`);
+        addSubtitle('Base e Preparação');
+        addLabelValue('Subtom ideal', fa.makeup.base.undertone);
+        addLabelValue('Acabamento recomendado', fa.makeup.base.finish);
+        addParagraph(`Dica profissional: ${fa.makeup.base.tips}`, 0);
 
         addSubtitle('Blush');
-        addBullet('Cores', fa.makeup.blush.colors.join(', '));
-        addParagraph(`Aplicação: ${fa.makeup.blush.application}`);
+        addLabelValue('Cores que favorecem', fa.makeup.blush.colors.join(', '));
+        addParagraph(`Como aplicar: ${fa.makeup.blush.application}`, 0);
 
         addSubtitle('Batom');
-        addBullet('Dia', fa.makeup.lipstick.dayColors.join(', '));
-        addBullet('Noite', fa.makeup.lipstick.nightColors.join(', '));
-        addBullet('Acabamentos', fa.makeup.lipstick.finishes.join(', '));
-        addParagraph(`Dica: ${fa.makeup.lipstick.tips}`);
+        addLabelValue('Para o dia', fa.makeup.lipstick.dayColors.join(', '));
+        addLabelValue('Para a noite', fa.makeup.lipstick.nightColors.join(', '));
+        addLabelValue('Acabamentos', fa.makeup.lipstick.finishes.join(', '));
+        addParagraph(`Dica: ${fa.makeup.lipstick.tips}`, 0);
 
         addSubtitle('Sombras');
-        addBullet('Neutras', fa.makeup.eyeshadow.neutrals.join(', '));
-        addBullet('Destaque', fa.makeup.eyeshadow.accents.join(', '));
-        addBullet('Evitar', fa.makeup.eyeshadow.avoid.join(', '));
-        addParagraph(`Dica: ${fa.makeup.eyeshadow.tips}`);
+        addLabelValue('Tons neutros', fa.makeup.eyeshadow.neutrals.join(', '));
+        addLabelValue('Tons de destaque', fa.makeup.eyeshadow.accents.join(', '));
+        addLabelValue('Evitar', fa.makeup.eyeshadow.avoid.join(', '));
+        addParagraph(`Dica: ${fa.makeup.eyeshadow.tips}`, 0);
 
-        addSubtitle('Delineador');
-        addBullet('Cores', fa.makeup.eyeliner.colors.join(', '));
-        addParagraph(`Estilo: ${fa.makeup.eyeliner.styles}`);
+        addSubtitle('Delineador e Máscara');
+        addLabelValue('Cores de delineador', fa.makeup.eyeliner.colors.join(', '));
+        addParagraph(`Estilo recomendado: ${fa.makeup.eyeliner.styles}`, 0);
 
-        addSubtitle('Bronzer');
-        addBullet('Tom', fa.makeup.bronzer.shade);
-        addParagraph(`Aplicação: ${fa.makeup.bronzer.application}`);
+        addSubtitle('Bronzer e Contorno');
+        addLabelValue('Tom ideal', fa.makeup.bronzer.shade);
+        addParagraph(`Aplicação: ${fa.makeup.bronzer.application}`, 0);
 
-        // ========== GUIA DE CABELOS ==========
-        addTitle('GUIA DE CABELOS');
+        // ═══════════════════════════════════════════════════════════
+        // SEÇÃO: CABELOS
+        // ═══════════════════════════════════════════════════════════
+        doc.addPage();
+        y = 30;
+
+        addSectionTitle('Guia de Cabelos');
         addParagraph(fa.hair.overview);
 
-        addSubtitle('Coloração');
-        addBullet('Cores base', fa.hair.coloring.baseColors.join(', '));
-        addBullet('Mechas/Luzes', fa.hair.coloring.highlights.join(', '));
-        addBullet('Evitar', fa.hair.coloring.avoid.join(', '));
-        addParagraph(`Dica: ${fa.hair.coloring.tips}`);
+        addSubtitle('Coloração Ideal');
+        addLabelValue('Cores base recomendadas', fa.hair.coloring.baseColors.join(', '));
+        addLabelValue('Mechas e luzes', fa.hair.coloring.highlights.join(', '));
+        addLabelValue('Cores a evitar', fa.hair.coloring.avoid.join(', '));
+        addParagraph(`Dica do colorista: ${fa.hair.coloring.tips}`, 0);
 
-        addSubtitle('Cortes Recomendados');
-        addList(fa.hair.cuts.recommended);
-        addParagraph(`Dica: ${fa.hair.cuts.tips}`);
+        addSubtitle('Cortes que Valorizam');
+        addBulletList(fa.hair.cuts.recommended);
+        addParagraph(`Dica de estilo: ${fa.hair.cuts.tips}`, 0);
 
-        addSubtitle('Styling');
-        addBullet('Produtos', fa.hair.styling.products.join(', '));
-        addBullet('Técnicas', fa.hair.styling.techniques.join(', '));
+        addSubtitle('Finalização e Styling');
+        addLabelValue('Produtos recomendados', fa.hair.styling.products.join(', '));
+        addLabelValue('Técnicas', fa.hair.styling.techniques.join(', '));
 
-        // ========== GUIA DE ACESSÓRIOS ==========
-        addTitle('GUIA DE ACESSÓRIOS');
+        // ═══════════════════════════════════════════════════════════
+        // SEÇÃO: ACESSÓRIOS
+        // ═══════════════════════════════════════════════════════════
+        addSectionTitle('Guia de Acessórios');
         addParagraph(fa.accessories.overview);
 
-        addSubtitle('Metais');
-        addBullet('Ideais', fa.accessories.metals.best.map(m => m.name).join(', '));
-        addBullet('Evitar', fa.accessories.metals.avoid.map(m => m.name).join(', '));
-        addParagraph(`Dica: ${fa.accessories.metals.tips}`);
+        addSubtitle('Metais e Joias');
+        addLabelValue('Metais ideais', fa.accessories.metals.best.map(m => m.name).join(', '));
+        addLabelValue('Metais a evitar', fa.accessories.metals.avoid.map(m => m.name).join(', '));
+        addParagraph(`Dica: ${fa.accessories.metals.tips}`, 0);
 
-        addSubtitle('Joias');
-        addBullet('Colares', fa.accessories.jewelry.necklaces);
-        addBullet('Brincos', fa.accessories.jewelry.earrings);
-        addBullet('Pulseiras', fa.accessories.jewelry.bracelets);
-        addBullet('Anéis', fa.accessories.jewelry.rings);
+        addSubtitle('Tipos de Joias');
+        addLabelValue('Colares', fa.accessories.jewelry.necklaces);
+        addLabelValue('Brincos', fa.accessories.jewelry.earrings);
+        addLabelValue('Pulseiras', fa.accessories.jewelry.bracelets);
+        addLabelValue('Anéis', fa.accessories.jewelry.rings);
 
         addSubtitle('Óculos');
-        addBullet('Armações', fa.accessories.glasses.frames.join(', '));
-        addBullet('Cores', fa.accessories.glasses.colors.join(', '));
+        addLabelValue('Formatos de armação', fa.accessories.glasses.frames.join(', '));
+        addLabelValue('Cores recomendadas', fa.accessories.glasses.colors.join(', '));
 
-        addSubtitle('Bolsas');
-        addBullet('Cores', fa.accessories.bags.colors.join(', '));
-        addBullet('Materiais', fa.accessories.bags.materials.join(', '));
+        addSubtitle('Bolsas e Acessórios');
+        addLabelValue('Cores de bolsas', fa.accessories.bags.colors.join(', '));
+        addLabelValue('Materiais', fa.accessories.bags.materials.join(', '));
+        addLabelValue('Lenços - cores', fa.accessories.scarves.colors.join(', '));
+        addLabelValue('Lenços - estampas', fa.accessories.scarves.patterns.join(', '));
 
-        addSubtitle('Lenços e Echarpes');
-        addBullet('Cores', fa.accessories.scarves.colors.join(', '));
-        addBullet('Estampas', fa.accessories.scarves.patterns.join(', '));
+        // ═══════════════════════════════════════════════════════════
+        // SEÇÃO: MODA
+        // ═══════════════════════════════════════════════════════════
+        doc.addPage();
+        y = 30;
 
-        addSubtitle('Relógios');
-        addBullet('Estilos', fa.accessories.watches.styles.join(', '));
-        addBullet('Metais', fa.accessories.watches.metals.join(', '));
-
-        // ========== GUIA DE MODA ==========
-        addTitle('GUIA DE MODA');
+        addSectionTitle('Guia de Moda');
         addParagraph(fa.fashion.overview);
 
-        addSubtitle('Peças Essenciais');
-        addList(fa.fashion.essentials);
+        addSubtitle('Peças Essenciais do Guarda-Roupa');
+        addBulletList(fa.fashion.essentials);
 
-        addSubtitle('Tecidos Ideais');
-        addList(fa.fashion.fabrics);
+        addSubtitle('Tecidos que Favorecem');
+        addBulletList(fa.fashion.fabrics);
 
-        addSubtitle('Estampas');
-        addList(fa.fashion.patterns);
+        addSubtitle('Estampas Recomendadas');
+        addBulletList(fa.fashion.patterns);
 
         addSubtitle('Looks por Ocasião');
-        addBullet('Casual', fa.fashion.occasions.casual);
-        addBullet('Trabalho', fa.fashion.occasions.work);
-        addBullet('Noite', fa.fashion.occasions.evening);
+        addLabelValue('Casual/Dia a dia', fa.fashion.occasions.casual);
+        addLabelValue('Trabalho/Profissional', fa.fashion.occasions.work);
+        addLabelValue('Noite/Eventos', fa.fashion.occasions.evening);
 
-        // ========== DICAS RÁPIDAS ==========
-        addTitle('DICAS RÁPIDAS');
-        addBullet('Moda', fa.tips.fashion);
-        addBullet('Maquiagem', fa.tips.makeup);
-        addBullet('Acessórios', fa.tips.accessories);
-        addBullet('Cabelo', fa.tips.hair);
+        // ═══════════════════════════════════════════════════════════
+        // SEÇÃO: DICAS FINAIS
+        // ═══════════════════════════════════════════════════════════
+        addSectionTitle('Dicas Rápidas para o Dia a Dia');
 
-        // ========== FOOTER ==========
+        addHighlightBox('👗 Moda', fa.tips.fashion);
+        addSpace(5);
+        addHighlightBox('💄 Maquiagem', fa.tips.makeup);
+        addSpace(5);
+        addHighlightBox('💍 Acessórios', fa.tips.accessories);
+        addSpace(5);
+        addHighlightBox('💇 Cabelo', fa.tips.hair);
+
+        // ═══════════════════════════════════════════════════════════
+        // PÁGINA FINAL
+        // ═══════════════════════════════════════════════════════════
+        doc.addPage();
+        y = 80;
+
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...primaryColor);
+        doc.text('Obrigada por confiar na Aura Palette!', pageWidth / 2, y, { align: 'center' });
+
+        y += 20;
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...textMedium);
+
+        const finalText = [
+            'Este relatório foi criado especialmente para você, baseado na análise',
+            'da sua coloração pessoal. Use-o como guia para fazer escolhas mais',
+            'conscientes na hora de compor seus looks e realçar sua beleza natural.',
+            '',
+            'Lembre-se: essas são recomendações baseadas em colorimetria.',
+            'O mais importante é que você se sinta bem e confiante!',
+        ];
+
+        finalText.forEach(line => {
+            doc.text(line, pageWidth / 2, y, { align: 'center' });
+            y += 7;
+        });
+
+        y += 20;
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...primaryColor);
+        doc.text('www.aurapalette.com', pageWidth / 2, y, { align: 'center' });
+
+        // ═══════════════════════════════════════════════════════════
+        // RODAPÉ EM TODAS AS PÁGINAS
+        // ═══════════════════════════════════════════════════════════
         const totalPages = doc.getNumberOfPages();
         for (let i = 1; i <= totalPages; i++) {
             doc.setPage(i);
+
+            // Linha do rodapé
+            doc.setDrawColor(...lineColor);
+            doc.setLineWidth(0.3);
+            doc.line(marginLeft, pageHeight - 15, pageWidth - marginRight, pageHeight - 15);
+
+            // Texto do rodapé
             doc.setFontSize(8);
-            doc.setTextColor(150, 150, 150);
-            doc.text(`Aura Palette - Página ${i} de ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...textLight);
+
+            if (i > 1) { // Não mostra na capa
+                doc.text('Aura Palette - Relatório de Colorimetria Pessoal', marginLeft, pageHeight - 10);
+                doc.text(`Página ${i - 1} de ${totalPages - 1}`, pageWidth - marginRight, pageHeight - 10, { align: 'right' });
+            }
         }
 
-        doc.save(`aura-palette-${userName.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+        // Salvar o PDF
+        const fileName = userName
+            ? `aura-palette-${userName.toLowerCase().replace(/\s+/g, '-')}.pdf`
+            : 'aura-palette-relatorio.pdf';
+        doc.save(fileName);
     };
 
     if (!analysis) {

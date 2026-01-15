@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/lib/supabase-server';
 
+// Force dynamic rendering - webhooks should never be cached
+export const dynamic = 'force-dynamic';
+
 const WEBHOOK_SECRET = process.env.ABACATEPAY_WEBHOOK_SECRET || '';
 
 interface AbacatePayWebhookPayload {

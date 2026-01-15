@@ -121,73 +121,77 @@ export default function UploadPage() {
         // Step 1: Pre-validation (User stays on upload screen)
         setIsValidating(true);
         setErrorModalOpen(false);
-
-        // Calculate approximate size (base64 length * 0.75). Limit to ~4.5MB payload (Vercel limit)
-        // 4.5MB * 1.33 = ~6MB string length
-        if (image.length > 6000000) {
-            setIsValidating(false);
-            setErrorMessage('A foto é muito grande. Por favor, envie uma imagem menor (máx 4MB).');
-            setErrorModalOpen(true);
-            setImage(null);
-            return;
-        }
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 50000); // 50s timeout
+        setAnalyzedData(null); // Reset previous data
 
         try {
-            // Retrieve quiz data for context
-            const quizDataStr = localStorage.getItem('aurapalette_quiz');
-            const quizData = quizDataStr ? JSON.parse(quizDataStr) : null;
+            // Compress image to ~800px max (drastically reduces payload size from 4MB+ to ~300KB)
+            // Dynamic import to avoid SSR issues if any
+            const { compressImage } = await import('@/utils/image');
+            const compressedImage = await compressImage(image, 800, 0.8);
 
-            // Store image immediately
-            localStorage.setItem('aurapalette_photo', image);
-
-            // Call API to validate and analyze
-            const response = await fetch('/api/analyze', {
+            // 1. FAST VALIDATION (gpt-4o-mini)
+            // This checks "Is it a face?" very quickly (~2-3s)
+            const validationResponse = await fetch('/api/validate', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ image, quizData }),
-                signal: controller.signal
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: compressedImage }),
             });
 
-            clearTimeout(timeoutId);
+            const validationData = await validationResponse.json();
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || data.error || 'Falha na análise');
+            if (!validationResponse.ok) {
+                // Determine specific error message
+                let msg = 'Sua foto não atende aos padrões.';
+                if (validationData.message) msg = validationData.message;
+                throw new Error(msg);
             }
 
-            // Success! Store data temporarily
-            setAnalyzedData(data);
-
-            // Step 2: Start theatrical animation
+            // Validation Passed! Start the UI fun immediately
+            setIsValidating(false);
             setIsAnalyzing(true);
             setCurrentStep(0);
             setProgress(0);
 
+            // 2. BACKGROUND FULL ANALYSIS (gpt-4o)
+            // This runs while the theatrical animation plays (~15s)
+            // Retrieve quiz data for context
+            const quizDataStr = localStorage.getItem('aurapalette_quiz');
+            const quizData = quizDataStr ? JSON.parse(quizDataStr) : null;
+
+            localStorage.setItem('aurapalette_photo', compressedImage); // Store optimized image
+
+            // This promise runs in parallel with the animation
+            fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: compressedImage, quizData }),
+            })
+                .then(async (res) => {
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message || 'Falha na análise profunda');
+                    setAnalyzedData(data); // This triggers the animation to finish when ready
+                })
+                .catch((err) => {
+                    console.error('Background analysis failed:', err);
+                    // If this fails, we need to stop the animation and show error
+                    setErrorMessage('Ocorreu um erro ao processar sua análise completa. Por favor, tente novamente.');
+                    setErrorModalOpen(true);
+                    setIsAnalyzing(false); // Stop animation and go back
+                    setImage(null);
+                });
+
         } catch (error: any) {
-            console.error('Analysis error:', error);
+            console.error('Validation error:', error);
+            setIsValidating(false);
 
-            // Default error message for validation failures
             let message = 'Sua foto não atende aos padrões de imagem exigidos. Por favor, tente novamente com outra foto.';
-
-            // Handle timeout specifically
-            if (error.name === 'AbortError') {
-                message = 'A análise demorou muito. Por favor, tente novamente ou use uma foto menor.';
-            } else if (error.message?.includes('grande')) {
+            if (error.message && error.message.length < 100 && !error.message.includes('fetch')) {
                 message = error.message;
             }
 
             setErrorMessage(message);
             setErrorModalOpen(true);
-            setImage(null); // Reset to allow new upload
-        } finally {
-            clearTimeout(timeoutId);
-            setIsValidating(false);
+            setImage(null);
         }
     };
 

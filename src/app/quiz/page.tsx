@@ -99,6 +99,40 @@ const questions: Question[] = [
             { id: 'vein-mixed', text: 'Mistura dos dois' },
         ],
     },
+    {
+        id: 6,
+        question: 'Qual a cor natural dos seus lábios (sem batom)?',
+        description: 'Observe no espelho sem nenhuma maquiagem',
+        type: 'text-list',
+        options: [
+            { id: 'lips-pale', text: 'Rosado bem claro, quase da cor da pele' },
+            { id: 'lips-pink', text: 'Rosado ou rosa médio' },
+            { id: 'lips-peach', text: 'Pêssego ou coral suave' },
+            { id: 'lips-berry', text: 'Rosa intenso ou arroxeado' },
+            { id: 'lips-brown', text: 'Marrom ou nude escuro' },
+        ],
+    },
+    {
+        id: 7,
+        question: 'Você tem sardas ou pintas no rosto?',
+        type: 'text-list',
+        options: [
+            { id: 'freckles-many', text: 'Sim, tenho bastante' },
+            { id: 'freckles-some', text: 'Tenho algumas poucas' },
+            { id: 'freckles-none', text: 'Não tenho sardas nem pintas' },
+        ],
+    },
+    {
+        id: 8,
+        question: 'Quando você cora ou faz exercício, seu rosto fica:',
+        description: 'Pense em quando fica com vergonha ou após atividade física',
+        type: 'text-list',
+        options: [
+            { id: 'blush-pink', text: 'Rosado ou avermelhado' },
+            { id: 'blush-peach', text: 'Pêssego ou alaranjado' },
+            { id: 'blush-none', text: 'Quase não muda de cor' },
+        ],
+    },
 ];
 
 export default function QuizPage() {

@@ -211,7 +211,12 @@ export default function UploadPage() {
                     clearTimeout(timeoutId); // Clear timeout on response
                     const data = await res.json();
                     if (!res.ok) throw new Error(data.message || 'Falha na análise profunda');
-                    setAnalyzedData(data); // This triggers the animation to finish when ready
+
+                    // IMMEDIATELY save, set 100%, and redirect - don't wait for animation
+                    localStorage.setItem('aurapalette_analysis', JSON.stringify(data));
+                    setProgress(100);
+                    setIsAnalyzing(false);
+                    router.push('/preview');
                 })
                 .catch((err) => {
                     console.error('Background analysis failed:', err);

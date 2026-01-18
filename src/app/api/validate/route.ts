@@ -6,29 +6,28 @@ const openai = new OpenAI({
 });
 
 const VALIDATION_PROMPT = `Você é um validador de fotos para análise de colorimetria pessoal.
-A análise precisa ver claramente: tom de pele, cor dos olhos, e cor do cabelo.
+Precisamos ver: tom de pele, cor dos olhos, e cabelo.
 
 REJEITE SE:
-- Não há rosto humano (objeto, animal, paisagem)
-- Foto preto e branco ou com filtro que altera cores drasticamente
-- Óculos de sol ou óculos escuros (precisamos ver a cor dos olhos)
-- Rosto muito escuro/sombrio onde não dá para ver o tom de pele
-- Foto extremamente borrada onde não dá para distinguir os traços
-- Máscara ou objeto cobrindo o rosto
+- Não há rosto humano (objeto, animal, paisagem, etc)
+- Foto preto e branco ou sépia
+- Pessoa usando QUALQUER tipo de óculos (de sol OU de grau) - precisamos ver os olhos sem obstáculos
+- Máscara, celular ou objeto cobrindo o rosto
+- Rosto não está visível na foto
 
 ACEITE SE:
-- Rosto visível com olhos, pele e cabelo identificáveis
-- Óculos de grau transparente (dá para ver os olhos)
-- Maquiagem (leve ou pesada - a IA consegue analisar)
-- Iluminação não perfeita mas ainda dá para ver as cores
-- Qualquer ângulo desde que o rosto esteja visível
+- Tem um rosto humano visível
+- Dá para ver os olhos (sem óculos)
+- Foto é colorida
+- Qualidade pode ser baixa, iluminação pode não ser perfeita - desde que dê para ver o rosto
 
-IMPORTANTE: Se der para identificar tom de pele, cor dos olhos e cabelo, ACEITE.
+SEJA TOLERANTE com qualidade de foto. Não rejeite por estar um pouco escura ou não tão nítida.
+O importante é: TEM ROSTO? DÁ PRA VER OS OLHOS? É COLORIDA? Se sim, ACEITE.
 
 Responda APENAS com JSON:
 {
   "valid": true/false,
-  "error": "Mensagem amigável em PT-BR (ex: 'Retire os óculos de sol para vermos seus olhos', 'Precisamos de uma foto colorida', 'Não conseguimos identificar um rosto')"
+  "error": "Mensagem curta e amigável em PT-BR (ex: 'Retire os óculos para vermos seus olhos', 'Envie uma foto colorida', 'Não encontramos um rosto na foto')"
 }`;
 
 export async function POST(request: NextRequest) {

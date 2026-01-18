@@ -71,8 +71,8 @@ export default function UploadPage() {
                 if (analyzedDataRef.current) {
                     setProgress(100); // Visual completion
                     localStorage.setItem('aurapalette_analysis', JSON.stringify(analyzedDataRef.current));
-                    // Small delay to let user see 100%
-                    setTimeout(() => router.push('/preview'), 500);
+                    // Redirect immediately
+                    router.push('/preview');
                 } else {
                     // Data not ready yet? Wait a bit and check again
                     setIsLongWait(true);

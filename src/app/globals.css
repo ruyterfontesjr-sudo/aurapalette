@@ -67,8 +67,8 @@
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
-  background-color: #15111b;
-  /* Ensure unused space is dark, not white */
+  background-color: #1D162D;
+  /* Match TopBanner color exactly */
 }
 
 html,

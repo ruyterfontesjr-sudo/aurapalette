@@ -971,9 +971,9 @@
 
 .reportSeasonName {
     display: block;
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: 700;
-    background: linear-gradient(90deg, #A855F7, #EC4899);
+    background: linear-gradient(90deg, #3B82F6, #EC4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -989,7 +989,7 @@
 .reportStatsRow {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    gap: 8px;
 }
 
 .reportStat {
@@ -1009,8 +1009,8 @@
 
 .reportStat .statValue {
     display: block;
-    font-size: 0.5625rem;
-    font-weight: 600;
+    font-size: 0.625rem;
+    font-weight: 700;
     color: white;
 }
 
@@ -1064,8 +1064,8 @@
 
 .reportColor {
     width: 100%;
-    height: 22px;
-    border-radius: 5px;
+    height: 32px;
+    border-radius: 2px;
 }
 
 .reportAvoidColors {

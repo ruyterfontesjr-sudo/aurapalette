@@ -67,7 +67,7 @@ export const metadata: Metadata = {
         "rating": "general",
         "distribution": "global",
     },
-    themeColor: "#15111b",
+    themeColor: "#1D162D",
     appleWebApp: {
         capable: true,
         statusBarStyle: "black-translucent",

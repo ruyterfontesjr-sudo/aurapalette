@@ -5,32 +5,30 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-const VALIDATION_PROMPT = `Você é um filtro de qualidade PERMISSIVO para um app de colorimetria.
-Sua função é apenas garantir que existe um rosto humano na foto.
+const VALIDATION_PROMPT = `Você é um validador de fotos para análise de colorimetria pessoal.
+A análise precisa ver claramente: tom de pele, cor dos olhos, e cor do cabelo.
 
-ACEITE A FOTO SE:
-- Há um rosto humano visível (mesmo parcialmente)
-- A foto é colorida (não preto e branco)
+REJEITE SE:
+- Não há rosto humano (objeto, animal, paisagem)
+- Foto preto e branco ou com filtro que altera cores drasticamente
+- Óculos de sol ou óculos escuros (precisamos ver a cor dos olhos)
+- Rosto muito escuro/sombrio onde não dá para ver o tom de pele
+- Foto extremamente borrada onde não dá para distinguir os traços
+- Máscara ou objeto cobrindo o rosto
 
-REJEITE APENAS SE:
-- NÃO há rosto humano (foto de objeto, animal, paisagem, comida, etc)
-- Foto é preto e branco ou sépia
-- O rosto está 100% coberto (máscara cobrindo tudo, celular na frente do rosto inteiro)
+ACEITE SE:
+- Rosto visível com olhos, pele e cabelo identificáveis
+- Óculos de grau transparente (dá para ver os olhos)
+- Maquiagem (leve ou pesada - a IA consegue analisar)
+- Iluminação não perfeita mas ainda dá para ver as cores
+- Qualquer ângulo desde que o rosto esteja visível
 
-SEJA PERMISSIVO COM:
-- Qualidade da foto (aceite fotos menos nítidas)
-- Iluminação (aceite fotos escuras ou claras)
-- Maquiagem (aceite qualquer tipo)
-- Óculos (aceite óculos de grau ou sol)
-- Filtros leves do celular
-- Ângulos diferentes
+IMPORTANTE: Se der para identificar tom de pele, cor dos olhos e cabelo, ACEITE.
 
-NA DÚVIDA, ACEITE A FOTO. Prefira falsos positivos a falsos negativos.
-
-Responda APENAS com este JSON:
+Responda APENAS com JSON:
 {
   "valid": true/false,
-  "error": "Mensagem curta em PT-BR se inválida (ex: 'Não encontramos um rosto na foto', 'Envie uma foto colorida')"
+  "error": "Mensagem amigável em PT-BR (ex: 'Retire os óculos de sol para vermos seus olhos', 'Precisamos de uma foto colorida', 'Não conseguimos identificar um rosto')"
 }`;
 
 export async function POST(request: NextRequest) {

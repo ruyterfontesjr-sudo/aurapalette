@@ -7,16 +7,28 @@ const openai = new OpenAI({
 
 // Prompt do especialista em colorimetria
 const COLORIMETRY_EXPERT_PROMPT = `Você é um ESPECIALISTA CERTIFICADO em colorimetria pessoal com mais de 15 anos de experiência.
-Sua reputação depende de análises precisas e honestas.
+Sua análise deve ser ÚNICA e PERSONALIZADA para cada pessoa.
 
-ETAPA 1: ANÁLISE PROFUNDA (A imagem já foi pré-validada)
-Analise com precisão cirúrgica. Assuma que a imagem é válida e faça o seu melhor para extrair as características.
-1. **TOM DE PELE**: Observe a pele nas áreas sem maquiagem (testa, pescoço). Descreva o que vê.
-2. **SUBTOM**: Analise as veias, reação à luz. É quente (dourado/amarelo) ou frio (rosa/azul)?
-3. **CONTRASTE**: Diferença entre cabelo, olhos e pele.
+ANÁLISE VISUAL OBRIGATÓRIA:
+Examine a foto com atenção e identifique:
+1. **TOM DE PELE EXATO**: Porcelana? Bege? Morena? Negra? Descreva com precisão o que você VÊ.
+2. **COR DOS OLHOS**: Qual a cor específica? Tem nuances? (ex: "castanho mel com reflexos dourados")
+3. **COR DO CABELO**: Natural ou tingido? Qual tom exato?
+4. **SUBTOM DA PELE**: Quente (veias verdes, tom dourado) ou Frio (veias azuis, tom rosado)?
+5. **NÍVEL DE CONTRASTE**: A diferença entre pele, olhos e cabelo é alta, média ou baixa?
+6. **CARACTERÍSTICAS ÚNICAS**: Sardas? Bochechas rosadas? Olheiras? Manchas?
 
-Com base na análise REAL da foto, determine a estação e gere um relatório 100% personalizado.
-IMPORTANTE: Para provar que a análise é real, na seção "summary", você DEVE citar uma característica específica visualizada na foto (ex: "Notei que seus olhos castanhos têm um brilho dourado..." ou "Sua pele tem sardas que indicam...").
+REGRA DE OURO - PERSONALIZAÇÃO:
+- Cada campo do relatório DEVE refletir a análise visual real
+- No "summary", CITE características específicas que você observou na foto
+- As cores recomendadas devem combinar com o tom ESPECÍFICO desta pessoa
+- As dicas de maquiagem devem considerar a cor REAL dos olhos e pele desta pessoa
+- NUNCA use textos genéricos - tudo deve ser personalizado
+
+EXEMPLOS DE PERSONALIZAÇÃO:
+- "Seus olhos castanho-esverdeados combinam perfeitamente com tons terrosos..."
+- "Notei que sua pele tem um subtom dourado, o que significa que..."
+- "As sardas no seu rosto indicam sensibilidade ao sol, então..."
 
 Retorne a análise neste formato JSON EXATO (não altere chaves):
 {
@@ -117,12 +129,16 @@ export async function POST(request: NextRequest) {
 
     let quizContext = '';
     if (quizData) {
-      quizContext = `\n\nDados reportados pela usuária (use para confirmar sua análise visual, mas confie mais na foto):
-- Pele (auto-relato): ${quizData['1'] || 'N/A'}
-- Olhos: ${quizData['2'] || 'N/A'}
-- Cabelo: ${quizData['3'] || 'N/A'}
+      quizContext = `\n\nDados do questionário (use para complementar sua análise visual):
+- Tom de pele (auto-relato): ${quizData['1'] || 'N/A'}
+- Cor dos olhos: ${quizData['2'] || 'N/A'}
+- Cor do cabelo natural: ${quizData['3'] || 'N/A'}
 - Reação ao sol: ${quizData['4'] || 'N/A'}
-- Veias: ${quizData['5'] || 'N/A'}`;
+- Cor das veias: ${quizData['5'] || 'N/A'}
+- Sardas/pintas: ${quizData['6'] || 'N/A'}
+- Cor quando cora: ${quizData['7'] || 'N/A'}
+
+IMPORTANTE: Combine os dados do quiz com sua análise visual da foto para máxima precisão.`;
     }
 
     const response = await openai.chat.completions.create({

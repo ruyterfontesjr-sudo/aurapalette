@@ -60,10 +60,13 @@ export const metadata: Metadata = {
         "rating": "general",
         "distribution": "global",
     },
-    themeColor: "#0f0a19",
+    themeColor: [
+        { media: "(prefers-color-scheme: dark)", color: "#15111b" },
+        { media: "(prefers-color-scheme: light)", color: "#15111b" }
+    ],
     appleWebApp: {
         capable: true,
-        statusBarStyle: "default",
+        statusBarStyle: "black-translucent",
     },
     icons: {
         icon: '/icon.png?v=5',

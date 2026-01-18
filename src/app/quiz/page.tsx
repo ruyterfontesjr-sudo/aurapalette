@@ -111,7 +111,7 @@ const questions: Question[] = [
     },
     {
         id: 7,
-        question: 'Quando você cora ou faz exercício, seu rosto fica:',
+        question: 'Quando você cora ou faz exercícios, seu rosto fica:',
         description: 'Pense em quando fica com vergonha ou após atividade física',
         type: 'text-list',
         options: [

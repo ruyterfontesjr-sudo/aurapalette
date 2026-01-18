@@ -8,13 +8,13 @@ import Button from '@/components/Button';
 import Modal from '@/components/Modal';
 
 const ANALYSIS_STEPS = [
-    { text: 'Detectando características faciais...', duration: 3000 },
-    { text: 'Analisando tom de pele e complexidade...', duration: 4000 },
-    { text: 'Calculando contraste pessoal...', duration: 4000 },
-    { text: 'Identificando subtom (Quente/Frio)...', duration: 4000 },
-    { text: 'Mapeando paleta de cores ideal...', duration: 4000 },
-    { text: 'Gerando recomendações de estilo...', duration: 3000 },
-    { text: 'Escrevendo análise personalizada...', duration: 3000 },
+    { text: 'Detectando características faciais...', duration: 4000 },
+    { text: 'Analisando tom de pele e complexidade...', duration: 6000 },
+    { text: 'Calculando contraste pessoal...', duration: 6000 },
+    { text: 'Identificando subtom (Quente/Frio)...', duration: 6000 },
+    { text: 'Mapeando paleta de cores ideal...', duration: 6000 },
+    { text: 'Gerando recomendações de estilo...', duration: 6000 },
+    { text: 'Finalizando análise personalizada...', duration: 6000 },
 ];
 
 export default function UploadPage() {
@@ -52,7 +52,8 @@ export default function UploadPage() {
         analyzedDataRef.current = analyzedData;
     }, [analyzedData]);
 
-    // Analysis loading effect - caps at 90%, API completion does the rest
+    // Analysis loading effect - runs full 0-100% animation
+    // Redirect happens only when BOTH animation is complete AND API data is ready
     useEffect(() => {
         if (!isAnalyzing) return;
 
@@ -66,24 +67,35 @@ export default function UploadPage() {
 
         const runStep = () => {
             if (stepIndex >= ANALYSIS_STEPS.length) {
-                // Animation complete - just show "finalizing" message
-                // API handler will do the 100% and redirect
-                setIsLongWait(true);
+                // Animation complete - check if API data is ready
+                setProgress(100);
+
+                // Check if API already returned data
+                if (analyzedDataRef.current) {
+                    // Data ready, redirect after brief pause
+                    setTimeout(() => {
+                        setIsAnalyzing(false);
+                        router.push('/preview');
+                    }, 400);
+                } else {
+                    // API still running, show finalizing message
+                    setIsLongWait(true);
+                }
                 return;
             }
 
             setCurrentStep(stepIndex);
             const stepDuration = ANALYSIS_STEPS[stepIndex].duration;
 
-            // Progress animation - caps at 90% to leave room for API completion
+            // Progress animation - now goes to 100%
             const easeProgress = (linear: number): number => {
-                // Fast start, slow at end, max 90%
-                if (linear <= 0.5) {
-                    return (linear / 0.5) * 0.65; // 0-65%
-                } else if (linear <= 0.85) {
-                    return 0.65 + ((linear - 0.5) / 0.35) * 0.20; // 65-85%
+                // VERY fast start, VERY slow at end (psychological anticipation)
+                if (linear <= 0.25) {
+                    return (linear / 0.25) * 0.70; // 0-70% in first 25% of time
+                } else if (linear <= 0.60) {
+                    return 0.70 + ((linear - 0.25) / 0.35) * 0.20; // 70-90% in next 35%
                 } else {
-                    return 0.85 + ((linear - 0.85) / 0.15) * 0.05; // 85-90%
+                    return 0.90 + ((linear - 0.60) / 0.40) * 0.10; // 90-100% in last 40%
                 }
             };
 
@@ -91,8 +103,7 @@ export default function UploadPage() {
                 elapsed += 50;
                 const linearProgress = elapsed / totalDuration;
                 const easedProgress = easeProgress(Math.min(linearProgress, 1)) * 100;
-                // Cap at 90% - API handler will take it to 100%
-                setProgress(Math.min(easedProgress, 90));
+                setProgress(Math.min(easedProgress, 99)); // Cap at 99% during animation, 100% on complete
             }, 50);
 
             stepTimeout = setTimeout(() => {
@@ -109,7 +120,7 @@ export default function UploadPage() {
             clearTimeout(stepTimeout);
             clearInterval(progressInterval);
         };
-    }, [isAnalyzing]);
+    }, [isAnalyzing, router]);
 
     const handleFileSelect = useCallback((file: File) => {
         if (file && file.type.startsWith('image/')) {
@@ -199,35 +210,9 @@ export default function UploadPage() {
                     const data = await res.json();
                     if (!res.ok) throw new Error(data.message || 'Falha na análise profunda');
 
-                    // Save data immediately
+                    // Save data - animation will handle redirect when complete
                     localStorage.setItem('aurapalette_analysis', JSON.stringify(data));
-
-                    // Smooth animation from current progress to 100%
-                    const startProgress = 90;
-                    const endProgress = 100;
-                    const duration = 800; // 800ms for smooth finish
-                    const startTime = Date.now();
-
-                    const animateTo100 = () => {
-                        const elapsed = Date.now() - startTime;
-                        const t = Math.min(elapsed / duration, 1);
-                        // Ease-out curve for natural deceleration
-                        const eased = 1 - Math.pow(1 - t, 3);
-                        const currentProgress = startProgress + (endProgress - startProgress) * eased;
-                        setProgress(currentProgress);
-
-                        if (t < 1) {
-                            requestAnimationFrame(animateTo100);
-                        } else {
-                            // Wait 300ms at 100% so user sees completion, then redirect
-                            setTimeout(() => {
-                                setIsAnalyzing(false);
-                                router.push('/preview');
-                            }, 300);
-                        }
-                    };
-
-                    requestAnimationFrame(animateTo100);
+                    setAnalyzedData(data); // This updates the ref via useEffect
                 })
                 .catch((err) => {
                     console.error('Background analysis failed:', err);

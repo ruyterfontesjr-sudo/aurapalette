@@ -111,8 +111,8 @@ const questions: Question[] = [
     },
     {
         id: 7,
-        question: 'Quando você cora ou faz exercícios, seu rosto fica:',
-        description: 'Pense em quando fica com vergonha ou após atividade física',
+        question: 'Quando você fica com vergonha ou faz exercícios, seu rosto fica:',
+        description: 'Pense em como sua pele reage quando você se esforça ou fica envergonhada',
         type: 'text-list',
         options: [
             { id: 'blush-pink', text: 'Rosado ou avermelhado' },

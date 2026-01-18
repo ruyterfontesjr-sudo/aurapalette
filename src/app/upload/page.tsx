@@ -8,13 +8,13 @@ import Button from '@/components/Button';
 import Modal from '@/components/Modal';
 
 const ANALYSIS_STEPS = [
-    { text: 'Detectando características faciais...', duration: 4000 },
-    { text: 'Analisando tom de pele e complexidade...', duration: 5000 },
-    { text: 'Calculando contraste pessoal...', duration: 5000 },
-    { text: 'Identificando subtom (Quente/Frio)...', duration: 5000 },
-    { text: 'Mapeando paleta de cores ideal...', duration: 6000 },
-    { text: 'Gerando recomendações de estilo...', duration: 5000 },
-    { text: 'Escrevendo análise personalizada...', duration: 5000 },
+    { text: 'Detectando características faciais...', duration: 3000 },
+    { text: 'Analisando tom de pele e complexidade...', duration: 4000 },
+    { text: 'Calculando contraste pessoal...', duration: 4000 },
+    { text: 'Identificando subtom (Quente/Frio)...', duration: 4000 },
+    { text: 'Mapeando paleta de cores ideal...', duration: 4000 },
+    { text: 'Gerando recomendações de estilo...', duration: 3000 },
+    { text: 'Escrevendo análise personalizada...', duration: 3000 },
 ];
 
 export default function UploadPage() {

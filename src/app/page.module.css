@@ -766,6 +766,7 @@
 
     .previewSection {
         padding: 0 16px 40px;
+        margin-top: -30px;
     }
 
     .phoneMockupContainer {

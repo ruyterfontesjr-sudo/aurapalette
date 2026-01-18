@@ -579,10 +579,10 @@ export default function Home() {
                             </div>
                         </div>
                         <div className={styles.featureCard}>
-                            <span className={styles.featureIcon}>📄</span>
+                            <span className={styles.featureIcon}>✨</span>
                             <div>
-                                <strong>PDF para Baixar</strong>
-                                <p>Guarde seu relatório para sempre</p>
+                                <strong>Tendências 2026</strong>
+                                <p>Cores e estilos do momento</p>
                             </div>
                         </div>
                     </div>
@@ -673,10 +673,10 @@ export default function Home() {
                     </details>
                     <details className={styles.faqItem}>
                         <summary className={styles.faqQuestion}>
-                            Posso baixar o relatório?
+                            Por quanto tempo tenho acesso ao relatório?
                         </summary>
                         <p className={styles.faqAnswer}>
-                            Sim! Após o pagamento, você recebe acesso imediato ao relatório online e pode baixar um PDF profissional para consultar quando quiser — no celular, tablet ou computador.
+                            Seu acesso é vitalício! Após o pagamento, você pode consultar seu relatório completo sempre que quiser — no celular, tablet ou computador.
                         </p>
                     </details>
                     <details className={styles.faqItem}>

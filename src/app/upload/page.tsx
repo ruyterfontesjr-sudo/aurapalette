@@ -84,13 +84,12 @@ export default function UploadPage() {
             setCurrentStep(stepIndex);
             const stepDuration = ANALYSIS_STEPS[stepIndex].duration;
 
-            // Progress animation
+            // Progress animation - always run to completion (don't jump to 100 early)
             progressInterval = setInterval(() => {
                 elapsed += 50;
                 const totalProgress = (elapsed / totalDuration) * 100;
-                // Hold exactly at 99% until we have data
-                const maxProgress = analyzedDataRef.current ? 100 : 99;
-                setProgress(Math.min(totalProgress, maxProgress));
+                // Always cap at 99% until animation completes naturally
+                setProgress(Math.min(totalProgress, 99));
             }, 50);
 
             stepTimeout = setTimeout(() => {

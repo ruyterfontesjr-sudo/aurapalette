@@ -65,6 +65,10 @@ export const metadata: Metadata = {
         capable: true,
         statusBarStyle: "default",
     },
+    icons: {
+        icon: '/icon.png',
+        apple: '/icon.png',
+    },
 };
 
 // JSON-LD Schema for SEO - Multiple schemas for better coverage

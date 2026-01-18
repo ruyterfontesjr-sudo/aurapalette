@@ -52,7 +52,7 @@ export default function UploadPage() {
         analyzedDataRef.current = analyzedData;
     }, [analyzedData]);
 
-    // Analysis loading effect
+    // Analysis loading effect - caps at 90%, API completion does the rest
     useEffect(() => {
         if (!isAnalyzing) return;
 
@@ -63,39 +63,27 @@ export default function UploadPage() {
         // Timers references for cleanup
         let stepTimeout: NodeJS.Timeout;
         let progressInterval: NodeJS.Timeout;
-        let loopTimeout: NodeJS.Timeout;
 
         const runStep = () => {
             if (stepIndex >= ANALYSIS_STEPS.length) {
-                // Animation complete - Check if data is ready using REF
-                if (analyzedDataRef.current) {
-                    setProgress(100); // Visual completion
-                    localStorage.setItem('aurapalette_analysis', JSON.stringify(analyzedDataRef.current));
-                    // Redirect immediately
-                    router.push('/preview');
-                } else {
-                    // Data not ready yet? Wait a bit and check again
-                    setIsLongWait(true);
-                    loopTimeout = setTimeout(runStep, 500);
-                }
+                // Animation complete - just show "finalizing" message
+                // API handler will do the 100% and redirect
+                setIsLongWait(true);
                 return;
             }
 
             setCurrentStep(stepIndex);
             const stepDuration = ANALYSIS_STEPS[stepIndex].duration;
 
-            // Progress animation - always run to completion (don't jump to 100 early)
-            // Non-linear easing: VERY fast start, slow finish for psychological effect
+            // Progress animation - caps at 90% to leave room for API completion
             const easeProgress = (linear: number): number => {
-                // 0-50% time = 0-70% displayed (VERY fast - creates excitement)
-                // 50-85% time = 70-92% displayed (medium - building tension)  
-                // 85-100% time = 92-99% displayed (SLOW - builds anticipation)
+                // Fast start, slow at end, max 90%
                 if (linear <= 0.5) {
-                    return (linear / 0.5) * 0.70;
+                    return (linear / 0.5) * 0.65; // 0-65%
                 } else if (linear <= 0.85) {
-                    return 0.70 + ((linear - 0.5) / 0.35) * 0.22;
+                    return 0.65 + ((linear - 0.5) / 0.35) * 0.20; // 65-85%
                 } else {
-                    return 0.92 + ((linear - 0.85) / 0.15) * 0.07;
+                    return 0.85 + ((linear - 0.85) / 0.15) * 0.05; // 85-90%
                 }
             };
 
@@ -103,8 +91,8 @@ export default function UploadPage() {
                 elapsed += 50;
                 const linearProgress = elapsed / totalDuration;
                 const easedProgress = easeProgress(Math.min(linearProgress, 1)) * 100;
-                // Always cap at 99% until animation completes naturally
-                setProgress(Math.min(easedProgress, 99));
+                // Cap at 90% - API handler will take it to 100%
+                setProgress(Math.min(easedProgress, 90));
             }, 50);
 
             stepTimeout = setTimeout(() => {
@@ -120,9 +108,8 @@ export default function UploadPage() {
         return () => {
             clearTimeout(stepTimeout);
             clearInterval(progressInterval);
-            clearTimeout(loopTimeout);
         };
-    }, [isAnalyzing, router]);
+    }, [isAnalyzing]);
 
     const handleFileSelect = useCallback((file: File) => {
         if (file && file.type.startsWith('image/')) {

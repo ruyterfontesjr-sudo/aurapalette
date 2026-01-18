@@ -66,9 +66,9 @@ export const metadata: Metadata = {
         statusBarStyle: "default",
     },
     icons: {
-        icon: '/icon.png?v=4',
-        shortcut: '/icon.png?v=4',
-        apple: '/icon.png?v=4',
+        icon: '/icon.png?v=5',
+        shortcut: '/icon.png?v=5',
+        apple: '/icon.png?v=5',
     },
 };
 

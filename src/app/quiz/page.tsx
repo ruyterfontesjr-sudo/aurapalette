@@ -126,46 +126,25 @@ export default function QuizPage() {
     const router = useRouter();
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState<Record<number, string>>({});
-    const [isReady, setIsReady] = useState(false);
 
-    // Smart redirect: check if user should be on a later stage
+    // Restore saved quiz answers on page load (for refresh handling)
     useEffect(() => {
-        // Check if user has already completed payment (furthest stage)
-        const hasResult = localStorage.getItem('aurapalette_result_viewed');
-        if (hasResult) {
-            router.push('/result');
-            return;
-        }
-
-        // Check if user has analysis (should be on preview or checkout)
-        const hasAnalysis = localStorage.getItem('aurapalette_analysis');
-        if (hasAnalysis) {
-            router.push('/preview');
-            return;
-        }
-
-        // Check if user has completed quiz (should be on upload)
         const savedQuiz = localStorage.getItem('aurapalette_quiz');
         if (savedQuiz) {
             try {
                 const parsedAnswers = JSON.parse(savedQuiz);
-                // If all 7 questions answered, redirect to upload
-                if (Object.keys(parsedAnswers).length >= questions.length) {
-                    router.push('/upload');
-                    return;
+                // Only restore if NOT all questions answered (otherwise let user start fresh if they want)
+                if (Object.keys(parsedAnswers).length < questions.length) {
+                    setAnswers(parsedAnswers);
+                    const answeredQuestions = Object.keys(parsedAnswers).map(Number);
+                    const lastAnswered = Math.max(...answeredQuestions);
+                    setCurrentQuestion(Math.min(lastAnswered, questions.length - 1));
                 }
-                // Restore partial answers and find current question
-                setAnswers(parsedAnswers);
-                const answeredQuestions = Object.keys(parsedAnswers).map(Number);
-                const lastAnswered = Math.max(...answeredQuestions);
-                const nextQuestion = Math.min(lastAnswered, questions.length - 1);
-                setCurrentQuestion(nextQuestion);
             } catch (e) {
                 // Invalid data, start fresh
             }
         }
-        setIsReady(true);
-    }, [router]);
+    }, []);
 
     const handleSelectOption = (optionId: string) => {
         const newAnswers = {

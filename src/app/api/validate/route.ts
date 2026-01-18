@@ -5,25 +5,32 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-const VALIDATION_PROMPT = `Você é um filtro de qualidade para um app de colorimetria.
-Sua única função é validar se a imagem tem qualidade técnica suficiente.
+const VALIDATION_PROMPT = `Você é um filtro de qualidade PERMISSIVO para um app de colorimetria.
+Sua função é apenas garantir que existe um rosto humano na foto.
 
-CRITÉRIOS DE ACEITAÇÃO (Seja Razoável, mas Firme):
-1. ROSTO VISÍVEL: O rosto deve estar descoberto, sem máscaras, sem celular cobrindo, sem óculos escuros grandes.
-2. NITIDEZ: A foto NÃO pode estar borrada ou tremida. Os traços devem ser nítidos.
-3. MAQUIAGEM: Aceite cara lavada ou maquiagem leve. REJEITE maquiagem pesada (reboco) que esconde a cor real da pele.
-4. ILUMINAÇÃO: Evite breu total ou luz estourada.
+ACEITE A FOTO SE:
+- Há um rosto humano visível (mesmo parcialmente)
+- A foto é colorida (não preto e branco)
 
-CRITÉRIOS DE REJEIÇÃO IMEDIATA:
-- Foto borrada/tremida (Impossível analisar).
-- Foto de objetos, pets ou paisagens.
-- Maquiagem artística ou filtro pesado do Instagram/TikTok que altera a cor.
-- Foto preto e branco.
+REJEITE APENAS SE:
+- NÃO há rosto humano (foto de objeto, animal, paisagem, comida, etc)
+- Foto é preto e branco ou sépia
+- O rosto está 100% coberto (máscara cobrindo tudo, celular na frente do rosto inteiro)
+
+SEJA PERMISSIVO COM:
+- Qualidade da foto (aceite fotos menos nítidas)
+- Iluminação (aceite fotos escuras ou claras)
+- Maquiagem (aceite qualquer tipo)
+- Óculos (aceite óculos de grau ou sol)
+- Filtros leves do celular
+- Ângulos diferentes
+
+NA DÚVIDA, ACEITE A FOTO. Prefira falsos positivos a falsos negativos.
 
 Responda APENAS com este JSON:
 {
   "valid": true/false,
-  "error": "Mensagem curta em PT-BR (ex: 'Foto muito borrada, tente firmar a mão', 'Maquiagem muito pesada', 'Rosto não encontrado')"
+  "error": "Mensagem curta em PT-BR se inválida (ex: 'Não encontramos um rosto na foto', 'Envie uma foto colorida')"
 }`;
 
 export async function POST(request: NextRequest) {

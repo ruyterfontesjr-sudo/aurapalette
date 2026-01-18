@@ -9,12 +9,12 @@ import Modal from '@/components/Modal';
 
 const ANALYSIS_STEPS = [
     { text: 'Detectando características faciais...', duration: 4000 },
-    { text: 'Analisando tom de pele e complexidade...', duration: 4500 },
-    { text: 'Calculando contraste pessoal...', duration: 4000 },
-    { text: 'Identificando subtom (Quente/Frio)...', duration: 4000 },
-    { text: 'Mapeando paleta de cores ideal...', duration: 4500 },
-    { text: 'Gerando recomendações de estilo...', duration: 3500 },
-    { text: 'Escrevendo análise personalizada...', duration: 2500 },
+    { text: 'Analisando tom de pele e complexidade...', duration: 5000 },
+    { text: 'Calculando contraste pessoal...', duration: 5000 },
+    { text: 'Identificando subtom (Quente/Frio)...', duration: 5000 },
+    { text: 'Mapeando paleta de cores ideal...', duration: 6000 },
+    { text: 'Gerando recomendações de estilo...', duration: 5000 },
+    { text: 'Escrevendo análise personalizada...', duration: 5000 },
 ];
 
 export default function UploadPage() {
@@ -280,7 +280,7 @@ export default function UploadPage() {
                             {/* Current step text */}
                             <p className={styles.loadingText}>
                                 {isLongWait
-                                    ? 'Ajustando os últimos detalhes...'
+                                    ? 'Estamos finalizando sua análise detalhada, falta pouco...'
                                     : (ANALYSIS_STEPS[currentStep]?.text || 'Analisando...')}
                             </p>
 

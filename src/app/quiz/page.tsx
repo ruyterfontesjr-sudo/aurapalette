@@ -101,19 +101,6 @@ const questions: Question[] = [
     },
     {
         id: 6,
-        question: 'Qual a cor natural dos seus lábios (sem batom)?',
-        description: 'Observe no espelho sem nenhuma maquiagem',
-        type: 'text-list',
-        options: [
-            { id: 'lips-pale', text: 'Rosado bem claro, quase da cor da pele' },
-            { id: 'lips-pink', text: 'Rosado ou rosa médio' },
-            { id: 'lips-peach', text: 'Pêssego ou coral suave' },
-            { id: 'lips-berry', text: 'Rosa intenso ou arroxeado' },
-            { id: 'lips-brown', text: 'Marrom ou nude escuro' },
-        ],
-    },
-    {
-        id: 7,
         question: 'Você tem sardas ou pintas no rosto?',
         type: 'text-list',
         options: [
@@ -123,7 +110,7 @@ const questions: Question[] = [
         ],
     },
     {
-        id: 8,
+        id: 7,
         question: 'Quando você cora ou faz exercício, seu rosto fica:',
         description: 'Pense em quando fica com vergonha ou após atividade física',
         type: 'text-list',

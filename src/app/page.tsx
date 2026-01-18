@@ -281,19 +281,19 @@ export default function Home() {
                                 <span className={styles.reportSectionTitle}>🎨 Suas Melhores Cores</span>
                                 <div className={styles.reportColors}>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#FF00FF' }}></div>
+                                        <div className={styles.reportColor} style={{ background: '#E91E63' }}></div>
                                         <span>Fúcsia</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#2563EB' }}></div>
-                                        <span>Azul Real</span>
+                                        <div className={styles.reportColor} style={{ background: '#2962FF' }}></div>
+                                        <span>Azul Royal</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#10B981' }}></div>
+                                        <div className={styles.reportColor} style={{ background: '#00C853' }}></div>
                                         <span>Esmeralda</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#000000' }}></div>
+                                        <div className={styles.reportColor} style={{ background: '#121212' }}></div>
                                         <span>Preto</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
@@ -301,20 +301,20 @@ export default function Home() {
                                         <span>Branco</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#FDE047' }}></div>
+                                        <div className={styles.reportColor} style={{ background: '#FFFF00' }}></div>
                                         <span>Limão</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#DC2626' }}></div>
+                                        <div className={styles.reportColor} style={{ background: '#D50000' }}></div>
                                         <span>Vermelho</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#7C3AED' }}></div>
-                                        <span>Roxo</span>
+                                        <div className={styles.reportColor} style={{ background: '#6200EA' }}></div>
+                                        <span>Violeta</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#0EA5E9' }}></div>
-                                        <span>Ciano</span>
+                                        <div className={styles.reportColor} style={{ background: '#00E5FF' }}></div>
+                                        <span>Turquesa</span>
                                     </div>
                                 </div>
                             </div>

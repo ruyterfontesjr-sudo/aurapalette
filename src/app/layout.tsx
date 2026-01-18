@@ -5,6 +5,12 @@ import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
     title: "Aura Palette - Análise de Colorimetria com IA | Descubra Suas Cores Ideais",
+    viewport: {
+        width: "device-width",
+        initialScale: 1,
+        maximumScale: 1,
+        userScalable: false,
+    },
     description: "Descubra sua paleta de cores ideal com inteligência artificial. Análise de colorimetria pessoal online em 2 minutos. +50.000 brasileiras já descobriram suas cores ideais. Guia completo de maquiagem, cabelos, roupas e acessórios personalizados para seu tom de pele.",
     keywords: "colorimetria, colorimetria pessoal, análise de colorimetria, paleta de cores pessoal, coloração pessoal, teste de colorimetria, qual minha estação, cores que combinam comigo, consultoria de cores, colorimetria com IA, colorimetria online Brasil, descobrir minha estação, primavera verão outono inverno colorimetria, cores para meu tom de pele, análise de cores online, colorimetria brasileira, teste de cores gratuito, paleta de cores para morenas, paleta de cores para negras, paleta de cores para loiras, melhores cores para minha pele, colorimetria quente frio, subtom de pele, maquiagem para meu tom de pele",
     authors: [{ name: "Aura Palette" }],

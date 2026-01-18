@@ -45,82 +45,89 @@ export default function UploadPage() {
         setIsReady(true);
     }, [router]);
 
-    // Analysis loading effect with psychological timing
-    // Refs to avoid stale closures in setTimeout/setInterval
+    // Refs to avoid stale closures
     const analyzedDataRef = useRef<any>(null);
     useEffect(() => {
         analyzedDataRef.current = analyzedData;
     }, [analyzedData]);
 
-    // Analysis loading effect - runs full 0-100% animation
-    // Redirect happens only when BOTH animation is complete AND API data is ready
+    // 1. Fluid Progress Animation (35s fixed duration)
+    // 0-45% in first 20% of time (Fast start)
+    // 45-100% in remaining 80% (Steady anticipation)
+    useEffect(() => {
+        if (!isAnalyzing) return;
+
+        const duration = 35000;
+        const startTime = Date.now();
+        let animationFrameId: number;
+
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const t = Math.min(elapsed / duration, 1);
+
+            let currentProgress = 0;
+            if (t <= 0.2) {
+                // Fast start: 0 to 45% in 20% of time (7s)
+                currentProgress = (t / 0.2) * 45;
+            } else {
+                // Steady finish: 45 to 100% in 80% of time (28s)
+                currentProgress = 45 + ((t - 0.2) / 0.8) * 55;
+            }
+
+            setProgress(Math.min(currentProgress, 100));
+
+            if (t < 1) {
+                animationFrameId = requestAnimationFrame(animate);
+            } else {
+                // Animation finished natural course
+                if (!analyzedDataRef.current) {
+                    setIsLongWait(true); // Only show "Finalizing" if data isn't ready yet
+                }
+            }
+        };
+
+        animationFrameId = requestAnimationFrame(animate);
+
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [isAnalyzing]);
+
+    // 2. Text Rotation Logic (Independent of progress)
     useEffect(() => {
         if (!isAnalyzing) return;
 
         let stepIndex = 0;
-        let elapsed = 0;
-        const totalDuration = ANALYSIS_STEPS.reduce((acc, step) => acc + step.duration, 0);
+        let timeoutId: NodeJS.Timeout;
 
-        // Timers references for cleanup
-        let stepTimeout: NodeJS.Timeout;
-        let progressInterval: NodeJS.Timeout;
-
-        const runStep = () => {
-            if (stepIndex >= ANALYSIS_STEPS.length) {
-                // Animation complete - check if API data is ready
-                setProgress(100);
-
-                // Check if API already returned data
-                if (analyzedDataRef.current) {
-                    // Data ready, redirect after brief pause
-                    setTimeout(() => {
-                        setIsAnalyzing(false);
-                        router.push('/preview');
-                    }, 400);
-                } else {
-                    // API still running, show finalizing message
-                    setIsLongWait(true);
-                }
-                return;
-            }
+        const rotateText = () => {
+            if (stepIndex >= ANALYSIS_STEPS.length) return;
 
             setCurrentStep(stepIndex);
+
+            // Calculate step duration
             const stepDuration = ANALYSIS_STEPS[stepIndex].duration;
 
-            // Progress animation - now goes to 100%
-            const easeProgress = (linear: number): number => {
-                // VERY fast start, VERY slow at end (psychological anticipation)
-                if (linear <= 0.25) {
-                    return (linear / 0.25) * 0.70; // 0-70% in first 25% of time
-                } else if (linear <= 0.60) {
-                    return 0.70 + ((linear - 0.25) / 0.35) * 0.20; // 70-90% in next 35%
-                } else {
-                    return 0.90 + ((linear - 0.60) / 0.40) * 0.10; // 90-100% in last 40%
-                }
-            };
-
-            progressInterval = setInterval(() => {
-                elapsed += 50;
-                const linearProgress = elapsed / totalDuration;
-                const easedProgress = easeProgress(Math.min(linearProgress, 1)) * 100;
-                setProgress(Math.min(easedProgress, 99)); // Cap at 99% during animation, 100% on complete
-            }, 50);
-
-            stepTimeout = setTimeout(() => {
-                clearInterval(progressInterval);
+            timeoutId = setTimeout(() => {
                 stepIndex++;
-                runStep();
+                rotateText();
             }, stepDuration);
         };
 
-        runStep();
+        rotateText();
 
-        // Cleanup function
-        return () => {
-            clearTimeout(stepTimeout);
-            clearInterval(progressInterval);
-        };
-    }, [isAnalyzing, router]);
+        return () => clearTimeout(timeoutId);
+    }, [isAnalyzing]);
+
+    // 3. Redirect Logic: Trigger ONLY when BOTH are ready
+    useEffect(() => {
+        if (progress >= 100 && analyzedDataRef.current) {
+            // Add a small 400ms pause for user satisfaction ("100%" visible)
+            const timer = setTimeout(() => {
+                setIsAnalyzing(false);
+                router.push('/preview');
+            }, 400);
+            return () => clearTimeout(timer);
+        }
+    }, [progress, router]); // Trigger when progress hits 100 (and checking ref inside)
 
     const handleFileSelect = useCallback((file: File) => {
         if (file && file.type.startsWith('image/')) {

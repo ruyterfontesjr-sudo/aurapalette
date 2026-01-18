@@ -254,9 +254,9 @@ export default function Home() {
 
                             {/* Season Card */}
                             <div className={styles.reportSeasonCard}>
-                                <span className={styles.reportSeasonName}>Outono Quente</span>
+                                <span className={styles.reportSeasonName}>Inverno Brilhante</span>
                                 <p className={styles.reportSeasonDesc}>
-                                    Cores terrosas e quentes realçam sua beleza natural.
+                                    Cores intensas, frias e contrastantes realçam seu brilho natural.
                                 </p>
                             </div>
 
@@ -264,15 +264,15 @@ export default function Home() {
                             <div className={styles.reportStatsRow}>
                                 <div className={styles.reportStat}>
                                     <span className={styles.statLabel}>Temp.</span>
-                                    <span className={styles.statValue}>Quente</span>
+                                    <span className={styles.statValue}>Fria</span>
                                 </div>
                                 <div className={styles.reportStat}>
                                     <span className={styles.statLabel}>Subtom</span>
-                                    <span className={styles.statValue}>Dourado</span>
+                                    <span className={styles.statValue}>Azulado</span>
                                 </div>
                                 <div className={styles.reportStat}>
                                     <span className={styles.statLabel}>Contraste</span>
-                                    <span className={styles.statValue}>Médio</span>
+                                    <span className={styles.statValue}>Alto</span>
                                 </div>
                             </div>
 

@@ -65,25 +65,22 @@ export default function UploadPage() {
             const elapsed = Date.now() - startTime;
             const t = Math.min(elapsed / duration, 1);
 
+            // Simple easing: fast start (0-50% in 30%), steady middle, slightly faster end
             let currentProgress = 0;
-            if (t <= 0.2) {
-                // Fast start: 0 to 45% in 20% of time (7s)
-                currentProgress = (t / 0.2) * 45;
+            if (t <= 0.3) {
+                // Fast start: 0 to 50% in 30% of time (~10.5s)
+                currentProgress = (t / 0.3) * 50;
             } else {
-                // Steady finish: 45 to 100% in 80% of time (28s)
-                currentProgress = 45 + ((t - 0.2) / 0.8) * 55;
+                // Linear finish: 50 to 100% in 70% of time (~24.5s)
+                currentProgress = 50 + ((t - 0.3) / 0.7) * 50;
             }
 
             setProgress(Math.min(currentProgress, 100));
 
             if (t < 1) {
                 animationFrameId = requestAnimationFrame(animate);
-            } else {
-                // Animation finished natural course
-                if (!analyzedDataRef.current) {
-                    setIsLongWait(true); // Only show "Finalizing" if data isn't ready yet
-                }
             }
+            // No isLongWait logic needed - redirect effect handles everything
         };
 
         animationFrameId = requestAnimationFrame(animate);
@@ -301,9 +298,7 @@ export default function UploadPage() {
 
                             {/* Current step text */}
                             <p className={styles.loadingText}>
-                                {isLongWait
-                                    ? 'Estamos finalizando sua análise detalhada, falta pouco...'
-                                    : (ANALYSIS_STEPS[currentStep]?.text || 'Analisando...')}
+                                {ANALYSIS_STEPS[currentStep]?.text || 'Finalizando análise...'}
                             </p>
 
                             {/* Steps indicator */}

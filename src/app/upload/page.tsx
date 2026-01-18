@@ -199,11 +199,35 @@ export default function UploadPage() {
                     const data = await res.json();
                     if (!res.ok) throw new Error(data.message || 'Falha na análise profunda');
 
-                    // IMMEDIATELY save, set 100%, and redirect - don't wait for animation
+                    // Save data immediately
                     localStorage.setItem('aurapalette_analysis', JSON.stringify(data));
-                    setProgress(100);
-                    setIsAnalyzing(false);
-                    router.push('/preview');
+
+                    // Smooth animation from current progress to 100%
+                    const startProgress = 90;
+                    const endProgress = 100;
+                    const duration = 800; // 800ms for smooth finish
+                    const startTime = Date.now();
+
+                    const animateTo100 = () => {
+                        const elapsed = Date.now() - startTime;
+                        const t = Math.min(elapsed / duration, 1);
+                        // Ease-out curve for natural deceleration
+                        const eased = 1 - Math.pow(1 - t, 3);
+                        const currentProgress = startProgress + (endProgress - startProgress) * eased;
+                        setProgress(currentProgress);
+
+                        if (t < 1) {
+                            requestAnimationFrame(animateTo100);
+                        } else {
+                            // Wait 300ms at 100% so user sees completion, then redirect
+                            setTimeout(() => {
+                                setIsAnalyzing(false);
+                                router.push('/preview');
+                            }, 300);
+                        }
+                    };
+
+                    requestAnimationFrame(animateTo100);
                 })
                 .catch((err) => {
                     console.error('Background analysis failed:', err);

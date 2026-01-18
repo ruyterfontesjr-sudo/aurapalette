@@ -281,40 +281,40 @@ export default function Home() {
                                 <span className={styles.reportSectionTitle}>🎨 Suas Melhores Cores</span>
                                 <div className={styles.reportColors}>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#D97706' }}></div>
-                                        <span>Âmbar</span>
+                                        <div className={styles.reportColor} style={{ background: '#FF00FF' }}></div>
+                                        <span>Fúcsia</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#B45309' }}></div>
-                                        <span>Caramelo</span>
+                                        <div className={styles.reportColor} style={{ background: '#2563EB' }}></div>
+                                        <span>Azul Real</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#92400E' }}></div>
-                                        <span>Cobre</span>
+                                        <div className={styles.reportColor} style={{ background: '#10B981' }}></div>
+                                        <span>Esmeralda</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#78350F' }}></div>
-                                        <span>Terracota</span>
+                                        <div className={styles.reportColor} style={{ background: '#000000' }}></div>
+                                        <span>Preto</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#059669' }}></div>
-                                        <span>Oliva</span>
+                                        <div className={styles.reportColor} style={{ background: '#FFFFFF', border: '1px solid #333' }}></div>
+                                        <span>Branco</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#B91C1C' }}></div>
-                                        <span>Bordô</span>
+                                        <div className={styles.reportColor} style={{ background: '#FDE047' }}></div>
+                                        <span>Limão</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#CA8A04' }}></div>
-                                        <span>Mostarda</span>
+                                        <div className={styles.reportColor} style={{ background: '#DC2626' }}></div>
+                                        <span>Vermelho</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#365314' }}></div>
-                                        <span>Verde Musgo</span>
+                                        <div className={styles.reportColor} style={{ background: '#7C3AED' }}></div>
+                                        <span>Roxo</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#7C2D12' }}></div>
-                                        <span>Marrom</span>
+                                        <div className={styles.reportColor} style={{ background: '#0EA5E9' }}></div>
+                                        <span>Ciano</span>
                                     </div>
                                 </div>
                             </div>

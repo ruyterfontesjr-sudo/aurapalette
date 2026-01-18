@@ -108,7 +108,6 @@ export default function PreviewPage() {
                             borderColor: colors.border
                         }}
                     >
-                        <span className={styles.seasonEmoji}>{seasonEmoji[season]}</span>
                         <div className={styles.seasonInfo}>
                             <span className={styles.seasonLabel}>Sua estação é</span>
                             <h2 className={styles.seasonName}>{season}</h2>
@@ -117,7 +116,7 @@ export default function PreviewPage() {
 
                     <p className={styles.seasonDesc}>
                         {analysis?.fullAnalysis?.summary ||
-                            `Você é **${season}**! Isso significa que certas cores vão realçar sua beleza natural enquanto outras podem apagar seu brilho.`}
+                            `Você é ${season}! Isso significa que certas cores vão realçar sua beleza natural enquanto outras podem apagar seu brilho.`}
                     </p>
 
                     {/* Características Pessoais - REMOVED AS REQUESTED */}

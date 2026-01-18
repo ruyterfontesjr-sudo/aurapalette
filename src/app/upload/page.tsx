@@ -85,18 +85,17 @@ export default function UploadPage() {
             const stepDuration = ANALYSIS_STEPS[stepIndex].duration;
 
             // Progress animation - always run to completion (don't jump to 100 early)
-            // Non-linear easing: fast start, slow finish for psychological effect
+            // Non-linear easing: VERY fast start, slow finish for psychological effect
             const easeProgress = (linear: number): number => {
-                // 0-70% goes fast, 70-90% medium, 90-99% slow
-                if (linear <= 0.7) {
-                    // Map 0-0.7 linear to 0-0.75 displayed (faster)
-                    return (linear / 0.7) * 0.75;
-                } else if (linear <= 0.9) {
-                    // Map 0.7-0.9 linear to 0.75-0.90 displayed (medium)
-                    return 0.75 + ((linear - 0.7) / 0.2) * 0.15;
+                // 0-50% time = 0-70% displayed (VERY fast - creates excitement)
+                // 50-85% time = 70-92% displayed (medium - building tension)  
+                // 85-100% time = 92-99% displayed (SLOW - builds anticipation)
+                if (linear <= 0.5) {
+                    return (linear / 0.5) * 0.70;
+                } else if (linear <= 0.85) {
+                    return 0.70 + ((linear - 0.5) / 0.35) * 0.22;
                 } else {
-                    // Map 0.9-1.0 linear to 0.90-0.99 displayed (slow)
-                    return 0.90 + ((linear - 0.9) / 0.1) * 0.09;
+                    return 0.92 + ((linear - 0.85) / 0.15) * 0.07;
                 }
             };
 

@@ -71,11 +71,10 @@ export default function UploadPage() {
                     return;
                 }
             } else {
-                // API still running - slow increment up to 90%
-                if (currentProgress < 90) {
-                    currentProgress += 0.5; // Slow steady progress
+                // API still running - VERY slow increment up to 99% (never stops)
+                if (currentProgress < 99) {
+                    currentProgress += 0.15; // Very slow but always moving
                 }
-                // If at 90 and API not done, just wait (don't freeze visually, keep at 90)
             }
 
             setProgress(currentProgress);

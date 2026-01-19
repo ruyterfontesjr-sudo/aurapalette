@@ -6,25 +6,41 @@ import styles from './page.module.css';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
-import { AnalysisLoading } from '@/components/AnalysisLoading';
-import { useAnalysis } from '@/hooks/useAnalysis';
+
+const ANALYSIS_STEPS = [
+    'Detectando características faciais...',
+    'Analisando tom de pele...',
+    'Calculando contraste pessoal...',
+    'Identificando subtom...',
+    'Mapeando paleta de cores...',
+    'Gerando recomendações...',
+    'Finalizando análise...',
+];
+
+// Map SSE step IDs to step indices
+const STEP_MAP: Record<string, number> = {
+    'detecting_face': 0,
+    'analyzing_skin': 1,
+    'calculating_contrast': 2,
+    'identifying_undertone': 3,
+    'generating_palette': 4,
+    'finalizing': 5,
+};
 
 export default function UploadPage() {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [image, setImage] = useState<string | null>(null);
-    const [compressedImage, setCompressedImage] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isValidating, setIsValidating] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [currentStep, setCurrentStep] = useState(0);
     const [isReady, setIsReady] = useState(false);
-    const [isExiting, setIsExiting] = useState(false);
 
     // Error Modal State
     const [errorModalOpen, setErrorModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-
-    // Use the new analysis hook
-    const analysis = useAnalysis();
 
     // Checkpoint verification - must have completed quiz
     useEffect(() => {
@@ -35,36 +51,6 @@ export default function UploadPage() {
         }
         setIsReady(true);
     }, [router]);
-
-    // Handle navigation when analysis completes
-    useEffect(() => {
-        if (analysis.status === 'complete' && analysis.result) {
-            // Store analysis result in localStorage
-            localStorage.setItem('aurapalette_analysis', JSON.stringify(analysis.result));
-
-            // Wait briefly to show 100% completion, then navigate
-            const timer = setTimeout(() => {
-                router.push('/preview');
-            }, 500);
-
-            return () => clearTimeout(timer);
-        }
-    }, [analysis.status, analysis.result, router]);
-
-    // Handle analysis errors
-    useEffect(() => {
-        if (analysis.status === 'error' && analysis.error) {
-            if (analysis.error.type === 'VALIDATION_ERROR') {
-                // For validation errors, show modal and reset image
-                setErrorMessage(analysis.error.message);
-                setErrorModalOpen(true);
-                setImage(null);
-                setCompressedImage(null);
-                analysis.reset();
-            }
-            // Other errors are handled by the AnalysisLoading component
-        }
-    }, [analysis.status, analysis.error, analysis]);
 
     const handleFileSelect = useCallback((file: File) => {
         if (file && file.type.startsWith('image/')) {
@@ -103,19 +89,17 @@ export default function UploadPage() {
         // Reset state
         setIsValidating(true);
         setErrorModalOpen(false);
-        analysis.reset();
 
         try {
             // Compress image
             const { compressImage } = await import('@/utils/image');
-            const compressed = await compressImage(image, 600, 0.7);
-            setCompressedImage(compressed);
+            const compressedImage = await compressImage(image, 600, 0.7);
 
-            // 1. FAST VALIDATION (keep this for quick feedback on bad photos)
+            // 1. FAST VALIDATION
             const validationResponse = await fetch('/api/validate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: compressed }),
+                body: JSON.stringify({ image: compressedImage }),
             });
 
             const validationData = await validationResponse.json();
@@ -124,29 +108,96 @@ export default function UploadPage() {
                 throw new Error(validationData.message || 'Sua foto não atende aos padrões.');
             }
 
-            // Validation passed! Start transition to loading state
+            // Validation passed! Start loading animation
             setIsValidating(false);
-            setIsExiting(true);
+            setIsAnalyzing(true);
+            setProgress(0);
+            setCurrentStep(0);
 
-            // Store photo in localStorage
-            localStorage.setItem('aurapalette_photo', compressed);
-
-            // Wait for exit animation, then start analysis
-            await new Promise(resolve => setTimeout(resolve, 300));
-            setIsExiting(false);
+            // Store image
+            localStorage.setItem('aurapalette_photo', compressedImage);
 
             // Get quiz data
             const quizDataStr = localStorage.getItem('aurapalette_quiz');
             const quizData = quizDataStr ? JSON.parse(quizDataStr) : null;
 
-            // Start streaming analysis
-            analysis.analyze(compressed, quizData);
+            // 2. STREAMING ANALYSIS via SSE
+            const response = await fetch('/api/analyze-stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: compressedImage, quizData }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha ao iniciar análise');
+            }
+
+            const reader = response.body?.getReader();
+            if (!reader) {
+                throw new Error('Stream não disponível');
+            }
+
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (!line.startsWith('data: ')) continue;
+
+                    try {
+                        const event = JSON.parse(line.slice(6));
+
+                        switch (event.type) {
+                            case 'step':
+                                // Update progress from real SSE data
+                                if (event.progress !== undefined) {
+                                    setProgress(event.progress);
+                                }
+                                // Update step from SSE step ID
+                                if (event.step && STEP_MAP[event.step] !== undefined) {
+                                    setCurrentStep(STEP_MAP[event.step]);
+                                }
+                                break;
+
+                            case 'complete':
+                                if (event.result) {
+                                    // Save result
+                                    localStorage.setItem('aurapalette_analysis', JSON.stringify(event.result));
+                                    setProgress(100);
+                                    setCurrentStep(ANALYSIS_STEPS.length - 1);
+
+                                    // Navigate after brief delay
+                                    setTimeout(() => {
+                                        setIsAnalyzing(false);
+                                        router.push('/preview');
+                                    }, 500);
+                                }
+                                return;
+
+                            case 'error':
+                                throw new Error(event.error?.message || 'Erro na análise');
+                        }
+                    } catch (parseError) {
+                        // Skip malformed events
+                        if (parseError instanceof SyntaxError) continue;
+                        throw parseError;
+                    }
+                }
+            }
 
         } catch (error: unknown) {
-            console.error('Validation error:', error);
+            console.error('Analysis error:', error);
             setIsValidating(false);
+            setIsAnalyzing(false);
 
-            let message = 'Sua foto não atende aos padrões. Tente outra foto.';
+            let message = 'Erro ao processar análise. Tente novamente.';
             if (error instanceof Error && error.message && error.message.length < 100) {
                 message = error.message;
             }
@@ -159,26 +210,13 @@ export default function UploadPage() {
 
     const handleRemoveImage = () => {
         setImage(null);
-        setCompressedImage(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
     };
 
-    const handleRetry = () => {
-        analysis.retry();
-    };
-
-    const handleCancelAnalysis = () => {
-        analysis.reset();
-        setImage(null);
-        setCompressedImage(null);
-    };
-
-    // Show loading state during analysis
-    if (analysis.status === 'analyzing' || analysis.status === 'complete') {
-        const imageToShow = compressedImage || image || '';
-
+    // LOADING SCREEN - Original design with real progress
+    if (isAnalyzing) {
         return (
             <main className={styles.page}>
                 <div className={styles.orbPrimary} />
@@ -186,41 +224,54 @@ export default function UploadPage() {
 
                 <div className={styles.container}>
                     <Card className={styles.card}>
-                        <AnalysisLoading
-                            imageSrc={imageToShow}
-                            progress={analysis.progress}
-                            currentStep={analysis.currentStep}
-                            insights={analysis.insights}
-                            error={analysis.error}
-                            onRetry={handleRetry}
-                            onCancel={handleCancelAnalysis}
-                        />
-                    </Card>
-                </div>
-            </main>
-        );
-    }
+                        <div className={styles.loadingState}>
+                            {/* Photo with scanner effect */}
+                            <div className={styles.scannerContainer}>
+                                <div className={styles.scannerFrame}>
+                                    <img
+                                        src={image || ''}
+                                        alt="Sua foto"
+                                        className={styles.scannerPhoto}
+                                    />
+                                    <div className={styles.scanLine} />
+                                    <div className={styles.scanGlow} />
+                                    <div className={`${styles.cornerMarker} ${styles.cornerTopLeft}`} />
+                                    <div className={`${styles.cornerMarker} ${styles.cornerTopRight}`} />
+                                    <div className={`${styles.cornerMarker} ${styles.cornerBottomLeft}`} />
+                                    <div className={`${styles.cornerMarker} ${styles.cornerBottomRight}`} />
+                                </div>
+                            </div>
 
-    // Show error state in loading component for non-validation errors
-    if (analysis.status === 'error' && analysis.error?.type !== 'VALIDATION_ERROR') {
-        const imageToShow = compressedImage || image || '';
+                            {/* Progress bar */}
+                            <div className={styles.progressContainer}>
+                                <span className={styles.progressPercent}>{Math.round(progress)}%</span>
+                                <div className={styles.progressTrack}>
+                                    <div
+                                        className={styles.progressFill}
+                                        style={{ width: `${progress}%` }}
+                                    />
+                                </div>
+                            </div>
 
-        return (
-            <main className={styles.page}>
-                <div className={styles.orbPrimary} />
-                <div className={styles.orbSecondary} />
+                            {/* Current step text */}
+                            <p className={styles.loadingText}>
+                                {ANALYSIS_STEPS[currentStep]}
+                            </p>
 
-                <div className={styles.container}>
-                    <Card className={styles.card}>
-                        <AnalysisLoading
-                            imageSrc={imageToShow}
-                            progress={analysis.progress}
-                            currentStep={analysis.currentStep}
-                            insights={analysis.insights}
-                            error={analysis.error}
-                            onRetry={handleRetry}
-                            onCancel={handleCancelAnalysis}
-                        />
+                            {/* Steps indicator */}
+                            <div className={styles.stepsIndicator}>
+                                {ANALYSIS_STEPS.map((_, index) => (
+                                    <div
+                                        key={index}
+                                        className={`${styles.stepDot} ${index <= currentStep ? styles.stepDotActive : ''}`}
+                                    />
+                                ))}
+                            </div>
+
+                            <p className={styles.loadingSubtext}>
+                                Aguarde enquanto nossa IA analisa sua colorimetria
+                            </p>
+                        </div>
                     </Card>
                 </div>
             </main>
@@ -234,8 +285,8 @@ export default function UploadPage() {
             <div className={styles.orbSecondary} />
 
             <div className={styles.container}>
-                <Card className={`${styles.card} ${isExiting ? styles.cardExiting : ''}`}>
-                    <h1 className={styles.title}>Tire sua selfie</h1>
+                <Card className={styles.card}>
+                    <h1 className={styles.title}>Tire sua selfie 📸</h1>
                     <p className={styles.subtitle}>
                         Envie uma foto do seu rosto para análise de colorimetria
                     </p>
@@ -284,7 +335,7 @@ export default function UploadPage() {
 
                     <div className={styles.tips}>
                         <h4 className={styles.tipsTitle}>
-                            Dicas para uma foto perfeita
+                            💡 Dicas para uma foto perfeita
                         </h4>
                         <ul className={styles.tipsList}>
                             <li className={styles.tip}>
@@ -315,7 +366,7 @@ export default function UploadPage() {
                                 onClick={handleAnalyze}
                                 loading={isValidating}
                             >
-                                {isValidating ? 'Verificando foto...' : 'Analisar minha foto'}
+                                {isValidating ? 'Verificando foto...' : 'Analisar minha foto ✨'}
                             </Button>
                         </div>
                     )}

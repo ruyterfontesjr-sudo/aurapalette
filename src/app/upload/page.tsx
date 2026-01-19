@@ -28,8 +28,8 @@ export default function UploadPage() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isReady, setIsReady] = useState(false);
 
-    // API completion flag
-    const apiCompleteRef = useRef(false);
+    // API completion timestamp (false = not complete, number = timestamp when complete)
+    const apiCompleteRef = useRef<number | false>(false);
     const apiDataRef = useRef<any>(null);
 
     // Error Modal State
@@ -46,50 +46,97 @@ export default function UploadPage() {
         setIsReady(true);
     }, [router]);
 
-    // SIMPLE LOADING ANIMATION - v2
-    // - Progress goes from 0 to 99 SLOWLY while waiting for API (0.08% per 100ms)
-    // - When API completes, rush to 100 and redirect immediately
+    // SMOOTH LOADING ANIMATION - v3
+    // - Uses easing curve for natural progress feel
+    // - Minimum 10 seconds of loading (feels like real AI analysis)
+    // - Uses requestAnimationFrame for 60fps smooth animation
+    // - When API completes, smoothly transitions to 100%
+    // - Never gets stuck - always progressing
     useEffect(() => {
         if (!isAnalyzing) return;
 
-        let currentProgress = 0;
+        const MINIMUM_DURATION = 10000; // 10 seconds minimum
+        const TARGET_BEFORE_API = 85; // Progress to 85% before waiting for API
+        const startTime = Date.now();
+        let animationFrameId: number;
+        let lastProgress = 0;
 
-        const interval = setInterval(() => {
-            // If API is complete, rush to 100% and redirect
+        // Easing function - ease-out-cubic for natural deceleration
+        const easeOutCubic = (t: number): number => {
+            return 1 - Math.pow(1 - t, 3);
+        };
+
+        // Animate function using requestAnimationFrame for 60fps
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            let targetProgress: number;
+
             if (apiCompleteRef.current) {
-                currentProgress += 5; // Fast increment to 100
-                if (currentProgress >= 100) {
-                    currentProgress = 100;
-                    setProgress(100);
-                    clearInterval(interval);
+                // API completed - smoothly accelerate to 100%
+                // Calculate how much time passed since API completed
+                const apiCompleteTime = apiCompleteRef.current;
+                const timeSinceComplete = Date.now() - apiCompleteTime;
+                const transitionDuration = 1500; // 1.5 seconds to go from current to 100%
 
-                    // Redirect after a brief moment showing 100%
+                const transitionProgress = Math.min(timeSinceComplete / transitionDuration, 1);
+                const easedTransition = easeOutCubic(transitionProgress);
+
+                targetProgress = lastProgress + (100 - lastProgress) * easedTransition;
+
+                if (targetProgress >= 99.9) {
+                    targetProgress = 100;
+                    setProgress(100);
+
+                    // Update step to final
+                    setCurrentStep(ANALYSIS_STEPS.length - 1);
+
+                    // Wait a moment showing 100% before redirecting
                     setTimeout(() => {
                         setIsAnalyzing(false);
                         router.push('/preview');
-                    }, 300);
+                    }, 500);
                     return;
                 }
             } else {
-                // API still running - VERY slow increment up to 99% (never stops)
-                // 0.08% per 100ms = ~2 minutes to reach 99% (API will definitely finish first)
-                if (currentProgress < 99) {
-                    currentProgress += 0.08;
+                // API still running - progress smoothly to TARGET_BEFORE_API
+                if (elapsed < MINIMUM_DURATION) {
+                    // During minimum duration: progress from 0 to TARGET_BEFORE_API
+                    const normalizedTime = elapsed / MINIMUM_DURATION;
+                    targetProgress = easeOutCubic(normalizedTime) * TARGET_BEFORE_API;
+                } else {
+                    // After minimum duration: slowly creep from TARGET_BEFORE_API to 98%
+                    // Very slow progress so it never looks stuck but doesn't reach 100
+                    const extraTime = elapsed - MINIMUM_DURATION;
+                    const slowProgress = Math.min(extraTime / 60000, 1); // 60 more seconds to reach 98%
+                    targetProgress = TARGET_BEFORE_API + (98 - TARGET_BEFORE_API) * easeOutCubic(slowProgress);
                 }
             }
 
-            setProgress(currentProgress);
+            // Smooth interpolation - never jump more than 0.5% per frame
+            const maxDelta = 0.5;
+            const delta = targetProgress - lastProgress;
+            const smoothedProgress = lastProgress + Math.min(Math.max(delta, -maxDelta), maxDelta * 2);
+
+            lastProgress = smoothedProgress;
+            setProgress(smoothedProgress);
 
             // Update step text based on progress
             const stepIndex = Math.min(
-                Math.floor((currentProgress / 100) * ANALYSIS_STEPS.length),
+                Math.floor((smoothedProgress / 100) * ANALYSIS_STEPS.length),
                 ANALYSIS_STEPS.length - 1
             );
             setCurrentStep(stepIndex);
 
-        }, 100); // Update every 100ms
+            animationFrameId = requestAnimationFrame(animate);
+        };
 
-        return () => clearInterval(interval);
+        animationFrameId = requestAnimationFrame(animate);
+
+        return () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+        };
     }, [isAnalyzing, router]);
 
     const handleFileSelect = useCallback((file: File) => {
@@ -181,7 +228,7 @@ export default function UploadPage() {
                     // Save data and signal completion
                     localStorage.setItem('aurapalette_analysis', JSON.stringify(data));
                     apiDataRef.current = data;
-                    apiCompleteRef.current = true; // This triggers the animation to finish
+                    apiCompleteRef.current = Date.now(); // Store timestamp to calculate smooth transition
                 })
                 .catch((err) => {
                     console.error('Analysis failed:', err);

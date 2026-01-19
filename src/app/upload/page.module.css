@@ -486,7 +486,7 @@
     height: 100%;
     background: linear-gradient(90deg, #A855F7, #EC4899, #F97316);
     border-radius: 3px;
-    /* No transition - pure JavaScript control for smooth animation */
+    transition: width 100ms ease-out;
     position: relative;
 }
 

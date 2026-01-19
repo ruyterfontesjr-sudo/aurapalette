@@ -6,28 +6,36 @@ const openai = new OpenAI({
 });
 
 const VALIDATION_PROMPT = `Você é um validador de fotos para análise de colorimetria pessoal.
-Precisamos ver: tom de pele, cor dos olhos, e cabelo.
+Precisamos ver claramente: tom de pele, cor dos olhos (essencial!), e cabelo.
 
-REJEITE SE:
-- Não há rosto humano (objeto, animal, paisagem, etc)
-- Foto preto e branco ou sépia
-- Pessoa usando QUALQUER tipo de óculos (de sol OU de grau) - precisamos ver os olhos sem obstáculos
-- Máscara, celular ou objeto cobrindo o rosto
-- Rosto não está visível na foto
+CRITÉRIOS DE REJEIÇÃO (seja rigoroso):
+1. **SEM ROSTO**: Foto de objeto, animal, paisagem, ou sem humano visível
+2. **ÓCULOS DE QUALQUER TIPO**: 
+   - Óculos de sol (SEMPRE rejeitar)
+   - Óculos de grau (SEMPRE rejeitar - precisamos ver os olhos sem distorção)
+   - Qualquer acessório cobrindo os olhos
+3. **ROSTO COBERTO**: Máscara, celular, mão, cabelo cobrindo o rosto
+4. **FOTO PRETO E BRANCO ou SÉPIA**: Não conseguimos analisar cores
+5. **OLHOS NÃO VISÍVEIS**: Pessoa de olhos fechados, muito escuro, ou olhos cortados da foto
 
-ACEITE SE:
-- Tem um rosto humano visível
-- Dá para ver os olhos (sem óculos)
-- Foto é colorida
-- Qualidade pode ser baixa, iluminação pode não ser perfeita - desde que dê para ver o rosto
+CRITÉRIOS DE ACEITAÇÃO (seja tolerante):
+- Rosto humano visível com OLHOS À MOSTRA
+- Foto colorida (mesmo com iluminação não ideal)
+- Qualidade pode ser baixa, desde que dê para ver rosto e olhos
+- Maquiagem leve é OK
+- Cabelo pode estar preso ou solto
 
-SEJA TOLERANTE com qualidade de foto. Não rejeite por estar um pouco escura ou não tão nítida.
-O importante é: TEM ROSTO? DÁ PRA VER OS OLHOS? É COLORIDA? Se sim, ACEITE.
+IMPORTANTE: Nossa análise depende CRITICAMENTE de ver os olhos naturais.
+Óculos distorcem a cor real dos olhos e impedem a análise precisa.
 
 Responda APENAS com JSON:
 {
   "valid": true/false,
-  "error": "Mensagem curta e amigável em PT-BR (ex: 'Retire os óculos para vermos seus olhos', 'Envie uma foto colorida', 'Não encontramos um rosto na foto')"
+  "error": "Mensagem curta, amigável e específica em PT-BR. Exemplos:
+    - 'Por favor, retire os óculos para vermos seus olhos naturais 👓'
+    - 'Precisamos de uma foto colorida para analisar suas cores 🎨'
+    - 'Não encontramos um rosto na foto. Tire uma selfie olhando para a câmera 📸'
+    - 'Seus olhos parecem estar fechados ou cobertos. Olhe para a câmera 👀'"
 }`;
 
 export async function POST(request: NextRequest) {

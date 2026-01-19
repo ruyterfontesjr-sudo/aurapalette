@@ -46,9 +46,9 @@ export default function UploadPage() {
         setIsReady(true);
     }, [router]);
 
-    // SIMPLE LOADING ANIMATION
-    // - Progress goes from 0 to 90 while waiting for API
-    // - When API completes, smoothly finish to 100 and redirect
+    // SIMPLE LOADING ANIMATION - v2
+    // - Progress goes from 0 to 99 SLOWLY while waiting for API (0.08% per 100ms)
+    // - When API completes, rush to 100 and redirect immediately
     useEffect(() => {
         if (!isAnalyzing) return;
 

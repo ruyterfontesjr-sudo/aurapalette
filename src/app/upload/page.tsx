@@ -113,10 +113,7 @@ export default function UploadPage() {
             const validationData = await validationResponse.json();
 
             if (!validationResponse.ok) {
-                // Garantir que a mensagem é válida (mais de 10 caracteres e não é placeholder)
-                const msg = validationData.message;
-                const isValidMessage = msg && typeof msg === 'string' && msg.length > 10 && !msg.includes('motivo');
-                throw new Error(isValidMessage ? msg : 'Não conseguimos processar sua foto. Por favor, tente com outra foto onde seu rosto esteja bem visível.');
+                throw new Error('Sua imagem não atende aos requisitos mínimos de qualidade. Por favor, tire outra foto e tente novamente.');
             }
 
             // Validation passed! Start loading animation
@@ -208,12 +205,8 @@ export default function UploadPage() {
             setIsValidating(false);
             setIsAnalyzing(false);
 
-            let message = 'Erro ao processar análise. Tente novamente.';
-            if (error instanceof Error && error.message && error.message.length < 100) {
-                message = error.message;
-            }
-
-            setErrorMessage(message);
+            // Mensagem fixa para qualquer erro
+            setErrorMessage('Sua imagem não atende aos requisitos mínimos de qualidade. Por favor, tire outra foto e tente novamente.');
             setErrorModalOpen(true);
             setImage(null);
         }

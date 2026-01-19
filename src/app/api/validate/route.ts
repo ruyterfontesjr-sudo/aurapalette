@@ -5,27 +5,18 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Mensagem de erro padrão
-const DEFAULT_ERROR_MESSAGE = 'Não conseguimos processar sua foto. Por favor, tente com outra foto onde seu rosto esteja bem visível.';
+// Mensagem de erro fixa
+const ERROR_MESSAGE = 'Sua imagem não atende aos requisitos mínimos de qualidade. Por favor, tire outra foto e tente novamente.';
 
 const VALIDATION_PROMPT = `Analise esta foto e responda em JSON.
 
-A foto mostra um rosto humano com olhos visíveis?
+A foto mostra um rosto humano?
 
 Responda APENAS:
-{"valid": true} - se tem rosto humano visível (qualquer qualidade é OK)
-{"valid": false, "reason": "no_face"} - se NÃO tem rosto humano
-{"valid": false, "reason": "sunglasses"} - se tem óculos de sol escuros
-{"valid": false, "reason": "black_white"} - se é preto e branco
+{"valid": true} - se tem rosto humano visível
+{"valid": false} - se NÃO tem rosto humano
 
-IMPORTANTE: Se tem um rosto humano, responda {"valid": true}. Aceite fotos com qualidade ruim, iluminação ruim, óculos de grau, maquiagem, filtros.`;
-
-// Mapeamento de razões para mensagens amigáveis
-const ERROR_MESSAGES: Record<string, string> = {
-    'no_face': 'Não encontramos um rosto na foto. Tire uma selfie olhando para a câmera.',
-    'sunglasses': 'Por favor, retire os óculos de sol para vermos seus olhos.',
-    'black_white': 'Precisamos de uma foto colorida para analisar suas cores.',
-};
+IMPORTANTE: Se tem um rosto humano, responda {"valid": true}. Aceite fotos com qualquer qualidade, iluminação, óculos, maquiagem, filtros.`;
 
 export async function POST(request: NextRequest) {
     try {
@@ -78,12 +69,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ valid: true });
         }
 
-        // Se inválido, usa mensagem mapeada ou padrão
-        const reason = result.reason || '';
-        const friendlyMessage = ERROR_MESSAGES[reason] || DEFAULT_ERROR_MESSAGE;
-
+        // Se inválido, usa mensagem fixa
         return NextResponse.json(
-            { error: 'INVALID_IMAGE', message: friendlyMessage },
+            { error: 'INVALID_IMAGE', message: ERROR_MESSAGE },
             { status: 422 }
         );
 

@@ -6,36 +6,34 @@ const openai = new OpenAI({
 });
 
 const VALIDATION_PROMPT = `Você é um validador de fotos para análise de colorimetria pessoal.
-Precisamos ver claramente: tom de pele, cor dos olhos (essencial!), e cabelo.
+Seu trabalho é APENAS rejeitar fotos que são IMPOSSÍVEIS de analisar.
 
-CRITÉRIOS DE REJEIÇÃO (seja rigoroso):
-1. **SEM ROSTO**: Foto de objeto, animal, paisagem, ou sem humano visível
-2. **ÓCULOS DE QUALQUER TIPO**: 
-   - Óculos de sol (SEMPRE rejeitar)
-   - Óculos de grau (SEMPRE rejeitar - precisamos ver os olhos sem distorção)
-   - Qualquer acessório cobrindo os olhos
-3. **ROSTO COBERTO**: Máscara, celular, mão, cabelo cobrindo o rosto
-4. **FOTO PRETO E BRANCO ou SÉPIA**: Não conseguimos analisar cores
-5. **OLHOS NÃO VISÍVEIS**: Pessoa de olhos fechados, muito escuro, ou olhos cortados da foto
+REJEITAR APENAS SE:
+1. **NÃO TEM ROSTO HUMANO**: Foto de objeto, animal, paisagem, meme, ou sem pessoa
+2. **ÓCULOS DE SOL ESCUROS**: Que escondem completamente os olhos
+3. **ROSTO TOTALMENTE COBERTO**: Máscara cobrindo tudo, rosto completamente no escuro
+4. **FOTO PRETO E BRANCO**: Sem cores (sépia/P&B)
 
-CRITÉRIOS DE ACEITAÇÃO (seja tolerante):
-- Rosto humano visível com OLHOS À MOSTRA
-- Foto colorida (mesmo com iluminação não ideal)
-- Qualidade pode ser baixa, desde que dê para ver rosto e olhos
-- Maquiagem leve é OK
-- Cabelo pode estar preso ou solto
+ACEITAR (mesmo se não for perfeita):
+- Qualquer foto com rosto humano visível
+- Óculos de grau transparentes = OK (dá para ver os olhos)
+- Iluminação ruim, artificial, ou colorida = OK
+- Foto escura mas dá para ver o rosto = OK
+- Qualidade baixa, pixelada = OK
+- Maquiagem pesada = OK
+- Filtros leves = OK
+- Ângulo estranho = OK
+- Parte do rosto cortada mas olhos visíveis = OK
 
-IMPORTANTE: Nossa análise depende CRITICAMENTE de ver os olhos naturais.
-Óculos distorcem a cor real dos olhos e impedem a análise precisa.
+REGRA: Na dúvida, ACEITE. A análise principal vai lidar com fotos difíceis.
 
 Responda APENAS com JSON:
 {
   "valid": true/false,
-  "error": "Mensagem curta, amigável e específica em PT-BR. Exemplos:
-    - 'Por favor, retire os óculos para vermos seus olhos naturais 👓'
-    - 'Precisamos de uma foto colorida para analisar suas cores 🎨'
-    - 'Não encontramos um rosto na foto. Tire uma selfie olhando para a câmera 📸'
-    - 'Seus olhos parecem estar fechados ou cobertos. Olhe para a câmera 👀'"
+  "error": "Mensagem curta se inválida. Exemplos:
+    - 'Retire os óculos de sol para vermos seus olhos 👓'
+    - 'Precisamos de uma foto colorida 🎨'
+    - 'Não encontramos um rosto na foto 📸'"
 }`;
 
 export async function POST(request: NextRequest) {

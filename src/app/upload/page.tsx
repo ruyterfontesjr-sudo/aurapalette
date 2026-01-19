@@ -8,13 +8,13 @@ import Button from '@/components/Button';
 import Modal from '@/components/Modal';
 
 const ANALYSIS_STEPS = [
-    { text: 'Detectando características faciais...', duration: 4000 },
-    { text: 'Analisando tom de pele e complexidade...', duration: 6000 },
-    { text: 'Calculando contraste pessoal...', duration: 6000 },
-    { text: 'Identificando subtom (Quente/Frio)...', duration: 6000 },
-    { text: 'Mapeando paleta de cores ideal...', duration: 6000 },
-    { text: 'Gerando recomendações de estilo...', duration: 6000 },
-    { text: 'Finalizando análise personalizada...', duration: 6000 },
+    'Detectando características faciais...',
+    'Analisando tom de pele...',
+    'Calculando contraste pessoal...',
+    'Identificando subtom...',
+    'Mapeando paleta de cores...',
+    'Gerando recomendações...',
+    'Finalizando análise...',
 ];
 
 export default function UploadPage() {
@@ -24,12 +24,13 @@ export default function UploadPage() {
     const [isDragging, setIsDragging] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isValidating, setIsValidating] = useState(false);
-    const [analyzedData, setAnalyzedData] = useState<any>(null);
-    const [currentStep, setCurrentStep] = useState(0);
     const [progress, setProgress] = useState(0);
+    const [currentStep, setCurrentStep] = useState(0);
     const [isReady, setIsReady] = useState(false);
-    // State to show "almost there" message
-    const [isLongWait, setIsLongWait] = useState(false);
+
+    // API completion flag
+    const apiCompleteRef = useRef(false);
+    const apiDataRef = useRef<any>(null);
 
     // Error Modal State
     const [errorModalOpen, setErrorModalOpen] = useState(false);
@@ -45,86 +46,51 @@ export default function UploadPage() {
         setIsReady(true);
     }, [router]);
 
-    // Refs to avoid stale closures
-    const analyzedDataRef = useRef<any>(null);
-    useEffect(() => {
-        analyzedDataRef.current = analyzedData;
-    }, [analyzedData]);
-
-    // 1. Fluid Progress Animation (35s fixed duration)
-    // 0-45% in first 20% of time (Fast start)
-    // 45-100% in remaining 80% (Steady anticipation)
+    // SIMPLE LOADING ANIMATION
+    // - Progress goes from 0 to 90 while waiting for API
+    // - When API completes, smoothly finish to 100 and redirect
     useEffect(() => {
         if (!isAnalyzing) return;
 
-        const duration = 35000;
-        const startTime = Date.now();
-        let animationFrameId: number;
+        let currentProgress = 0;
 
-        const animate = () => {
-            const elapsed = Date.now() - startTime;
-            const t = Math.min(elapsed / duration, 1);
+        const interval = setInterval(() => {
+            // If API is complete, rush to 100% and redirect
+            if (apiCompleteRef.current) {
+                currentProgress += 5; // Fast increment to 100
+                if (currentProgress >= 100) {
+                    currentProgress = 100;
+                    setProgress(100);
+                    clearInterval(interval);
 
-            // Simple easing: fast start (0-50% in 30%), steady middle, slightly faster end
-            let currentProgress = 0;
-            if (t <= 0.3) {
-                // Fast start: 0 to 50% in 30% of time (~10.5s)
-                currentProgress = (t / 0.3) * 50;
+                    // Redirect after a brief moment showing 100%
+                    setTimeout(() => {
+                        setIsAnalyzing(false);
+                        router.push('/preview');
+                    }, 300);
+                    return;
+                }
             } else {
-                // Linear finish: 50 to 100% in 70% of time (~24.5s)
-                currentProgress = 50 + ((t - 0.3) / 0.7) * 50;
+                // API still running - slow increment up to 90%
+                if (currentProgress < 90) {
+                    currentProgress += 0.5; // Slow steady progress
+                }
+                // If at 90 and API not done, just wait (don't freeze visually, keep at 90)
             }
 
-            setProgress(Math.min(currentProgress, 100));
+            setProgress(currentProgress);
 
-            if (t < 1) {
-                animationFrameId = requestAnimationFrame(animate);
-            }
-            // No isLongWait logic needed - redirect effect handles everything
-        };
-
-        animationFrameId = requestAnimationFrame(animate);
-
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [isAnalyzing]);
-
-    // 2. Text Rotation Logic (Independent of progress)
-    useEffect(() => {
-        if (!isAnalyzing) return;
-
-        let stepIndex = 0;
-        let timeoutId: NodeJS.Timeout;
-
-        const rotateText = () => {
-            if (stepIndex >= ANALYSIS_STEPS.length) return;
-
+            // Update step text based on progress
+            const stepIndex = Math.min(
+                Math.floor((currentProgress / 100) * ANALYSIS_STEPS.length),
+                ANALYSIS_STEPS.length - 1
+            );
             setCurrentStep(stepIndex);
 
-            // Calculate step duration
-            const stepDuration = ANALYSIS_STEPS[stepIndex].duration;
+        }, 100); // Update every 100ms
 
-            timeoutId = setTimeout(() => {
-                stepIndex++;
-                rotateText();
-            }, stepDuration);
-        };
-
-        rotateText();
-
-        return () => clearTimeout(timeoutId);
-    }, [isAnalyzing]);
-
-    // 3. Redirect Logic: Trigger ONLY when BOTH are ready
-    useEffect(() => {
-        if (progress >= 100 && analyzedDataRef.current) {
-            // Add a small 400ms pause for user satisfaction ("100%" visible)
-            const timer = setTimeout(() => {
-                setIsAnalyzing(false);
-                router.push('/preview');
-            }, 400);
-            return () => clearTimeout(timer);
-        }
-    }, [progress, router]); // Trigger when progress hits 100 (and checking ref inside)
+        return () => clearInterval(interval);
+    }, [isAnalyzing, router]);
 
     const handleFileSelect = useCallback((file: File) => {
         if (file && file.type.startsWith('image/')) {
@@ -160,22 +126,22 @@ export default function UploadPage() {
     const handleAnalyze = async () => {
         if (!image) return;
 
-        // Step 1: Pre-validation (User stays on upload screen)
+        // Reset state
         setIsValidating(true);
         setErrorModalOpen(false);
-        setAnalyzedData(null); // Reset previous data
-        setIsLongWait(false);
+        apiCompleteRef.current = false;
+        apiDataRef.current = null;
 
-        // Create safety controller for the entire process
+        // Safety timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s max safety timeout
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
 
         try {
-            // Compress image to ~600px max (drastically reduces payload size and speeds up AI)
+            // Compress image
             const { compressImage } = await import('@/utils/image');
             const compressedImage = await compressImage(image, 600, 0.7);
 
-            // 1. FAST VALIDATION (gpt-4o-mini)
+            // 1. FAST VALIDATION
             const validationResponse = await fetch('/api/validate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -185,48 +151,46 @@ export default function UploadPage() {
             const validationData = await validationResponse.json();
 
             if (!validationResponse.ok) {
-                let msg = 'Sua foto não atende aos padrões.';
-                if (validationData.message) msg = validationData.message;
-                throw new Error(msg);
+                throw new Error(validationData.message || 'Sua foto não atende aos padrões.');
             }
 
-            // Validation Passed! Start the UI fun immediately
+            // Validation passed! Start loading animation
             setIsValidating(false);
             setIsAnalyzing(true);
-            setCurrentStep(0);
             setProgress(0);
+            setCurrentStep(0);
 
-            // 2. BACKGROUND FULL ANALYSIS (gpt-4o)
+            // Store image
+            localStorage.setItem('aurapalette_photo', compressedImage);
+
+            // 2. BACKGROUND ANALYSIS
             const quizDataStr = localStorage.getItem('aurapalette_quiz');
             const quizData = quizDataStr ? JSON.parse(quizDataStr) : null;
 
-            localStorage.setItem('aurapalette_photo', compressedImage); // Store optimized image
-
-            // This promise runs in parallel with the animation
             fetch('/api/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: compressedImage, quizData }),
-                signal: controller.signal // Bind safety timeout
+                signal: controller.signal
             })
                 .then(async (res) => {
-                    clearTimeout(timeoutId); // Clear timeout on response
+                    clearTimeout(timeoutId);
                     const data = await res.json();
-                    if (!res.ok) throw new Error(data.message || 'Falha na análise profunda');
+                    if (!res.ok) throw new Error(data.message || 'Falha na análise');
 
-                    // Save data - animation will handle redirect when complete
+                    // Save data and signal completion
                     localStorage.setItem('aurapalette_analysis', JSON.stringify(data));
-                    setAnalyzedData(data); // This updates the ref via useEffect
+                    apiDataRef.current = data;
+                    apiCompleteRef.current = true; // This triggers the animation to finish
                 })
                 .catch((err) => {
-                    console.error('Background analysis failed:', err);
+                    console.error('Analysis failed:', err);
 
-                    let errorMsg = 'Ocorreu um erro ao processar sua análise. Por favor, tente novamente.';
+                    let errorMsg = 'Erro ao processar análise. Tente novamente.';
                     if (err.name === 'AbortError') {
-                        errorMsg = 'A análise demorou muito e foi interrompida. Tente uma foto menor ou conexão melhor.';
+                        errorMsg = 'Análise demorou muito. Tente uma foto menor.';
                     }
 
-                    // Force animation stop
                     setErrorMessage(errorMsg);
                     setErrorModalOpen(true);
                     setIsAnalyzing(false);
@@ -238,8 +202,8 @@ export default function UploadPage() {
             console.error('Validation error:', error);
             setIsValidating(false);
 
-            let message = 'Sua foto não atende aos padrões de imagem exigidos. Por favor, tente novamente com outra foto.';
-            if (error.message && error.message.length < 100 && !error.message.includes('fetch')) {
+            let message = 'Sua foto não atende aos padrões. Tente outra foto.';
+            if (error.message && error.message.length < 100) {
                 message = error.message;
             }
 
@@ -256,6 +220,7 @@ export default function UploadPage() {
         }
     };
 
+    // LOADING SCREEN
     if (isAnalyzing) {
         return (
             <main className={styles.page}>
@@ -263,8 +228,6 @@ export default function UploadPage() {
                 <div className={styles.orbSecondary} />
 
                 <div className={styles.container}>
-
-
                     <Card className={styles.card}>
                         <div className={styles.loadingState}>
                             {/* Photo with scanner effect */}
@@ -277,7 +240,6 @@ export default function UploadPage() {
                                     />
                                     <div className={styles.scanLine} />
                                     <div className={styles.scanGlow} />
-                                    {/* Corner markers */}
                                     <div className={`${styles.cornerMarker} ${styles.cornerTopLeft}`} />
                                     <div className={`${styles.cornerMarker} ${styles.cornerTopRight}`} />
                                     <div className={`${styles.cornerMarker} ${styles.cornerBottomLeft}`} />
@@ -298,7 +260,7 @@ export default function UploadPage() {
 
                             {/* Current step text */}
                             <p className={styles.loadingText}>
-                                {ANALYSIS_STEPS[currentStep]?.text || 'Finalizando análise...'}
+                                {ANALYSIS_STEPS[currentStep]}
                             </p>
 
                             {/* Steps indicator */}
@@ -306,14 +268,13 @@ export default function UploadPage() {
                                 {ANALYSIS_STEPS.map((_, index) => (
                                     <div
                                         key={index}
-                                        className={`${styles.stepDot} ${index <= currentStep ? styles.stepDotActive : ''
-                                            }`}
+                                        className={`${styles.stepDot} ${index <= currentStep ? styles.stepDotActive : ''}`}
                                     />
                                 ))}
                             </div>
 
                             <p className={styles.loadingSubtext}>
-                                Aguarde enquanto nossa IA analisa sua colorimetria pessoal
+                                Aguarde enquanto nossa IA analisa sua colorimetria
                             </p>
                         </div>
                     </Card>
@@ -322,14 +283,13 @@ export default function UploadPage() {
         );
     }
 
+    // UPLOAD SCREEN
     return (
         <main className={styles.page}>
             <div className={styles.orbPrimary} />
             <div className={styles.orbSecondary} />
 
             <div className={styles.container}>
-
-
                 <Card className={styles.card}>
                     <h1 className={styles.title}>Tire sua selfie 📸</h1>
                     <p className={styles.subtitle}>
@@ -385,7 +345,7 @@ export default function UploadPage() {
                         <ul className={styles.tipsList}>
                             <li className={styles.tip}>
                                 <span className={styles.tipIcon}>✓</span>
-                                Use iluminação natural (perto de uma janela)
+                                Use iluminação natural
                             </li>
                             <li className={styles.tip}>
                                 <span className={styles.tipIcon}>✓</span>
@@ -397,11 +357,7 @@ export default function UploadPage() {
                             </li>
                             <li className={styles.tip}>
                                 <span className={styles.tipIcon}>✓</span>
-                                Fundo neutro (branco ou claro)
-                            </li>
-                            <li className={styles.tip}>
-                                <span className={styles.tipIcon}>✓</span>
-                                Cabelo natural visível (sem boné ou lenço)
+                                Fundo neutro
                             </li>
                         </ul>
                     </div>

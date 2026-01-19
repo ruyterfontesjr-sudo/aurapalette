@@ -33,7 +33,6 @@ export default function UploadPage() {
     const [image, setImage] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [isValidating, setIsValidating] = useState(false);
     const [progress, setProgress] = useState(0);
     const [currentStep, setCurrentStep] = useState(0);
     const [isReady, setIsReady] = useState(false);
@@ -95,7 +94,6 @@ export default function UploadPage() {
         if (!image) return;
 
         // Reset state
-        setIsValidating(true);
         setErrorModalOpen(false);
 
         try {
@@ -103,21 +101,7 @@ export default function UploadPage() {
             const { compressImage } = await import('@/utils/image');
             const compressedImage = await compressImage(image, 600, 0.7);
 
-            // 1. FAST VALIDATION
-            const validationResponse = await fetch('/api/validate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: compressedImage }),
-            });
-
-            const validationData = await validationResponse.json();
-
-            if (!validationResponse.ok) {
-                throw new Error('Sua imagem não atende aos requisitos mínimos de qualidade. Por favor, tire outra foto e tente novamente.');
-            }
-
-            // Validation passed! Start loading animation
-            setIsValidating(false);
+            // Start loading animation immediately (no validation step)
             setIsAnalyzing(true);
             setProgress(0);
             setCurrentStep(0);
@@ -129,7 +113,7 @@ export default function UploadPage() {
             const quizDataStr = localStorage.getItem('aurapalette_quiz');
             const quizData = quizDataStr ? JSON.parse(quizDataStr) : null;
 
-            // 2. STREAMING ANALYSIS via SSE
+            // STREAMING ANALYSIS via SSE (no validation, go straight to analysis)
             const response = await fetch('/api/analyze-stream', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -202,7 +186,6 @@ export default function UploadPage() {
 
         } catch (error: unknown) {
             console.error('Analysis error:', error);
-            setIsValidating(false);
             setIsAnalyzing(false);
 
             // Mensagem fixa para qualquer erro
@@ -368,9 +351,8 @@ export default function UploadPage() {
                                 fullWidth
                                 size="large"
                                 onClick={handleAnalyze}
-                                loading={isValidating}
                             >
-                                {isValidating ? 'Verificando foto...' : 'Analisar minha foto ✨'}
+                                Analisar minha foto ✨
                             </Button>
                         </div>
                     )}

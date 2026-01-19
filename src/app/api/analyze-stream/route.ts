@@ -273,7 +273,7 @@ IMPORTANTE: Combine os dados do quiz com sua análise visual da foto para máxim
                 },
                 {
                   type: 'text',
-                  text: 'Analise minha foto. Se a foto for ruim ou não tiver rosto, retorne {"error": "INVALID_IMAGE", "reason": "motivo"}.',
+                  text: 'Analise minha foto e forneça a análise completa de colorimetria.',
                 },
               ],
             },

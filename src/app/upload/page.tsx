@@ -49,6 +49,14 @@ export default function UploadPage() {
             router.push('/quiz');
             return;
         }
+
+        // Set checkpoint to upload stage
+        localStorage.setItem('aurapalette_checkpoint', JSON.stringify({
+            currentStage: 'upload',
+            completedStages: ['signup', 'quiz', 'upload'],
+            lastUpdated: new Date().toISOString(),
+        }));
+
         setIsReady(true);
     }, [router]);
 

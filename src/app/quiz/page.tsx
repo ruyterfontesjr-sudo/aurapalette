@@ -128,7 +128,25 @@ export default function QuizPage() {
     const [answers, setAnswers] = useState<Record<number, string>>({});
 
     // Restore saved quiz answers on page load (for refresh handling)
+    // If user already completed quiz and is at upload/preview stage, redirect them there
     useEffect(() => {
+        const checkpoint = localStorage.getItem('aurapalette_checkpoint');
+        if (checkpoint) {
+            try {
+                const { currentStage } = JSON.parse(checkpoint);
+                // If user is past quiz stage, redirect to their current stage
+                if (currentStage === 'upload') {
+                    router.push('/upload');
+                    return;
+                } else if (currentStage === 'preview') {
+                    router.push('/preview');
+                    return;
+                }
+            } catch (e) {
+                // Invalid checkpoint, continue
+            }
+        }
+
         const savedQuiz = localStorage.getItem('aurapalette_quiz');
         if (savedQuiz) {
             try {
@@ -144,7 +162,7 @@ export default function QuizPage() {
                 // Invalid data, start fresh
             }
         }
-    }, []);
+    }, [router]);
 
     const handleSelectOption = (optionId: string) => {
         const newAnswers = {

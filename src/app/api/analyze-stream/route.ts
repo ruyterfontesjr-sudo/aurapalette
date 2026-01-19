@@ -334,30 +334,22 @@ IMPORTANTE: Combine os dados do quiz com sua análise visual da foto para máxim
         try {
           const result = JSON.parse(accumulatedContent);
 
-          // Check for validation error from the model
-          if (result.error === 'INVALID_IMAGE') {
-            controller.enqueue(encoder.encode(formatSSEEvent({
-              type: 'error',
-              error: { type: 'VALIDATION_ERROR', message: result.reason || 'Não foi possível analisar a foto. Tente com uma foto mais clara.' }
-            })));
-          } else {
-            // Send finalizing step
-            controller.enqueue(encoder.encode(formatSSEEvent({
-              type: 'step',
-              step: 'finalizing',
-              progress: 95
-            })));
+          // Send finalizing step
+          controller.enqueue(encoder.encode(formatSSEEvent({
+            type: 'step',
+            step: 'finalizing',
+            progress: 95
+          })));
 
-            // Small delay for visual feedback
-            await new Promise(resolve => setTimeout(resolve, 200));
+          // Small delay for visual feedback
+          await new Promise(resolve => setTimeout(resolve, 200));
 
-            // Send complete result
-            controller.enqueue(encoder.encode(formatSSEEvent({
-              type: 'complete',
-              progress: 100,
-              result
-            })));
-          }
+          // Send complete result (always accept, no validation)
+          controller.enqueue(encoder.encode(formatSSEEvent({
+            type: 'complete',
+            progress: 100,
+            result
+          })));
         } catch {
           // JSON parsing failed
           controller.enqueue(encoder.encode(formatSSEEvent({

@@ -113,7 +113,10 @@ export default function UploadPage() {
             const validationData = await validationResponse.json();
 
             if (!validationResponse.ok) {
-                throw new Error(validationData.message || 'Sua foto não atende aos padrões.');
+                // Garantir que a mensagem é válida (mais de 10 caracteres e não é placeholder)
+                const msg = validationData.message;
+                const isValidMessage = msg && typeof msg === 'string' && msg.length > 10 && !msg.includes('motivo');
+                throw new Error(isValidMessage ? msg : 'Não conseguimos processar sua foto. Por favor, tente com outra foto onde seu rosto esteja bem visível.');
             }
 
             // Validation passed! Start loading animation

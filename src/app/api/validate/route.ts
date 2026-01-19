@@ -5,36 +5,27 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-const VALIDATION_PROMPT = `Você é um validador de fotos para análise de colorimetria pessoal.
-Seu trabalho é APENAS rejeitar fotos que são IMPOSSÍVEIS de analisar.
+// Mensagem de erro padrão
+const DEFAULT_ERROR_MESSAGE = 'Não conseguimos processar sua foto. Por favor, tente com outra foto onde seu rosto esteja bem visível.';
 
-REJEITAR APENAS SE:
-1. **NÃO TEM ROSTO HUMANO**: Foto de objeto, animal, paisagem, meme, ou sem pessoa
-2. **ÓCULOS DE SOL ESCUROS**: Que escondem completamente os olhos
-3. **ROSTO TOTALMENTE COBERTO**: Máscara cobrindo tudo, rosto completamente no escuro
-4. **FOTO PRETO E BRANCO**: Sem cores (sépia/P&B)
+const VALIDATION_PROMPT = `Analise esta foto e responda em JSON.
 
-ACEITAR (mesmo se não for perfeita):
-- Qualquer foto com rosto humano visível
-- Óculos de grau transparentes = OK (dá para ver os olhos)
-- Iluminação ruim, artificial, ou colorida = OK
-- Foto escura mas dá para ver o rosto = OK
-- Qualidade baixa, pixelada = OK
-- Maquiagem pesada = OK
-- Filtros leves = OK
-- Ângulo estranho = OK
-- Parte do rosto cortada mas olhos visíveis = OK
+A foto mostra um rosto humano com olhos visíveis?
 
-REGRA: Na dúvida, ACEITE. A análise principal vai lidar com fotos difíceis.
+Responda APENAS:
+{"valid": true} - se tem rosto humano visível (qualquer qualidade é OK)
+{"valid": false, "reason": "no_face"} - se NÃO tem rosto humano
+{"valid": false, "reason": "sunglasses"} - se tem óculos de sol escuros
+{"valid": false, "reason": "black_white"} - se é preto e branco
 
-Responda APENAS com JSON:
-{
-  "valid": true/false,
-  "error": "Mensagem curta se inválida. Exemplos:
-    - 'Retire os óculos de sol para vermos seus olhos 👓'
-    - 'Precisamos de uma foto colorida 🎨'
-    - 'Não encontramos um rosto na foto 📸'"
-}`;
+IMPORTANTE: Se tem um rosto humano, responda {"valid": true}. Aceite fotos com qualidade ruim, iluminação ruim, óculos de grau, maquiagem, filtros.`;
+
+// Mapeamento de razões para mensagens amigáveis
+const ERROR_MESSAGES: Record<string, string> = {
+    'no_face': 'Não encontramos um rosto na foto. Tire uma selfie olhando para a câmera.',
+    'sunglasses': 'Por favor, retire os óculos de sol para vermos seus olhos.',
+    'black_white': 'Precisamos de uma foto colorida para analisar suas cores.',
+};
 
 export async function POST(request: NextRequest) {
     try {
@@ -45,7 +36,7 @@ export async function POST(request: NextRequest) {
         }
 
         const response = await openai.chat.completions.create({
-            model: 'gpt-4o-mini', // Much faster model for validation
+            model: 'gpt-4o-mini',
             messages: [
                 {
                     role: 'system',
@@ -56,40 +47,50 @@ export async function POST(request: NextRequest) {
                     content: [
                         {
                             type: 'image_url',
-                            image_url: { url: image, detail: 'low' }, // Low detail is fast and enough for detection
+                            image_url: { url: image, detail: 'low' },
                         },
                     ],
                 },
             ],
-            max_tokens: 200,
-            temperature: 0.1,
+            max_tokens: 100,
+            temperature: 0,
             response_format: { type: "json_object" }
         });
 
         const content = response.choices[0]?.message?.content;
-        if (!content) throw new Error('No response from AI');
-
-        const result = JSON.parse(content);
-
-        // If valid, just return ok (we don't need detailed analysis yet)
-        // If invalid, return 422
-        if (!result.valid) {
-            return NextResponse.json(
-                { error: 'INVALID_IMAGE', message: result.error },
-                { status: 422 }
-            );
+        if (!content) {
+            // Se não conseguiu resposta, deixa passar para análise principal
+            console.log('Validation: No response, allowing through');
+            return NextResponse.json({ valid: true });
         }
 
-        return NextResponse.json({ valid: true });
+        let result;
+        try {
+            result = JSON.parse(content);
+        } catch {
+            // Se JSON inválido, deixa passar
+            console.log('Validation: Invalid JSON, allowing through');
+            return NextResponse.json({ valid: true });
+        }
+
+        // Se válido, retorna ok
+        if (result.valid === true) {
+            return NextResponse.json({ valid: true });
+        }
+
+        // Se inválido, usa mensagem mapeada ou padrão
+        const reason = result.reason || '';
+        const friendlyMessage = ERROR_MESSAGES[reason] || DEFAULT_ERROR_MESSAGE;
+
+        return NextResponse.json(
+            { error: 'INVALID_IMAGE', message: friendlyMessage },
+            { status: 422 }
+        );
 
     } catch (error) {
         console.error('Validation error:', error);
-        // If validation fails technically, we might want to fail open or closed.
-        // Let's fail safe: allow it to proceed to full analysis if this fails, or block?
-        // Block to avoid waiting 20s for an error.
-        return NextResponse.json(
-            { error: 'Failed to validate image' },
-            { status: 500 }
-        );
+        // Se a validação falhar tecnicamente, deixa passar para análise principal
+        // (fail open para não bloquear usuários por erro técnico)
+        return NextResponse.json({ valid: true });
     }
 }

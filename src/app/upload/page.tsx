@@ -72,8 +72,9 @@ export default function UploadPage() {
                 }
             } else {
                 // API still running - VERY slow increment up to 99% (never stops)
+                // 0.08% per 100ms = ~2 minutes to reach 99% (API will definitely finish first)
                 if (currentProgress < 99) {
-                    currentProgress += 0.15; // Very slow but always moving
+                    currentProgress += 0.08;
                 }
             }
 

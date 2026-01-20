@@ -43,22 +43,44 @@ export default function UploadPage() {
     const [errorModalOpen, setErrorModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
-    // Linear progress animation - 1% at a time
+    // Linear progress animation - Variable speed
     useEffect(() => {
         if (!isAnalyzing || isComplete) return;
 
-        const interval = setInterval(() => {
+        let timeoutId: NodeJS.Timeout;
+
+        const updateProgress = () => {
             setDisplayProgress(prev => {
-                // Increment 1% at a time, max 99% while waiting
-                if (prev < 99) {
+                if (prev >= 99) return prev;
+
+                // Slow down significantly as we get closer to 99%
+                // < 30%: Fast
+                // < 60%: Medium
+                // < 85%: Slow
+                // > 85%: Crawling
+
+                // Only increment sometimes to create a "thinking" effect
+                // Higher probability of stalling as we get higher
+                const stallProbability = prev > 85 ? 0.7 : prev > 60 ? 0.4 : 0.1;
+
+                if (Math.random() > stallProbability) {
                     return prev + 1;
                 }
                 return prev;
             });
-        }, 400); // ~400ms per 1% = ~40 seconds to reach 99%
 
-        return () => clearInterval(interval);
-    }, [isAnalyzing, isComplete]);
+            // Adjust speed based on progress
+            const current = displayProgress;
+            // Delays get longer: 150ms -> 300ms -> 800ms -> 1500ms
+            const delay = current < 30 ? 150 : current < 60 ? 300 : current < 85 ? 800 : 1500;
+
+            timeoutId = setTimeout(updateProgress, delay);
+        };
+
+        updateProgress();
+
+        return () => clearTimeout(timeoutId);
+    }, [isAnalyzing, isComplete, displayProgress]);
 
     // Checkpoint verification - must have completed quiz
     useEffect(() => {
@@ -294,12 +316,20 @@ export default function UploadPage() {
 
                             {/* Steps indicator */}
                             <div className={styles.stepsIndicator}>
-                                {ANALYSIS_STEPS.map((_, index) => (
-                                    <div
-                                        key={index}
-                                        className={`${styles.stepDot} ${index <= currentStep ? styles.stepDotActive : ''}`}
-                                    />
-                                ))}
+                                {ANALYSIS_STEPS.map((_, index) => {
+                                    // Sync dots completely with progress bar
+                                    // 7 steps mapped to 0-100%
+                                    // Step 0: 0-14%, Step 1: 15-28%, etc.
+                                    const stepThreshold = (index / ANALYSIS_STEPS.length) * 100;
+                                    const isActive = displayProgress >= stepThreshold;
+
+                                    return (
+                                        <div
+                                            key={index}
+                                            className={`${styles.stepDot} ${isActive ? styles.stepDotActive : ''}`}
+                                        />
+                                    );
+                                })}
                             </div>
 
                             <p className={styles.loadingSubtext}>

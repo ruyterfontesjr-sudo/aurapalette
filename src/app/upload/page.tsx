@@ -99,7 +99,7 @@ export default function UploadPage() {
         try {
             // Compress image
             const { compressImage } = await import('@/utils/image');
-            const compressedImage = await compressImage(image, 600, 0.7);
+            const compressedImage = await compressImage(image, 800, 0.85);
 
             // Start loading animation immediately (no validation step)
             setIsAnalyzing(true);

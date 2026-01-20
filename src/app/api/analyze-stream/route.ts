@@ -269,7 +269,7 @@ IMPORTANTE: Combine os dados do quiz com sua análise visual da foto para máxim
               content: [
                 {
                   type: 'image_url',
-                  image_url: { url: image, detail: 'low' },
+                  image_url: { url: image, detail: 'auto' },
                 },
                 {
                   type: 'text',

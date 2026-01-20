@@ -12,6 +12,7 @@ export default function SignupPage() {
     const router = useRouter();
     const { user, signUp } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [checkingProgress, setCheckingProgress] = useState(true);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         name: '',
@@ -20,12 +21,40 @@ export default function SignupPage() {
         whatsapp: '',
     });
 
-    // Redirect if already logged in
+    // Check checkpoint and redirect if user has progress
     useEffect(() => {
-        if (user) {
-            router.push('/quiz');
+        const checkpoint = localStorage.getItem('aurapalette_checkpoint');
+        if (checkpoint) {
+            try {
+                const { currentStage } = JSON.parse(checkpoint);
+                if (currentStage === 'upload') {
+                    router.replace('/upload');
+                    return;
+                } else if (currentStage === 'preview' || currentStage === 'checkout' || currentStage === 'result') {
+                    router.replace('/preview');
+                    return;
+                } else if (currentStage === 'quiz') {
+                    router.replace('/quiz');
+                    return;
+                }
+            } catch {
+                // Invalid checkpoint
+            }
         }
+
+        // Redirect if already logged in
+        if (user) {
+            router.replace('/quiz');
+            return;
+        }
+
+        setCheckingProgress(false);
     }, [user, router]);
+
+    // Show nothing while checking progress to avoid flash
+    if (checkingProgress) {
+        return null;
+    }
 
     // Máscara para WhatsApp
     const formatWhatsApp = (value: string) => {

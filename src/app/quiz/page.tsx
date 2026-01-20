@@ -126,6 +126,7 @@ export default function QuizPage() {
     const router = useRouter();
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState<Record<number, string>>({});
+    const [isReady, setIsReady] = useState(false);
 
     // Restore saved quiz answers on page load (for refresh handling)
     // If user already completed quiz and is at upload/preview stage, redirect them there
@@ -136,13 +137,13 @@ export default function QuizPage() {
                 const { currentStage } = JSON.parse(checkpoint);
                 // If user is past quiz stage, redirect to their current stage
                 if (currentStage === 'upload') {
-                    router.push('/upload');
+                    router.replace('/upload');
                     return;
-                } else if (currentStage === 'preview') {
-                    router.push('/preview');
+                } else if (currentStage === 'preview' || currentStage === 'checkout' || currentStage === 'result') {
+                    router.replace('/preview');
                     return;
                 }
-            } catch (e) {
+            } catch {
                 // Invalid checkpoint, continue
             }
         }
@@ -158,11 +159,18 @@ export default function QuizPage() {
                     const lastAnswered = Math.max(...answeredQuestions);
                     setCurrentQuestion(Math.min(lastAnswered, questions.length - 1));
                 }
-            } catch (e) {
+            } catch {
                 // Invalid data, start fresh
             }
         }
+
+        setIsReady(true);
     }, [router]);
+
+    // Show nothing while checking progress to avoid flash
+    if (!isReady) {
+        return null;
+    }
 
     const handleSelectOption = (optionId: string) => {
         const newAnswers = {

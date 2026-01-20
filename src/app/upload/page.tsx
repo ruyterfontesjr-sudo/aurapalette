@@ -62,9 +62,23 @@ export default function UploadPage() {
 
     // Checkpoint verification - must have completed quiz
     useEffect(() => {
+        // Check if user should be at a different stage
+        const checkpoint = localStorage.getItem('aurapalette_checkpoint');
+        if (checkpoint) {
+            try {
+                const { currentStage } = JSON.parse(checkpoint);
+                if (currentStage === 'preview' || currentStage === 'checkout' || currentStage === 'result') {
+                    router.replace('/preview');
+                    return;
+                }
+            } catch {
+                // Invalid checkpoint
+            }
+        }
+
         const quizData = localStorage.getItem('aurapalette_quiz');
         if (!quizData) {
-            router.push('/quiz');
+            router.replace('/quiz');
             return;
         }
 
@@ -229,6 +243,11 @@ export default function UploadPage() {
             fileInputRef.current.value = '';
         }
     };
+
+    // Show nothing while checking progress to avoid flash
+    if (!isReady) {
+        return null;
+    }
 
     // LOADING SCREEN - Original design with real progress
     if (isAnalyzing) {

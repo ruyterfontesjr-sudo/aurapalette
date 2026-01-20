@@ -191,11 +191,11 @@ export default function Home() {
                         Sua paleta ideal em 2 minutos.
                     </p>
 
-                    <button onClick={handleDiscoverClick} className={styles.ctaLink}>
+                    <div onClick={handleDiscoverClick} className={styles.ctaLink} style={{ cursor: 'pointer' }}>
                         <Button variant="primary" size="large" className={styles.ctaBtn}>
                             Descobrir minhas cores →
                         </Button>
-                    </button>
+                    </div>
 
 
 
@@ -764,11 +764,11 @@ export default function Home() {
             <section className={styles.finalCta}>
                 <h2>Pronta para se descobrir?</h2>
                 <p>Junte-se a mais de 50.000 brasileiras</p>
-                <button onClick={handleDiscoverClick} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <div onClick={handleDiscoverClick} style={{ cursor: 'pointer' }}>
                     <Button variant="accent" size="large">
                         Começar agora →
                     </Button>
-                </button>
+                </div>
             </section>
 
             {/* Footer */}

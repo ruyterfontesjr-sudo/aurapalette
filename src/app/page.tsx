@@ -792,9 +792,6 @@ export default function Home() {
                     <p className={styles.progressModalText}>
                         Você tem uma análise em andamento na etapa de <strong>{getStageName(progressStage)}</strong>.
                     </p>
-                    <p className={styles.progressModalSubtext}>
-                        Deseja continuar de onde parou ou começar uma nova análise?
-                    </p>
                     <div className={styles.progressModalButtons}>
                         <Button variant="primary" fullWidth onClick={handleContinue}>
                             Continuar análise

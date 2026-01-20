@@ -12,6 +12,7 @@ interface ModalProps {
     children?: React.ReactNode;
     icon?: string;
     buttonText?: string;
+    hideButton?: boolean;
 }
 
 export default function Modal({
@@ -21,7 +22,8 @@ export default function Modal({
     message,
     children,
     icon = '⚠️',
-    buttonText = 'Entendi'
+    buttonText = 'Entendi',
+    hideButton = false
 }: ModalProps) {
     const [isVisible, setIsVisible] = useState(false);
 
@@ -52,15 +54,17 @@ export default function Modal({
                 {message && <p className={styles.message}>{message}</p>}
                 {children}
 
-                <div className={styles.button}>
-                    <Button
-                        variant="primary"
-                        fullWidth
-                        onClick={onClose}
-                    >
-                        {buttonText}
-                    </Button>
-                </div>
+                {!hideButton && (
+                    <div className={styles.button}>
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            onClick={onClose}
+                        >
+                            {buttonText}
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );

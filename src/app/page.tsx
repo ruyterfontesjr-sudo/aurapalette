@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './page.module.css';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import Logo from '@/components/Logo';
+import Modal from '@/components/Modal';
 import { testimonials, testimonialPhotos } from '@/config';
 
 const heroPhotos = [
@@ -17,7 +19,75 @@ const heroPhotos = [
 ];
 
 export default function Home() {
+    const router = useRouter();
     const [menuOpen, setMenuOpen] = useState(false);
+    const [showProgressModal, setShowProgressModal] = useState(false);
+    const [progressStage, setProgressStage] = useState<string | null>(null);
+
+    // Check if user has progress and handle CTA click
+    const handleDiscoverClick = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+
+        const checkpoint = localStorage.getItem('aurapalette_checkpoint');
+        if (checkpoint) {
+            try {
+                const { currentStage } = JSON.parse(checkpoint);
+
+                // If has final result, go directly to result
+                if (currentStage === 'result') {
+                    router.push('/result');
+                    return;
+                }
+
+                // If has progress, show modal
+                if (currentStage === 'quiz' || currentStage === 'upload' || currentStage === 'preview' || currentStage === 'checkout') {
+                    setProgressStage(currentStage);
+                    setShowProgressModal(true);
+                    return;
+                }
+            } catch {
+                // Invalid checkpoint, continue to signup
+            }
+        }
+
+        // No progress, go to signup
+        router.push('/signup');
+    }, [router]);
+
+    // Continue with existing progress
+    const handleContinue = useCallback(() => {
+        setShowProgressModal(false);
+        if (progressStage === 'quiz') {
+            router.push('/quiz');
+        } else if (progressStage === 'upload') {
+            router.push('/upload');
+        } else if (progressStage === 'preview' || progressStage === 'checkout') {
+            router.push('/preview');
+        }
+    }, [router, progressStage]);
+
+    // Start fresh - clear all progress
+    const handleStartFresh = useCallback(() => {
+        localStorage.removeItem('aurapalette_checkpoint');
+        localStorage.removeItem('aurapalette_quiz');
+        localStorage.removeItem('aurapalette_quiz_answers');
+        localStorage.removeItem('aurapalette_photo');
+        localStorage.removeItem('aurapalette_analysis');
+        localStorage.removeItem('aurapalette_payment');
+        setShowProgressModal(false);
+        router.push('/signup');
+    }, [router]);
+
+    // Get friendly stage name
+    const getStageName = (stage: string | null) => {
+        switch (stage) {
+            case 'quiz': return 'questionário';
+            case 'upload': return 'upload de foto';
+            case 'preview': return 'prévia do resultado';
+            case 'checkout': return 'pagamento';
+            default: return 'análise';
+        }
+    };
 
     return (
         <main className={styles.page}>
@@ -121,11 +191,11 @@ export default function Home() {
                         Sua paleta ideal em 2 minutos.
                     </p>
 
-                    <Link href="/signup" className={styles.ctaLink}>
+                    <button onClick={handleDiscoverClick} className={styles.ctaLink}>
                         <Button variant="primary" size="large" className={styles.ctaBtn}>
                             Descobrir minhas cores →
                         </Button>
-                    </Link>
+                    </button>
 
 
 
@@ -694,11 +764,11 @@ export default function Home() {
             <section className={styles.finalCta}>
                 <h2>Pronta para se descobrir?</h2>
                 <p>Junte-se a mais de 50.000 brasileiras</p>
-                <Link href="/signup">
+                <button onClick={handleDiscoverClick} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                     <Button variant="accent" size="large">
                         Começar agora →
                     </Button>
-                </Link>
+                </button>
             </section>
 
             {/* Footer */}
@@ -710,6 +780,31 @@ export default function Home() {
                 </div>
                 <p>© 2026 Aura Palette</p>
             </footer>
+
+            {/* Progress Modal */}
+            <Modal
+                isOpen={showProgressModal}
+                onClose={() => setShowProgressModal(false)}
+                title="Análise em andamento"
+                hideButton
+            >
+                <div className={styles.progressModal}>
+                    <p className={styles.progressModalText}>
+                        Você tem uma análise em andamento na etapa de <strong>{getStageName(progressStage)}</strong>.
+                    </p>
+                    <p className={styles.progressModalSubtext}>
+                        Deseja continuar de onde parou ou começar uma nova análise?
+                    </p>
+                    <div className={styles.progressModalButtons}>
+                        <Button variant="primary" fullWidth onClick={handleContinue}>
+                            Continuar análise
+                        </Button>
+                        <button className={styles.progressModalSecondary} onClick={handleStartFresh}>
+                            Começar do zero
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </main>
     );
 }

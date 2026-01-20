@@ -1201,3 +1201,48 @@
     color: rgba(255, 255, 255, 0.6);
     margin: 0;
 }
+/* Progress Modal */
+.progressModal {
+    text-align: center;
+    width: 100%;
+}
+
+.progressModalText {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.progressModalText strong {
+    color: #c4b5fd;
+}
+
+.progressModalSubtext {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.875rem;
+    margin-bottom: 24px;
+}
+
+.progressModalButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.progressModalSecondary {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 14px 24px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.progressModalSecondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: white;
+}

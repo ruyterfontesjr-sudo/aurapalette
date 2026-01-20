@@ -152,12 +152,12 @@ export default function QuizPage() {
         if (savedQuiz) {
             try {
                 const parsedAnswers = JSON.parse(savedQuiz);
-                // Only restore if NOT all questions answered (otherwise let user start fresh if they want)
+                // Only restore if NOT all questions answered
                 if (Object.keys(parsedAnswers).length < questions.length) {
                     setAnswers(parsedAnswers);
-                    const answeredQuestions = Object.keys(parsedAnswers).map(Number);
-                    const lastAnswered = Math.max(...answeredQuestions);
-                    setCurrentQuestion(Math.min(lastAnswered, questions.length - 1));
+                    // Go to the next unanswered question
+                    const answeredCount = Object.keys(parsedAnswers).length;
+                    setCurrentQuestion(Math.min(answeredCount, questions.length - 1));
                 }
             } catch {
                 // Invalid data, start fresh
@@ -179,14 +179,22 @@ export default function QuizPage() {
         };
         setAnswers(newAnswers);
 
+        // Save progress after each answer
+        localStorage.setItem('aurapalette_quiz', JSON.stringify(newAnswers));
+        localStorage.setItem('aurapalette_checkpoint', JSON.stringify({
+            currentStage: 'quiz',
+            completedStages: ['signup'],
+            lastUpdated: new Date().toISOString(),
+        }));
+
         setTimeout(() => {
             if (currentQuestion < questions.length - 1) {
                 setCurrentQuestion(prev => prev + 1);
             } else {
-                localStorage.setItem('aurapalette_quiz', JSON.stringify(newAnswers));
+                // Quiz complete - update checkpoint and proceed
                 localStorage.setItem('aurapalette_quiz_answers', JSON.stringify(newAnswers));
                 localStorage.setItem('aurapalette_checkpoint', JSON.stringify({
-                    currentStage: 'quiz',
+                    currentStage: 'upload',
                     completedStages: ['signup', 'quiz'],
                     lastUpdated: new Date().toISOString(),
                 }));

@@ -281,6 +281,7 @@ IMPORTANTE: Combine os dados do quiz com sua análise visual da foto para máxim
           max_tokens: 4000,
           temperature: 0.2,
           stream: true,
+          response_format: { type: "json_object" },
         });
 
         let accumulatedContent = '';
@@ -332,7 +333,18 @@ IMPORTANTE: Combine os dados do quiz com sua análise visual da foto para máxim
 
         // Parse final result
         try {
-          const result = JSON.parse(accumulatedContent);
+          // Try to extract JSON from the response (may have extra text)
+          let jsonContent = accumulatedContent.trim();
+
+          // If response starts with text before JSON, try to find the JSON object
+          const jsonStart = jsonContent.indexOf('{');
+          const jsonEnd = jsonContent.lastIndexOf('}');
+
+          if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+            jsonContent = jsonContent.slice(jsonStart, jsonEnd + 1);
+          }
+
+          const result = JSON.parse(jsonContent);
 
           // Send finalizing step
           controller.enqueue(encoder.encode(formatSSEEvent({
@@ -350,11 +362,15 @@ IMPORTANTE: Combine os dados do quiz com sua análise visual da foto para máxim
             progress: 100,
             result
           })));
-        } catch {
-          // JSON parsing failed
+        } catch (parseError) {
+          // JSON parsing failed - log for debugging
+          console.error('JSON parse error:', parseError);
+          console.error('Accumulated content length:', accumulatedContent.length);
+          console.error('Content preview:', accumulatedContent.slice(0, 500));
+
           controller.enqueue(encoder.encode(formatSSEEvent({
             type: 'error',
-            error: { type: 'SERVER_ERROR', message: 'Erro ao processar resposta. Tente novamente.' }
+            error: { type: 'SERVER_ERROR', message: 'A IA não retornou uma análise válida. Tente com outra foto.' }
           })));
         }
 

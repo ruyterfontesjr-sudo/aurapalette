@@ -17,14 +17,15 @@ const ANALYSIS_STEPS = [
     'Finalizando análise...',
 ];
 
-// Map SSE step IDs to step indices
-const STEP_MAP: Record<string, number> = {
-    'detecting_face': 0,
-    'analyzing_skin': 1,
-    'calculating_contrast': 2,
-    'identifying_undertone': 3,
-    'generating_palette': 4,
-    'finalizing': 5,
+// Map SSE step IDs to step indices and target progress
+const STEP_MAP: Record<string, { index: number; targetProgress: number }> = {
+    'detecting_face': { index: 0, targetProgress: 15 },
+    'analyzing_skin': { index: 1, targetProgress: 30 },
+    'analyzing_eyes': { index: 2, targetProgress: 45 },
+    'calculating_contrast': { index: 2, targetProgress: 50 },
+    'identifying_undertone': { index: 3, targetProgress: 65 },
+    'generating_palette': { index: 4, targetProgress: 80 },
+    'finalizing': { index: 5, targetProgress: 92 },
 };
 
 export default function UploadPage() {
@@ -33,13 +34,38 @@ export default function UploadPage() {
     const [image, setImage] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [progress, setProgress] = useState(0);
+    const [displayProgress, setDisplayProgress] = useState(0);
+    const [targetProgress, setTargetProgress] = useState(0);
     const [currentStep, setCurrentStep] = useState(0);
     const [isReady, setIsReady] = useState(false);
+    const [isComplete, setIsComplete] = useState(false);
 
     // Error Modal State
     const [errorModalOpen, setErrorModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+
+    // Smooth progress animation
+    useEffect(() => {
+        if (!isAnalyzing || isComplete) return;
+
+        const interval = setInterval(() => {
+            setDisplayProgress(prev => {
+                // Smoothly animate towards target
+                if (prev < targetProgress) {
+                    const diff = targetProgress - prev;
+                    const increment = Math.max(0.5, diff * 0.1);
+                    return Math.min(prev + increment, targetProgress);
+                }
+                // Slow creep when waiting for next step (max 92%)
+                if (prev < 92 && prev >= targetProgress) {
+                    return prev + 0.1;
+                }
+                return prev;
+            });
+        }, 50);
+
+        return () => clearInterval(interval);
+    }, [isAnalyzing, targetProgress, isComplete]);
 
     // Checkpoint verification - must have completed quiz
     useEffect(() => {
@@ -95,6 +121,7 @@ export default function UploadPage() {
 
         // Reset state
         setErrorModalOpen(false);
+        setIsComplete(false);
 
         try {
             // Compress image
@@ -103,7 +130,8 @@ export default function UploadPage() {
 
             // Start loading animation immediately (no validation step)
             setIsAnalyzing(true);
-            setProgress(0);
+            setDisplayProgress(0);
+            setTargetProgress(5);
             setCurrentStep(0);
 
             // Store image
@@ -148,13 +176,11 @@ export default function UploadPage() {
 
                         switch (event.type) {
                             case 'step':
-                                // Update progress from real SSE data
-                                if (event.progress !== undefined) {
-                                    setProgress(event.progress);
-                                }
-                                // Update step from SSE step ID
-                                if (event.step && STEP_MAP[event.step] !== undefined) {
-                                    setCurrentStep(STEP_MAP[event.step]);
+                                // Update target progress and step from SSE
+                                if (event.step && STEP_MAP[event.step]) {
+                                    const stepInfo = STEP_MAP[event.step];
+                                    setTargetProgress(stepInfo.targetProgress);
+                                    setCurrentStep(stepInfo.index);
                                 }
                                 break;
 
@@ -162,14 +188,17 @@ export default function UploadPage() {
                                 if (event.result) {
                                     // Save result
                                     localStorage.setItem('aurapalette_analysis', JSON.stringify(event.result));
-                                    setProgress(100);
+
+                                    // Mark complete and animate to 100%
+                                    setIsComplete(true);
+                                    setTargetProgress(100);
+                                    setDisplayProgress(100);
                                     setCurrentStep(ANALYSIS_STEPS.length - 1);
 
-                                    // Navigate after brief delay
+                                    // Navigate directly without showing upload screen
                                     setTimeout(() => {
-                                        setIsAnalyzing(false);
                                         router.push('/preview');
-                                    }, 500);
+                                    }, 300);
                                 }
                                 return;
 
@@ -241,11 +270,11 @@ export default function UploadPage() {
 
                             {/* Progress bar */}
                             <div className={styles.progressContainer}>
-                                <span className={styles.progressPercent}>{Math.round(progress)}%</span>
+                                <span className={styles.progressPercent}>{Math.round(displayProgress)}%</span>
                                 <div className={styles.progressTrack}>
                                     <div
                                         className={styles.progressFill}
-                                        style={{ width: `${progress}%` }}
+                                        style={{ width: `${displayProgress}%` }}
                                     />
                                 </div>
                             </div>

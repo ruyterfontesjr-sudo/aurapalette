@@ -35,7 +35,6 @@ export default function UploadPage() {
     const [isDragging, setIsDragging] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [displayProgress, setDisplayProgress] = useState(0);
-    const [targetProgress, setTargetProgress] = useState(0);
     const [currentStep, setCurrentStep] = useState(0);
     const [isReady, setIsReady] = useState(false);
     const [isComplete, setIsComplete] = useState(false);
@@ -44,28 +43,22 @@ export default function UploadPage() {
     const [errorModalOpen, setErrorModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
-    // Smooth progress animation
+    // Linear progress animation - 1% at a time
     useEffect(() => {
         if (!isAnalyzing || isComplete) return;
 
         const interval = setInterval(() => {
             setDisplayProgress(prev => {
-                // Smoothly animate towards target
-                if (prev < targetProgress) {
-                    const diff = targetProgress - prev;
-                    const increment = Math.max(0.5, diff * 0.1);
-                    return Math.min(prev + increment, targetProgress);
-                }
-                // Slow creep when waiting for next step (max 92%)
-                if (prev < 92 && prev >= targetProgress) {
-                    return prev + 0.1;
+                // Increment 1% at a time, max 95% while waiting
+                if (prev < 95) {
+                    return prev + 1;
                 }
                 return prev;
             });
-        }, 50);
+        }, 400); // ~400ms per 1% = ~38 seconds to reach 95%
 
         return () => clearInterval(interval);
-    }, [isAnalyzing, targetProgress, isComplete]);
+    }, [isAnalyzing, isComplete]);
 
     // Checkpoint verification - must have completed quiz
     useEffect(() => {
@@ -131,7 +124,6 @@ export default function UploadPage() {
             // Start loading animation immediately (no validation step)
             setIsAnalyzing(true);
             setDisplayProgress(0);
-            setTargetProgress(5);
             setCurrentStep(0);
 
             // Store image
@@ -176,11 +168,9 @@ export default function UploadPage() {
 
                         switch (event.type) {
                             case 'step':
-                                // Update target progress and step from SSE
+                                // Update step label from SSE
                                 if (event.step && STEP_MAP[event.step]) {
-                                    const stepInfo = STEP_MAP[event.step];
-                                    setTargetProgress(stepInfo.targetProgress);
-                                    setCurrentStep(stepInfo.index);
+                                    setCurrentStep(STEP_MAP[event.step].index);
                                 }
                                 break;
 
@@ -189,9 +179,8 @@ export default function UploadPage() {
                                     // Save result
                                     localStorage.setItem('aurapalette_analysis', JSON.stringify(event.result));
 
-                                    // Mark complete and animate to 100%
+                                    // Mark complete and jump to 100%
                                     setIsComplete(true);
-                                    setTargetProgress(100);
                                     setDisplayProgress(100);
                                     setCurrentStep(ANALYSIS_STEPS.length - 1);
 

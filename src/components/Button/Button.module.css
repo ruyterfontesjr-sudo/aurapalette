@@ -89,17 +89,20 @@
 
 /* Loading State */
 .loading {
-    color: transparent;
+    /* Text remains visible */
+    cursor: not-allowed;
 }
 
 .spinner {
-    position: absolute;
+    position: relative;
+    display: inline-block;
     width: 20px;
     height: 20px;
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-color: white;
     border-radius: 50%;
     animation: rotate 0.8s linear infinite;
+    flex-shrink: 0;
 }
 
 @keyframes rotate {

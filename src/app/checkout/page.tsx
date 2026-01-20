@@ -512,6 +512,7 @@ export default function CheckoutPage() {
                                     type="submit"
                                     className={styles.submitButton}
                                     disabled={loading}
+                                    loading={loading}
                                 >
                                     {loading ? 'Processando...' : `Pagar R$ 47,00 com ${paymentMethod === 'pix' ? 'PIX' : 'Cartão'}`}
                                 </Button>

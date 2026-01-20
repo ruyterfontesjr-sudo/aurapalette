@@ -56,7 +56,7 @@ export default function Home() {
 
     // Continue with existing progress
     const handleContinue = useCallback(() => {
-        setShowProgressModal(false);
+        // Navigate without closing modal to avoid flash
         if (progressStage === 'quiz') {
             router.push('/quiz');
         } else if (progressStage === 'upload') {
@@ -74,7 +74,7 @@ export default function Home() {
         localStorage.removeItem('aurapalette_photo');
         localStorage.removeItem('aurapalette_analysis');
         localStorage.removeItem('aurapalette_payment');
-        setShowProgressModal(false);
+        // Navigate without closing modal to avoid flash
         router.push('/signup');
     }, [router]);
 

@@ -188,8 +188,18 @@ export default function UploadPage() {
             console.error('Analysis error:', error);
             setIsAnalyzing(false);
 
-            // Mensagem fixa para qualquer erro
-            setErrorMessage('Sua imagem não atende aos requisitos mínimos de qualidade. Por favor, tire outra foto e tente novamente.');
+            // Mostrar erro real para debug
+            const errorMsg = error instanceof Error ? error.message : 'Erro desconhecido';
+            console.error('Erro detalhado:', errorMsg);
+
+            // Mensagem mais informativa
+            if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
+                setErrorMessage('Erro de conexão. Verifique sua internet e tente novamente.');
+            } else if (errorMsg.includes('timeout') || errorMsg.includes('demorou')) {
+                setErrorMessage('A análise demorou muito. Tente novamente com uma foto mais leve.');
+            } else {
+                setErrorMessage(`Erro na análise: ${errorMsg}. Tente novamente.`);
+            }
             setErrorModalOpen(true);
             setImage(null);
         }

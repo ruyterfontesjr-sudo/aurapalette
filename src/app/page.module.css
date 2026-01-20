@@ -623,6 +623,12 @@
     z-index: 1;
 }
 
+@media (max-width: 768px) {
+    .faqSection {
+        padding-top: 40px;
+    }
+}
+
 .faqContainer {
     max-width: 700px;
     margin: 0 auto;
@@ -1201,6 +1207,7 @@
     color: rgba(255, 255, 255, 0.6);
     margin: 0;
 }
+
 /* Progress Modal */
 .progressModal {
     text-align: center;

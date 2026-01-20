@@ -284,6 +284,79 @@ const getDefaultFullAnalysis = (season: string): FullAnalysis => ({
     },
 });
 
+// Deep merge function to ensure all nested fields are populated
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const deepMerge = (target: any, source: any): any => {
+    if (!source || typeof source !== 'object') return target;
+    if (!target || typeof target !== 'object') return source;
+
+    const result = { ...target };
+
+    for (const key of Object.keys(target)) {
+        if (key in source) {
+            if (Array.isArray(target[key])) {
+                // For arrays, use source ONLY if it has significant content (min 4 items)
+                // This upgrades "lazy" existing reports to use rich defaults automatically
+                result[key] = (Array.isArray(source[key]) && source[key].length >= 4) ? source[key] : target[key];
+            } else if (typeof target[key] === 'object' && target[key] !== null) {
+                // Recursively merge nested objects
+                result[key] = deepMerge(target[key], source[key]);
+            } else {
+                // For primitive values (strings, numbers, etc.)
+                if (typeof source[key] === 'string' && typeof target[key] === 'string') {
+                    // For strings: prefer the RICHER (longer) content
+                    // Only use source if it's at least 80% as long as default, or longer
+                    // This ensures short/lazy API responses don't overwrite rich defaults
+                    const sourceLen = source[key].length;
+                    const targetLen = target[key].length;
+                    result[key] = (sourceLen >= targetLen * 0.8) ? source[key] : target[key];
+                } else {
+                    // For non-string primitives, use source if it exists and has content
+                    result[key] = (source[key] !== undefined && source[key] !== null && source[key] !== '')
+                        ? source[key]
+                        : target[key];
+                }
+            }
+        }
+    }
+
+    return result;
+};
+
+// Ensure fullAnalysis has all required fields populated
+const ensureCompleteFullAnalysis = (parsed: AnalysisResult): FullAnalysis => {
+    const defaults = getDefaultFullAnalysis(parsed.season);
+
+    if (!parsed.fullAnalysis) {
+        return defaults;
+    }
+
+    // Check if API returned a substantially complete analysis
+    // If so, use it directly to preserve rich personalized content
+    const apiData = parsed.fullAnalysis;
+
+    // Stricter completeness check: ensure arrays have enough items
+    // This prevents using "lazy" API responses that return just 1-2 items
+    const hasCompleteMakeup = apiData.makeup?.base?.undertone &&
+        apiData.makeup?.blush?.colors?.length >= 4 &&
+        apiData.makeup?.lipstick?.dayColors?.length >= 3;
+
+    const hasCompleteHair = apiData.hair?.coloring?.baseColors?.length >= 4 &&
+        apiData.hair?.cuts?.recommended?.length >= 3;
+
+    const hasCompleteAccessories = apiData.accessories?.metals?.best?.length >= 4;
+
+    const hasCompleteFashion = apiData.fashion?.essentials?.length >= 5;
+
+    // If API returned mostly complete data with good volume, use it directly (preserves personalization)
+    if (hasCompleteMakeup && hasCompleteHair && hasCompleteAccessories && hasCompleteFashion) {
+        return apiData;
+    }
+
+    // Otherwise, merge with defaults (API data takes priority where available)
+    return deepMerge(defaults, apiData);
+};
+
 // ============================================
 // COMPONENTE PRINCIPAL
 // ============================================
@@ -363,11 +436,17 @@ function ResultContent() {
         if (storedAnalysis) {
             const parsed = JSON.parse(storedAnalysis);
 
-            if (!parsed.fullAnalysis || !parsed.fullAnalysis.makeup?.base) {
-                parsed.fullAnalysis = getDefaultFullAnalysis(parsed.season);
-            }
+            // Deep merge with defaults to ensure all fields are populated
+            parsed.fullAnalysis = ensureCompleteFullAnalysis(parsed);
 
             setAnalysis(parsed);
+
+            // Update checkpoint to result stage
+            localStorage.setItem('aurapalette_checkpoint', JSON.stringify({
+                currentStage: 'result',
+                completedStages: ['signup', 'quiz', 'upload', 'preview', 'checkout', 'result'],
+                lastUpdated: new Date().toISOString(),
+            }));
 
             // Use personalized trends from API if available, otherwise fallback to static
             if (parsed.seasonTrends) {

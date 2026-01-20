@@ -28,18 +28,33 @@ export default function Home() {
     const handleDiscoverClick = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
 
+        // Priority 1: Check for completed analysis (Result)
+        const hasAnalysis = localStorage.getItem('aurapalette_analysis');
+        if (hasAnalysis) {
+            try {
+                const analysis = JSON.parse(hasAnalysis);
+                if (analysis && (analysis.season || analysis.fullAnalysis)) {
+                    router.push('/result');
+                    return;
+                }
+            } catch {
+                // Invalid analysis, continue
+            }
+        }
+
+        // Priority 2: Check checkpoint for other stages
         const checkpoint = localStorage.getItem('aurapalette_checkpoint');
         if (checkpoint) {
             try {
                 const { currentStage } = JSON.parse(checkpoint);
 
-                // If has final result, go directly to result
+                // If checkpoint says result (double check), go to result
                 if (currentStage === 'result') {
                     router.push('/result');
                     return;
                 }
 
-                // If has progress, show modal
+                // If has in-progress flow, show modal
                 if (currentStage === 'quiz' || currentStage === 'upload' || currentStage === 'preview' || currentStage === 'checkout') {
                     setProgressStage(currentStage);
                     setShowProgressModal(true);
@@ -50,7 +65,7 @@ export default function Home() {
             }
         }
 
-        // No progress, go to signup
+        // Default: No progress, go to signup
         router.push('/signup');
     }, [router]);
 
@@ -191,7 +206,12 @@ export default function Home() {
                         Sua paleta ideal em 2 minutos.
                     </p>
 
-                    <div onClick={handleDiscoverClick} className={styles.ctaLink} style={{ cursor: 'pointer' }}>
+                    <div
+                        onClick={handleDiscoverClick}
+                        onMouseEnter={() => router.prefetch('/signup')}
+                        className={styles.ctaLink}
+                        style={{ cursor: 'pointer' }}
+                    >
                         <Button variant="primary" size="large" className={styles.ctaBtn}>
                             Descobrir minhas cores →
                         </Button>
@@ -764,7 +784,11 @@ export default function Home() {
             <section className={styles.finalCta}>
                 <h2>Pronta para se descobrir?</h2>
                 <p>Junte-se a mais de 50.000 brasileiras</p>
-                <div onClick={handleDiscoverClick} style={{ cursor: 'pointer' }}>
+                <div
+                    onClick={handleDiscoverClick}
+                    onMouseEnter={() => router.prefetch('/signup')}
+                    style={{ cursor: 'pointer' }}
+                >
                     <Button variant="accent" size="large">
                         Começar agora →
                     </Button>

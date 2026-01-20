@@ -104,6 +104,58 @@ export default function Home() {
         }
     };
 
+    // Handle login button click - same logic as discover button
+    const handleLoginClick = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+
+        // Priority 1: Check for completed analysis (Result)
+        const hasAnalysis = localStorage.getItem('aurapalette_analysis');
+        if (hasAnalysis) {
+            try {
+                const analysis = JSON.parse(hasAnalysis);
+                if (analysis && (analysis.season || analysis.fullAnalysis)) {
+                    router.push('/result');
+                    return;
+                }
+            } catch {
+                // Invalid analysis, continue
+            }
+        }
+
+        // Priority 2: Check checkpoint for other stages
+        const checkpoint = localStorage.getItem('aurapalette_checkpoint');
+        if (checkpoint) {
+            try {
+                const { currentStage } = JSON.parse(checkpoint);
+
+                // If checkpoint says result (double check), go to result
+                if (currentStage === 'result') {
+                    router.push('/result');
+                    return;
+                }
+
+                // If has in-progress flow, go directly to that stage
+                if (currentStage === 'quiz') {
+                    router.push('/quiz');
+                    return;
+                }
+                if (currentStage === 'upload') {
+                    router.push('/upload');
+                    return;
+                }
+                if (currentStage === 'preview' || currentStage === 'checkout') {
+                    router.push('/preview');
+                    return;
+                }
+            } catch {
+                // Invalid checkpoint, continue to login
+            }
+        }
+
+        // Default: No progress, go to login page
+        router.push('/login');
+    }, [router]);
+
     return (
         <main className={styles.page}>
             <div className={styles.bgGradient} />
@@ -121,9 +173,9 @@ export default function Home() {
                 </Link>
 
                 {/* Desktop: Botão Entrar */}
-                <Link href="/login" className={styles.loginBtn}>
+                <button onClick={handleLoginClick} className={styles.loginBtn}>
                     Entrar
-                </Link>
+                </button>
 
                 {/* Mobile: Menu Hamburguer */}
                 <button
@@ -167,7 +219,7 @@ export default function Home() {
                                 </span>
                             </Link>
 
-                            <Link href="/login" className={styles.mobileMenuItem} onClick={() => setMenuOpen(false)}>
+                            <div className={styles.mobileMenuItem} onClick={(e) => { setMenuOpen(false); handleLoginClick(e); }}>
                                 <span className={styles.mobileMenuIcon}>
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                                         <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
@@ -179,7 +231,7 @@ export default function Home() {
                                     <strong>Entrar</strong>
                                     <small>Já tenho uma conta</small>
                                 </span>
-                            </Link>
+                            </div>
                         </nav>
 
                         <div className={styles.mobileMenuFooter}>

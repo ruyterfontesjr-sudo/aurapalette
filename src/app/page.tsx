@@ -254,9 +254,9 @@ export default function Home() {
 
                             {/* Season Card */}
                             <div className={styles.reportSeasonCard}>
-                                <span className={styles.reportSeasonName}>Inverno Brilhante</span>
+                                <span className={styles.reportSeasonName}>Outono Quente</span>
                                 <p className={styles.reportSeasonDesc}>
-                                    Cores intensas, frias e contrastantes realçam seu brilho natural.
+                                    Cores terrosas, douradas e quentes realçam seu brilho natural.
                                 </p>
                             </div>
 
@@ -264,15 +264,15 @@ export default function Home() {
                             <div className={styles.reportStatsRow}>
                                 <div className={styles.reportStat}>
                                     <span className={styles.statLabel}>Temp.</span>
-                                    <span className={styles.statValue}>Fria</span>
+                                    <span className={styles.statValue}>Quente</span>
                                 </div>
                                 <div className={styles.reportStat}>
                                     <span className={styles.statLabel}>Subtom</span>
-                                    <span className={styles.statValue}>Azulado</span>
+                                    <span className={styles.statValue}>Dourado</span>
                                 </div>
                                 <div className={styles.reportStat}>
                                     <span className={styles.statLabel}>Contraste</span>
-                                    <span className={styles.statValue}>Alto</span>
+                                    <span className={styles.statValue}>Médio</span>
                                 </div>
                             </div>
 
@@ -281,40 +281,40 @@ export default function Home() {
                                 <span className={styles.reportSectionTitle}>🎨 Suas Melhores Cores</span>
                                 <div className={styles.reportColors}>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#EC407A' }}></div>
-                                        <span>Rosa Choque</span>
+                                        <div className={styles.reportColor} style={{ background: '#C45A3B' }}></div>
+                                        <span>Terracota</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#2979FF' }}></div>
-                                        <span>Azul Royal</span>
+                                        <div className={styles.reportColor} style={{ background: '#D4A574' }}></div>
+                                        <span>Caramelo</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#00E676' }}></div>
-                                        <span>Verde Neon</span>
+                                        <div className={styles.reportColor} style={{ background: '#5C7A4A' }}></div>
+                                        <span>Verde Oliva</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#121212' }}></div>
-                                        <span>Preto</span>
+                                        <div className={styles.reportColor} style={{ background: '#8B4513' }}></div>
+                                        <span>Marrom</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#FFFFFF', border: '1px solid #333' }}></div>
-                                        <span>Branco Puro</span>
+                                        <div className={styles.reportColor} style={{ background: '#F5E6D3' }}></div>
+                                        <span>Off-White</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#FFEA00' }}></div>
-                                        <span>Amarelo Icy</span>
+                                        <div className={styles.reportColor} style={{ background: '#D4AF37' }}></div>
+                                        <span>Dourado</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#D50000' }}></div>
-                                        <span>Vermelho</span>
+                                        <div className={styles.reportColor} style={{ background: '#8B2942' }}></div>
+                                        <span>Burgundy</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#651FFF' }}></div>
-                                        <span>Violeta</span>
+                                        <div className={styles.reportColor} style={{ background: '#CC7A3E' }}></div>
+                                        <span>Laranja Queimado</span>
                                     </div>
                                     <div className={styles.reportColorItem}>
-                                        <div className={styles.reportColor} style={{ background: '#00B0FF' }}></div>
-                                        <span>Turquesa</span>
+                                        <div className={styles.reportColor} style={{ background: '#1E4D4D' }}></div>
+                                        <span>Verde Petróleo</span>
                                     </div>
                                 </div>
                             </div>
@@ -323,11 +323,11 @@ export default function Home() {
                             <div className={styles.reportSection}>
                                 <span className={styles.reportSectionTitle}>🚫 Cores a Evitar</span>
                                 <div className={styles.reportAvoidColors}>
-                                    <span className={styles.avoidColor}>Preto puro</span>
-                                    <span className={styles.avoidColor}>Cinza frio</span>
                                     <span className={styles.avoidColor}>Rosa frio</span>
-                                    <span className={styles.avoidColor}>Azul royal</span>
-                                    <span className={styles.avoidColor}>Branco neve</span>
+                                    <span className={styles.avoidColor}>Azul bebê</span>
+                                    <span className={styles.avoidColor}>Cinza prateado</span>
+                                    <span className={styles.avoidColor}>Branco puro</span>
+                                    <span className={styles.avoidColor}>Preto intenso</span>
                                 </div>
                             </div>
 

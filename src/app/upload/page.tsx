@@ -49,13 +49,13 @@ export default function UploadPage() {
 
         const interval = setInterval(() => {
             setDisplayProgress(prev => {
-                // Increment 1% at a time, max 95% while waiting
-                if (prev < 95) {
+                // Increment 1% at a time, max 99% while waiting
+                if (prev < 99) {
                     return prev + 1;
                 }
                 return prev;
             });
-        }, 400); // ~400ms per 1% = ~38 seconds to reach 95%
+        }, 400); // ~400ms per 1% = ~40 seconds to reach 99%
 
         return () => clearInterval(interval);
     }, [isAnalyzing, isComplete]);

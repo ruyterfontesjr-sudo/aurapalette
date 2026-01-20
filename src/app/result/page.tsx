@@ -448,12 +448,14 @@ function ResultContent() {
                 lastUpdated: new Date().toISOString(),
             }));
 
-            // Use personalized trends from API if available, otherwise fallback to static
-            if (parsed.seasonTrends) {
+            // ALWAYS use the rich static trends from trends2026.ts
+            // API seasonTrends tend to be sparse (1 item each), static are rich (3+ items each)
+            const staticTrends = getTrendsForSeason(parsed.season);
+            if (staticTrends) {
+                setSeasonTrends(staticTrends);
+            } else if (parsed.seasonTrends) {
+                // Fallback to API trends only if static not available for this season
                 setSeasonTrends(parsed.seasonTrends);
-            } else {
-                const trends = getTrendsForSeason(parsed.season);
-                setSeasonTrends(trends);
             }
         }
 

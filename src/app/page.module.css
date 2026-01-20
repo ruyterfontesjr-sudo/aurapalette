@@ -1211,7 +1211,7 @@
     color: rgba(255, 255, 255, 0.9);
     font-size: 1rem;
     line-height: 1.5;
-    margin-bottom: 8px;
+    margin-bottom: 24px;
 }
 
 .progressModalText strong {
@@ -1227,7 +1227,7 @@
 .progressModalButtons {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .progressModalSecondary {
